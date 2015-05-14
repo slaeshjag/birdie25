@@ -7,6 +7,7 @@ typedef enum PacketType PacketType;
 enum PacketType {
 	PACKET_TYPE_LOBBY,
 	PACKET_TYPE_SETUP,
+	PACKET_TYPE_SETUP_OBJECT,
 	PACKET_TYPE_OBJECT,
 };
 
@@ -24,6 +25,14 @@ struct PacketSetup {
 	uint32_t objects;
 };
 
+typedef struct PacketSetupObject PacketSetupObject;
+struct PacketSetupObject {
+	uint32_t type;
+	
+	uint32_t id;
+	uint32_t sprite;
+};
+
 typedef struct PacketObject PacketObject;
 struct PacketObject {
 	uint32_t type;
@@ -34,6 +43,13 @@ struct PacketObject {
 	double angle;
 };
 
-
+typedef union Packet Packet;
+union Packet {
+	uint32_t type;
+	PacketLobby lobby;
+	PacketSetup setup;
+	PacketSetupObject setup_object;
+	PacketObject object;
+};
 
 #endif
