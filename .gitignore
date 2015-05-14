@@ -1,7 +1,6 @@
 bin/
-sockettest/udpbroadcast
-sockettest/udplisten
 *.o
+*.a
 *.swp
 *.swo
 *.ldi
