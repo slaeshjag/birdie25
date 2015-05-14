@@ -16,19 +16,30 @@ enum GameState {
 
 int main(int argc, char **argv) {
 	int i;
-	Packet pl = {.lobby = { PACKET_TYPE_LOBBY, 1 }};
+	Packet pl, pl2;
 	Packet ps;
 
 	d_init_custom("Jymdsjepp", 1280, 720, 0, "birdie25", NULL);
 
 	network_init(PORT);
+	
+	pl.lobby.type = PACKET_TYPE_LOBBY;
+	pl.lobby.begin = 1;
 	network_broadcast(&pl, sizeof(Packet));
 	
-	pl.lobby.begin = 0;
 	do {
+		pl.lobby.begin = 0;
 		sip = network_recv(&pl, sizeof(Packet));
-	} while(pl.lobby.type != PACKET_TYPE_LOBBY && pl.lobby.begin != 2);
-
+		printf("%i %i\n", pl.type, pl.lobby.begin);
+		if(pl.lobby.type == PACKET_TYPE_LOBBY && pl.lobby.begin == 3) {
+			printf("arneeee\n");
+			pl2.lobby.type = PACKET_TYPE_LOBBY;
+			pl2.lobby.begin = 1;
+			network_broadcast(&pl2, sizeof(Packet));
+		}
+	} while(pl.lobby.type != PACKET_TYPE_LOBBY || pl.lobby.begin != 2);
+	
+	printf("arne\n");
 	ps.type = PACKET_TYPE_LOBBY;
 	do {
 		network_recv(&ps, sizeof(ps));

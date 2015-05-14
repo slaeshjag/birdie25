@@ -90,9 +90,12 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 	
+	p.type = PACKET_TYPE_LOBBY;
+	p.lobby.begin = 3;
+	network_broadcast(&p, sizeof(Packet));
 	do {
 		peer = network_recv(&p, sizeof(Packet));
-	} while(p.lobby.type != PACKET_TYPE_LOBBY && p.lobby.begin != 1);
+	} while(p.lobby.type != PACKET_TYPE_LOBBY || p.lobby.begin != 1);
 	printf("begin\n");
 	p.lobby.begin = 2;
 	network_send(peer, &p, sizeof(Packet));
