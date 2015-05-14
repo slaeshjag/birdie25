@@ -10,6 +10,7 @@ typedef struct Player Player;
 struct Player {
 	int id;
 	unsigned long addr;
+	char *pname;
 	
 	Body *body;
 	
@@ -17,6 +18,6 @@ struct Player {
 };
 
 void player_thread(Packet pack, unsigned long addr);
-Player *player_add(unsigned long addr, double x, double y);
+Player *player_add(unsigned long addr, double x, double y, const char *pname);
 
 #endif

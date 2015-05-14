@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <network.h>
 #include <protocol.h>
 #include "player.h"
@@ -13,7 +14,7 @@ Player *player;
 int players;
 extern Body body[];
 
-Player *player_add(unsigned long addr, double x, double y) {
+Player *player_add(unsigned long addr, double x, double y, const char *pname) {
 	Player *p;
 	p = malloc(sizeof(Player));
 	p->addr = addr;
@@ -24,6 +25,7 @@ Player *player_add(unsigned long addr, double x, double y) {
 	p->body->sprite = 64 + players;
 	p->body->mass = 1.0;
 	p->body->movable = true;
+	p->pname = strdup(pname);
 	
 	p->next = player;
 	players++;
@@ -33,7 +35,6 @@ Player *player_add(unsigned long addr, double x, double y) {
 
 
 void player_broadcast_package(Packet pack) {
-	int i;
 	Player *p;
 
 	for (p = player; p; p = p->next)
@@ -72,9 +73,18 @@ void player_thread(Packet pack, unsigned long addr) {
 
 				fprintf(stderr, "A player joined\n");
 				// TODO: Put this somewhere near the home planet
-				p = player_add(addr, 1.0, 2.0 + (rand() & 0xF) / 16.);
+				p = player_add(addr, 1.0, 2.0 + (rand() & 0xF) / 16., pack.lobby.name);
 				pack.lobby.begin = p->id + 6;
 				player_broadcast_package(pack);
+				Player *next;
+				for (next = player; next; next = next->next) {
+					if (next->id == p->id)
+						continue;
+					pack.type = PACKET_TYPE_LOBBY;
+					pack.lobby.begin = p->id + 6;
+					strcpy(pack.lobby.name, p->pname);
+					network_send(p->addr, &pack, sizeof(pack));
+				}
 
 				break;
 		}

@@ -170,7 +170,7 @@ void server_packet_dispatch(Packet p, unsigned long addr) {
 		p.lobby.begin = 2;
 		network_send(addr, &p, sizeof(Packet));
 		
-		player_add(addr, 1.0, 2.0);
+		player_add(addr, 1.0, 2.0, p.lobby.name);
 		init = true;
 	} else {
 		player_thread(p, addr);
