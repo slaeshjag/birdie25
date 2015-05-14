@@ -107,10 +107,6 @@ static void _setup(Body *body, size_t bodies) {
 	}
 }
 
-void lobby() {
-	
-}
-
 
 void *server_main(void *argleblargle) {
 	Packet p = {};
@@ -144,27 +140,25 @@ void server_start_game() {
 
 
 void server_start() {
+	Packet p;
+
 	body[1].velocity.y = sqrt(G*(body[0].mass + body[1].mass)/DIST(body[0], body[1]));
 	body[2].velocity.y = sqrt(G*(body[0].mass + body[2].mass)/DIST(body[0], body[2]));
 	body[3].velocity.y = sqrt(G*(body[2].mass + body[3].mass)/DIST(body[2], body[3]));
 	
 	pthread_t serber;
 	pthread_create(&serber, NULL, server_main, NULL);
+
+	p.type = PACKET_TYPE_LOBBY;
+	p.lobby.begin = 3;
+	network_broadcast(&p, sizeof(Packet));
 }
 
 
 void server_packet_dispatch(Packet p, unsigned long addr) {
 	static bool init = false;
-	static bool preamble = false;
 
 	if (!init) {
-		if (!preamble) {
-			p.type = PACKET_TYPE_LOBBY;
-			p.lobby.begin = 3;
-			network_broadcast(&p, sizeof(Packet));
-			preamble = true;
-		}
-
 		if (p.lobby.type != PACKET_TYPE_LOBBY || p.lobby.begin != 1)
 			return;
 
@@ -172,7 +166,7 @@ void server_packet_dispatch(Packet p, unsigned long addr) {
 		p.lobby.begin = 2;
 		network_send(addr, &p, sizeof(Packet));
 		
-		player_add(addr, 1.0, 2.0);
+		player_add(addr, 1.0, 2.0, p.lobby.name);
 		init = true;
 	} else {
 		player_thread(p, addr);
