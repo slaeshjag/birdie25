@@ -129,10 +129,14 @@ void *server_main(void *argleblargle) {
 			nbody_move_bodies(body, BODIES + players, 1);
 			_send(body, BODIES);
 		} else if (!(i & 0x1F)) {
-			p.type = PACKET_TYPE_LOBBY;
-			p.lobby.begin = 3;
-			strcpy(p.lobby.name, player->pname);
-			network_broadcast(&p, sizeof(Packet));
+				p.type = PACKET_TYPE_LOBBY;
+				p.lobby.begin = 3;
+			if (player) {
+				strcpy(p.lobby.name, player->pname);
+			} else {
+				strcpy(p.lobby.name, "Arne");
+			}
+				network_broadcast(&p, sizeof(Packet));
 		}
 		usleep(16666); //60 fps
 	}
