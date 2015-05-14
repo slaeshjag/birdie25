@@ -138,7 +138,6 @@ int main(int argc, char **argv) {
 	_setup(body, BODIES);
 	
 	pthread_create(&pth, NULL, player_thread, NULL);
-	
 	for(;;) {
 		nbody_calc_forces(body, BODIES + players);
 		nbody_move_bodies(body, BODIES + players, 1);

@@ -1,3 +1,5 @@
+#include <stdint.h>
+#include <stdbool.h>
 #include <math.h>
 #include <stdlib.h>
 #include <network.h>
@@ -19,6 +21,8 @@ Player *player_add(unsigned long addr, double x, double y) {
 	p->body->position.x = x;
 	p->body->position.y = y;
 	p->body->sprite = 64 + players;
+	p->body->mass = 1.0;
+	p->body->movable = true;
 	
 	p->next = player;
 	players++;
