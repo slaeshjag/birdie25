@@ -2,6 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
+
+#include <network.h>
+#include <protocol.h>
+
 #include "main.h"
 #include "nbody.h"
 
@@ -14,23 +19,42 @@ Body body[BODIES] = {
 		.movable = false,
 	}, {
 		.position = {1.0, 0.0},
-		.velocity = {0.0, 0.001},
+		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
 		.mass = 10000.0,
 		.movable = true,
 	}
 };
 
+void _send(Body *body, size_t bodies) {
+	int i;
+	for(i = 0; i < bodies; i++) {
+		printf("Body %i: {%f, %f} angle %f\n", i, body[i].position.x, body[i].position.y, body[i].angle);
+	}
+}
+
 int main(int argc, char **argv) {
-	//double dt = 0;
+	PacketLobby pack = {};
+	unsigned long peer;
 	
-	network_init();
+	body[1].velocity.y = sqrt(G*(body[1].mass + body[2].mass)/DIST(body[0], body[1]));
+	
+	if(network_init(PORT)) {
+		fprintf(stderr, "network problem\n");
+		return 1;
+	}
+	
+	do {
+		peer = network_recv(&pack, sizeof pack);
+		if(pack.type == PACKET_TYPE_LOBBY)
+			continue;
+	} while(!pack.begin);
+	network_send(peer, &pack, sizeof pack);
 	
 	for(;;) {
-		network_recv();
 		nbody_calc_forces(body, BODIES);
 		nbody_move_bodies(body, BODIES, 1);
-		network_send(body, BODIES);
+		_send(body, BODIES);
 		usleep(16666); //60 fps
 	}
 	return 0;

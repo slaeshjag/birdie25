@@ -3,7 +3,7 @@ TOPDIR	=	.
 include config.mk
 
 # Sub directories to build
-SUBDIRS		=	server client
+SUBDIRS		=	common server client
 
 #LIBS		=	$(addsuffix /out.a,$(SUBDIRS))
 
@@ -12,10 +12,10 @@ SUBDIRS		=	server client
 
 all: $(SUBDIRS)
 	@echo " [ LD ] bin/$(SERVER)"
-	@$(CC) -o bin/$(SERVER) $(CFLAGS) server/out.a $(LDFLAGS)
+	@$(CC) -o bin/$(SERVER) $(CFLAGS) server/out.a common/out.a $(LDFLAGS)
 	
 	@echo " [ LD ] bin/$(CLIENT)"
-	@$(CC) -o bin/$(CLIENT) $(CFLAGS) client/out.a $(LDFLAGS)
+	@$(CC) -o bin/$(CLIENT) $(CFLAGS) client/out.a common/out.a $(LDFLAGS)
 	
 	@echo "Build complete."
 	@echo 

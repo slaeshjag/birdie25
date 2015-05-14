@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #define SUP2(x) ((x)*(x))
+#define DIST(b1, b2) sqrt(SUP2((b1).position.x - (b2).position.x) + SUP2((b1).position.y - (b2).position.y))
 
 #define G (6.67e-11)
 #define MERGE_RADIUS 0.001

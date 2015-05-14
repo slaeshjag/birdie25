@@ -8,7 +8,7 @@ SERVER		=	birdie25-server
 
 #General flags
 LDFLAGS		+=	-ldarnit -lm
-CFLAGS		+=	-Wall -std=c99 -g -O0 -D_XOPEN_SOURCE=600 -fopenmp
+CFLAGS		+=	-Wall -std=c99 -g -O0 -D_XOPEN_SOURCE=600 -I$(TOPDIR)/common
 ASFLAGS		+=
 
 #Extra install targets
