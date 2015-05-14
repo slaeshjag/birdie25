@@ -138,6 +138,7 @@ void *server_main(void *argleblargle) {
 
 
 void server_start_game() {
+	_setup(body, BODIES);
 	game_has_started = true;
 }
 
@@ -172,7 +173,6 @@ void server_packet_dispatch(Packet p, unsigned long addr) {
 		network_send(addr, &p, sizeof(Packet));
 		
 		player_add(addr, 1.0, 2.0);
-		_setup(body, BODIES);
 		init = true;
 	} else {
 		player_thread(p, addr);
