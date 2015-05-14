@@ -150,21 +150,17 @@ void server_start() {
 	
 	pthread_t serber;
 	pthread_create(&serber, NULL, server_main, NULL);
+
+	p.type = PACKET_TYPE_LOBBY;
+	p.lobby.begin = 3;
+	network_broadcast(&p, sizeof(Packet));
 }
 
 
 void server_packet_dispatch(Packet p, unsigned long addr) {
 	static bool init = false;
-	static bool preamble = false;
 
 	if (!init) {
-		if (!preamble) {
-			p.type = PACKET_TYPE_LOBBY;
-			p.lobby.begin = 3;
-			network_broadcast(&p, sizeof(Packet));
-			preamble = true;
-		}
-
 		if (p.lobby.type != PACKET_TYPE_LOBBY || p.lobby.begin != 1)
 			return;
 
