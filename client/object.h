@@ -13,4 +13,10 @@ struct ClientObject {
 };
 
 
+void object_init(int objects);
+void object_init_object(int id, int sprite_id);
+void object_update(int id, double x, double y, double angle);
+void object_draw();
+
+
 #endif

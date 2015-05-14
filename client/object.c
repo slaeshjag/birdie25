@@ -18,7 +18,7 @@ void object_init(int objects) {
 void object_init_object(int id, int sprite_id) {
 	char path[512];
 
-	sprintf(path, "res/%i.spr", id);
+	sprintf(path, "res/%i.spr", sprite_id);
 	obj[id].sprite = d_sprite_load(path, 0, DARNIT_PFORMAT_RGBA8);
 	return;
 }
