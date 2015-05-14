@@ -3,9 +3,12 @@
 #include <protocol.h>
 #include <network.h>
 #include <pthread.h>
+#include <stdbool.h>
 #include <signal.h>
 
 unsigned long sip;
+void *server_main(void *);
+bool we_are_hosting_a_game;
 
 enum GameState {
 	GAME_STATE_SELECT_NAME,
@@ -19,12 +22,19 @@ int main(int argc, char **argv) {
 	int i;
 	Packet pl, pl2;
 	Packet ps;
+	
 
 	d_init_custom("Jymdsjepp", 1280, 720, 0, "birdie25", NULL);
+	we_are_hosting_a_game = true;
 
 	signal(SIGINT, d_quit); //lol
 	network_init(PORT);
-	
+
+	if (we_are_hosting_a_game) {
+		server_start();
+	}
+
+
 	pl.lobby.type = PACKET_TYPE_LOBBY;
 	pl.lobby.begin = 1;
 	network_broadcast(&pl, sizeof(Packet));

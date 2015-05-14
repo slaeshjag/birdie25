@@ -30,17 +30,14 @@ Player *player_add(unsigned long addr, double x, double y) {
 	return p;
 }
 
-void *player_thread(void *arg) {
-	Packet pack;
+void player_thread(Packet pack, unsigned long addr) {
 	Player *p;
-	unsigned long ip;
 	
-	for(;;) {
-		ip = network_recv(&pack, sizeof(Packet));
+//	for(;;) {
 		switch(pack.type) {
 			case PACKET_TYPE_CLIENT:
 				for(p = player; p; p = p->next)
-					if(p->addr == ip)
+					if(p->addr == addr)
 						break;
 				if(!p)
 					break;
@@ -55,7 +52,7 @@ void *player_thread(void *arg) {
 				}
 				break;
 		}
-	}
+//	}
 	
-	return NULL;
+//	return NULL;
 }

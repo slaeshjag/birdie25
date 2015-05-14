@@ -10,5 +10,6 @@ void network_close();
 int network_broadcast(void *buf, size_t bufsize);
 int network_send(unsigned long to, void *buf, size_t bufsize);
 unsigned long network_recv(void *buf, size_t bufsize);
+unsigned long network_recv_server(void *buf, size_t bufsize);
 
 #endif
