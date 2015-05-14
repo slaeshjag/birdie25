@@ -1,8 +1,10 @@
 #include "object.h"
 #include <string.h>
 #include <math.h>
+#include <network.h>
+#include <protocol.h>
 
-
+extern unsigned long sip;
 static struct ClientObject *obj;
 static int objs;
 
@@ -38,12 +40,16 @@ void object_update(int id, double x, double y, double angle) {
 	obj[id].x = xi;
 	obj[id].y = yi;
 	obj[id].angle = ai;
-	fprintf(stderr, "Object %i at %i, %i @ %i\n", id, xi, yi, ai);
+//	fprintf(stderr, "Object %i at %i, %i @ %i\n", id, xi, yi, ai);
 }
 
 
-void object_get_coord(int x, int y, int w, int h) {
-	
+void object_get_coord(int id, int *x, int *y, int *w, int *h) {
+	*w = d_sprite_width(obj[id].sprite);
+	*h = d_sprite_height(obj[id].sprite);
+
+	*x = obj[id].x;
+	*y = obj[id].y;
 }
 
 
@@ -52,4 +58,15 @@ void object_draw() {
 
 	for (i = 0; i < objs; i++)
 		d_sprite_draw(obj[i].sprite);
+}
+
+
+void *object_thread(void *arne) {
+	PacketObject po;
+	for (;;) {
+		if (network_recv(&po, sizeof(po)) != sip)
+			continue;
+		if (po.type == PACKET_TYPE_OBJECT)
+			object_update(po.id, po.x, po.y, po.angle);
+	}
 }
