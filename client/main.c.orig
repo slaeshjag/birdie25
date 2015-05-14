@@ -32,7 +32,6 @@ void (*state_render[GAME_STATES])()={
 struct UI_PANE_LIST *gamestate_pane[GAME_STATES];
 
 void game_state(GameState state) {
-	Packet pack;
 	//Game state destructors
 	switch(gamestate) {
 		case GAME_STATE_GAME:
@@ -72,13 +71,7 @@ void game_state(GameState state) {
 			break;
 		case GAME_STATE_LOBBY:
 			case GAME_STATE_HOST:
-			we_are_hosting_a_game = true;
-			server_start();
-			pack.type = PACKET_TYPE_LOBBY;
-			pack.lobby.begin = 1;
-			memcpy(pack.lobby.name, player_name, NAME_LEN_MAX);
-			network_send(network_local_ip(), &pack, sizeof(Packet));
-			
+			//server_start();
 			state = GAME_STATE_GAMEROOM;
 		case GAME_STATE_GAMEROOM:
 		case GAME_STATE_QUIT:
@@ -95,6 +88,7 @@ int main(int argc, char **argv) {
 	int i;
 	Packet pl, pl2;
 	Packet ps;
+<<<<<<< HEAD
 	char font_path[4096];
 
 	d_init_custom("Jymdsjepp", DISPLAY_WIDTH, DISPLAY_HEIGHT, 0, "birdie25", NULL);
@@ -115,9 +109,21 @@ int main(int argc, char **argv) {
 	gamestate_pane[GAME_STATE_LOBBY] = &lobby.pane;
 	gamestate_pane[GAME_STATE_GAMEROOM] = &gameroom.pane;
 	
+=======
+	
+
+	d_init_custom("Jymdsjepp", 1280, 720, 0, "birdie25", NULL);
+	we_are_hosting_a_game = true;
+
+>>>>>>> b6c00d14bd4b83495862988c5eac90144cc20ae9
 	signal(SIGINT, d_quit); //lol
 	network_init(PORT);
-	
+
+	if (we_are_hosting_a_game) {
+		server_start();
+	}
+
+
 	pl.lobby.type = PACKET_TYPE_LOBBY;
 	pl.lobby.begin = 1;
 	network_broadcast(&pl, sizeof(Packet));

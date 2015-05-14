@@ -11,11 +11,11 @@ SUBDIRS		=	common server client
 .PHONY: $(SUBDIRS)
 
 all: $(SUBDIRS)
-	@echo " [ LD ] bin/$(SERVER)"
-	@$(CC) -o bin/$(SERVER) $(CFLAGS) server/out.a common/out.a $(LDFLAGS)
+	#@echo " [ LD ] bin/$(SERVER)"
+	#@$(CC) -o bin/$(SERVER) $(CFLAGS) server/out.a common/out.a $(LDFLAGS)
 	
 	@echo " [ LD ] bin/$(CLIENT)"
-	@$(CC) -o bin/$(CLIENT) $(CFLAGS) client/out.a common/out.a $(LDFLAGS)
+	@$(CC) -o bin/$(CLIENT) $(CFLAGS) client/out.a server/out.a common/out.a $(LDFLAGS)
 	
 	@cp res/DejaVuSansMono.ttf bin/font.ttf
 	

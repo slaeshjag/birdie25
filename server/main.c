@@ -15,6 +15,7 @@
 
 extern Player *player;
 extern int players;
+static bool game_has_started = false;
 
 Body body[BODIES + PLAYER_MAX] = {
 	{
@@ -110,39 +111,71 @@ void lobby() {
 	
 }
 
-int main(int argc, char **argv) {
+
+void *server_main(void *argleblargle) {
 	Packet p = {};
 	pthread_t pth;
-	unsigned long peer;
 	
+
+	/*if(network_init(PORT)) {
+		fprintf(stderr, "network problem\n");
+		pthread_exit(NULL);
+	}*/
+	
+	
+	//pthread_create(&pth, NULL, player_thread, NULL);
+	for(;;) {
+		if (game_has_started) {
+			nbody_calc_forces(body, BODIES + players);
+			nbody_move_bodies(body, BODIES + players, 1);
+			_send(body, BODIES);
+		}
+		usleep(16666); //60 fps
+	}
+
+	pthread_exit(NULL);
+}
+
+
+void server_start_game() {
+	_setup(body, BODIES);
+	game_has_started = true;
+}
+
+
+void server_start() {
 	body[1].velocity.y = sqrt(G*(body[0].mass + body[1].mass)/DIST(body[0], body[1]));
 	body[2].velocity.y = sqrt(G*(body[0].mass + body[2].mass)/DIST(body[0], body[2]));
 	body[3].velocity.y = sqrt(G*(body[2].mass + body[3].mass)/DIST(body[2], body[3]));
 	
-	if(network_init(PORT)) {
-		fprintf(stderr, "network problem\n");
-		return 1;
+	pthread_t serber;
+	pthread_create(&serber, NULL, server_main, NULL);
+}
+
+
+void server_packet_dispatch(Packet p, unsigned long addr) {
+	static bool init = false;
+	static bool preamble = false;
+
+	if (!init) {
+		if (!preamble) {
+			p.type = PACKET_TYPE_LOBBY;
+			p.lobby.begin = 3;
+			network_broadcast(&p, sizeof(Packet));
+			preamble = true;
+		}
+
+		if (p.lobby.type != PACKET_TYPE_LOBBY || p.lobby.begin != 1)
+			return;
+
+		printf("begin\n");
+		p.lobby.begin = 2;
+		network_send(addr, &p, sizeof(Packet));
+		
+		player_add(addr, 1.0, 2.0);
+		init = true;
+	} else {
+		player_thread(p, addr);
 	}
-	
-	p.type = PACKET_TYPE_LOBBY;
-	p.lobby.begin = 3;
-	network_broadcast(&p, sizeof(Packet));
-	do {
-		peer = network_recv(&p, sizeof(Packet));
-	} while(p.lobby.type != PACKET_TYPE_LOBBY || p.lobby.begin != 1);
-	printf("begin\n");
-	p.lobby.begin = 2;
-	network_send(peer, &p, sizeof(Packet));
-	
-	player_add(peer, 1.0, 2.0);
-	_setup(body, BODIES);
-	
-	pthread_create(&pth, NULL, player_thread, NULL);
-	for(;;) {
-		nbody_calc_forces(body, BODIES + players);
-		nbody_move_bodies(body, BODIES + players, 1);
-		_send(body, BODIES);
-		usleep(16666); //60 fps
-	}
-	return 0;
+
 }

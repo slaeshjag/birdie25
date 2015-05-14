@@ -1,6 +1,7 @@
 #include "object.h"
 #include <string.h>
 #include <stdbool.h>
+#include <unistd.h>
 #include <math.h>
 #include <network.h>
 #include <protocol.h>
@@ -14,7 +15,9 @@ static double object_scale;
 static double coordinate_scale;
 
 void object_get_coord(int id, int *x, int *y, int *w, int *h);
+extern bool we_are_hosting_a_game;
 
+void player_thread(Packet pack, unsigned long addr);
 
 void object_init(int objects) {
 	obj = malloc(sizeof(*obj) * objects);
@@ -119,8 +122,21 @@ void object_draw() {
 
 void *object_thread(void *arne) {
 	Packet pack;
+	unsigned long addr;
+	int datalen;
 	for (;;) {
-		if (network_recv(&pack, sizeof(Packet)) != sip)
+		addr = network_recv(&pack, sizeof(Packet));
+		
+		if (we_are_hosting_a_game) {
+			player_thread(pack, addr);
+			/*datalen = sizeof(Packet);
+
+			write(server_forward_pipe[1], &datalen, sizeof(datalen));
+			write(server_forward_pipe[1], &addr, sizeof(addr));
+			write(server_forward_pipe[1], &pack, sizeof(pack));*/
+		}
+
+		if (addr != sip)
 			continue;
 		
 		switch(pack.type) {

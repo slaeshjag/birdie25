@@ -21,7 +21,9 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <unistd.h>
 #include <netinet/in.h>
+#include <protocol.h>
 
 #define SOCKET int
 #define closesocket close
@@ -37,6 +39,15 @@ static struct Peer broadcast;
 
 static SOCKET sock = -1;
 static int port;
+
+extern int server_forward_pipe[2];
+extern bool we_are_hosting_a_game;
+
+unsigned long network_local_ip() {
+	struct in_addr addr;
+	inet_pton(AF_INET, "127.0.0.1", &addr);
+	return addr.s_addr;
+}
 
 int network_init(int _port) {
 	int broadcast_enabled = 1;
@@ -97,10 +108,14 @@ int network_send(unsigned long to, void *buf, size_t bufsize) {
 }
 
 unsigned long network_recv(void *buf, size_t bufsize) {
+	int datalen;
 	struct sockaddr_in addr;
 	socklen_t addrlen = sizeof(addr);
 	
 	recvfrom(sock, buf, bufsize, 0, (struct sockaddr *) &addr, &addrlen);
+	if (we_are_hosting_a_game)
+		server_packet_dispatch(*((Packet *) buf));
+
 	printf("recv\n");
 	return addr.sin_addr.s_addr;	
 }

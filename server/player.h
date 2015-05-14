@@ -16,7 +16,7 @@ struct Player {
 	Player *next;
 };
 
-void *player_thread(void *);
+void player_thread(Packet pack, unsigned long addr);
 Player *player_add(unsigned long addr, double x, double y);
 
 #endif
