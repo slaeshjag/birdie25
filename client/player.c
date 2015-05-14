@@ -3,6 +3,7 @@
 #include <protocol.h>
 #include <network.h>
 #include "player.h"
+#include "object.h"
 
 extern long int sip;
 
@@ -60,14 +61,24 @@ void handle_player() {
 
 	p.type = PACKET_TYPE_CLIENT;
 	p.client.angle = angle;
-	p.client.button.beam = 0;
-	p.client.button.forward = 0;
-	p.client.button.backward = 0;
-	p.client.button.shoot = 0;
+	p.client.button.beam = d_keys_get().l;
+	p.client.button.forward = d_keys_get().y;
+	p.client.button.backward = d_keys_get().x;
+	p.client.button.shoot = d_keys_get().r;
 
 	network_send(sip, &p, sizeof(Packet));
 /*
 	if (mx > 0)
 		angle = (M_PI * 2.) - angle;*/
 	fprintf(stderr, "Angle: %lf\n", angle);
+}
+
+
+int player_get() {
+	return camera.focus_object;
+}
+
+
+int player_draw_hud() {
+	d_render_offset(0,0);
 }

@@ -23,7 +23,7 @@ void object_init(int objects) {
 	planets = d_render_tilesheet_load("res/planets.png", 256, 256, DARNIT_PFORMAT_RGBA8);
 	d_render_tilesheet_scale_algorithm(planets, DARNIT_SCALE_LINEAR);
 	coordinate_scale = CLIENT_OBJECT_COORD_SCALE;
-	object_scale = 0.5;
+	object_scale = 0.3;
 	return;
 }
 
@@ -51,20 +51,26 @@ void object_update(int id, double x, double y, double angle) {
 	xi = x * CLIENT_OBJECT_COORD_SCALE;
 	yi = y * CLIENT_OBJECT_COORD_SCALE;
 	ai = (angle / M_PI * 1800);
-	
-	object_get_coord(id, &arne, &goesta, &gw, &gh);
 	xi -= gw / 2;
 	yi -= gh / 2;
+	
+	object_get_coord(id, &arne, &goesta, &gw, &gh);
 	if (obj[id].sprite) {
 		d_sprite_rotate(obj[id].pic.sprite, ai);
 		d_sprite_move(obj[id].pic.sprite, xi, yi);
 	} else {
+		#if 0
 		int cx, cy;
+		old_scale = object_scale;
+		object_scale = 1.0;
+		object_get_coord(if, &arne, &goesta, &ogw, &ogh);
+		object_scale = old_scale;
 
-		cx = xi + (gw * (object_scale - 1.));
-		cy = yi + (gh * (object_scale - 1.));
-		d_render_tile_move(obj[id].pic.tile, 0, cx, cy);
-		d_render_tile_size_set(obj[id].pic.tile, 0, ((double) object_scale * gw), ((double) object_scale * gh));
+		cx = (ogw - gw) / 2;
+		cy = (ogh - gh) / 2;
+		#endif
+		d_render_tile_move(obj[id].pic.tile, 0, xi, yi);
+		d_render_tile_size_set(obj[id].pic.tile, 0, gw, gh);
 	}
 
 	obj[id].x = xi;
@@ -99,6 +105,15 @@ void object_draw() {
 		else
 			d_render_tile_draw(obj[i].pic.tile, 1);
 	}
+
+	double min_distance = HUGE_VAL;
+	for (i = 0; i < objs; i++) {
+		if (obj[i].sprite)
+			continue;
+		if (obj[i].dx * obj[i].dx + obj[i].dy * obj[i].dy < min_distance)
+			min_distance = obj[i].dx * obj[i].dx + obj[i].dy * obj[i].dy;
+		// TODO: Implement object scaling
+	}
 }
 
 
@@ -114,6 +129,7 @@ void *object_thread(void *arne) {
 				break;
 			case PACKET_TYPE_SETUP_OBJECT:
 				object_init_object(pack.setup_object.id, pack.setup_object.sprite);
+				camera_init(pack.setup.id);
 				break;
 		}
 	}

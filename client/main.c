@@ -3,6 +3,7 @@
 #include <protocol.h>
 #include <network.h>
 #include <pthread.h>
+#include <signal.h>
 
 unsigned long sip;
 
@@ -21,6 +22,7 @@ int main(int argc, char **argv) {
 
 	d_init_custom("Jymdsjepp", 1280, 720, 0, "birdie25", NULL);
 
+	signal(SIGINT, d_quit); //lol
 	network_init(PORT);
 	
 	pl.lobby.type = PACKET_TYPE_LOBBY;
@@ -64,6 +66,7 @@ int main(int argc, char **argv) {
 		handle_camera();
 		handle_player();
 		object_draw();
+		player_draw_hud();
 		d_render_end();
 		d_loop();
 	}

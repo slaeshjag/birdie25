@@ -9,6 +9,8 @@
 struct ClientObject {
 	int			x;
 	int			y;
+	double			dx;
+	double			dy;
 	int			angle;
 
 	bool			sprite;
@@ -22,6 +24,7 @@ struct ClientObject {
 void object_init(int objects);
 void object_init_object(int id, int sprite_id);
 void object_update(int id, double x, double y, double angle);
+void object_get_coord(int id, int *x, int *y, int *w, int *h);
 void object_draw();
 void *object_thread(void *arne);
 
