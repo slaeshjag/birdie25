@@ -26,16 +26,24 @@ Body body[BODIES] = {
 	}
 };
 
+unsigned long peer;
+
 void _send(Body *body, size_t bodies) {
+	PacketObject po = {.type = PACKET_TYPE_OBJECT};
 	int i;
 	for(i = 0; i < bodies; i++) {
 		printf("Body %i: {%f, %f} angle %f\n", i, body[i].position.x, body[i].position.y, body[i].angle);
+		po.id = i;
+		po.x = body[i].position.x;
+		po.y = body[i].position.y;
+		po.angle = 0.0;
+		network_send(peer, &po, sizeof po);
 	}
 }
 
 int main(int argc, char **argv) {
-	PacketLobby pack = {};
-	unsigned long peer;
+	PacketLobby pl = {};
+	PacketSetup ps = {};
 	
 	body[1].velocity.y = sqrt(G*(body[1].mass + body[2].mass)/DIST(body[0], body[1]));
 	
@@ -45,11 +53,15 @@ int main(int argc, char **argv) {
 	}
 	
 	do {
-		peer = network_recv(&pack, sizeof pack);
-	} while(pack.type != PACKET_TYPE_LOBBY && pack.begin != 1);
+		peer = network_recv(&pl, sizeof pl);
+	} while(pl.type != PACKET_TYPE_LOBBY && pl.begin != 1);
 	printf("begin\n");
-	pack.begin = 2;
-	network_send(peer, &pack, sizeof pack);
+	pl.begin = 2;
+	network_send(peer, &pl, sizeof pl);
+	
+	ps.type = PACKET_TYPE_SETUP;
+	ps.objects = BODIES;
+	network_send(peer, &ps, sizeof ps);
 	
 	for(;;) {
 		nbody_calc_forces(body, BODIES);

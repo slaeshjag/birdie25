@@ -6,6 +6,7 @@
 typedef enum PacketType PacketType;
 enum PacketType {
 	PACKET_TYPE_LOBBY,
+	PACKET_TYPE_SETUP,
 	PACKET_TYPE_OBJECT,
 };
 
@@ -14,6 +15,13 @@ struct PacketLobby {
 	uint32_t type;
 	
 	uint32_t begin;
+};
+
+typedef struct PacketSetup PacketSetup;
+struct PacketSetup {
+	uint32_t type;
+	
+	uint32_t objects;
 };
 
 typedef struct PacketObject PacketObject;
