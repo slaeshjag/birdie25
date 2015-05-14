@@ -175,7 +175,7 @@ void server_packet_dispatch(Packet p, unsigned long addr) {
 			return;
 
 		printf("begin\n");
-		p.lobby.begin = 2;
+		p.lobby.begin = 6;
 		network_send(addr, &p, sizeof(Packet));
 		
 		player_add(addr, 1.0, 2.0, p.lobby.name);
