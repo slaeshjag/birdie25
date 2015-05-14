@@ -46,10 +46,10 @@ int main(int argc, char **argv) {
 	pthread_t tid;
 	pthread_create(&tid, NULL, object_thread, NULL);
 
-	d_render_blend_enable();
 
 	for (;;) {
 		d_render_begin();
+		d_render_blend_enable();
 		handle_camera();
 		object_draw();
 		d_render_end();
