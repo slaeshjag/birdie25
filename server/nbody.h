@@ -2,6 +2,7 @@
 #define __NBODY_H_
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #define SUP2(x) ((x)*(x))
 #define DIST(b1, b2) sqrt(SUP2((b1).position.x - (b2).position.x) + SUP2((b1).position.y - (b2).position.y))
@@ -26,6 +27,7 @@ struct Body {
 	double mass;
 	double angle;
 	bool movable;
+	uint32_t sprite;
 };
 
 typedef struct Rectangle Rectangle;

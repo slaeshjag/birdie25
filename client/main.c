@@ -16,31 +16,28 @@ enum GameState {
 
 int main(int argc, char **argv) {
 	int i;
-	PacketLobby pl = { PACKET_TYPE_LOBBY, 1 };
-	PacketSetup ps;
+	Packet pl = {.lobby = { PACKET_TYPE_LOBBY, 1 }};
+	Packet ps;
 
-	d_init_custom("Jymdsjepp^wArs", 1280, 720, 0, "birdie25", NULL);
+	d_init_custom("Jymdsjepp", 1280, 720, 0, "birdie25", NULL);
 
 	network_init(PORT);
-	network_broadcast(&pl, sizeof(pl));
+	network_broadcast(&pl, sizeof(Packet));
 	
-	pl.begin = 0;
+	pl.lobby.begin = 0;
 	do {
-		loop:
-		sip = network_recv(&pl, sizeof(pl));
-		if (pl.type != PACKET_TYPE_LOBBY)
-			goto loop;
-	} while(pl.begin != 2);
+		sip = network_recv(&pl, sizeof(Packet));
+	} while(pl.lobby.type != PACKET_TYPE_LOBBY && pl.lobby.begin != 2);
 
 	ps.type = PACKET_TYPE_LOBBY;
 	do {
 		network_recv(&ps, sizeof(ps));
-	} while(ps.type != PACKET_TYPE_SETUP);
+	} while(ps.setup.type != PACKET_TYPE_SETUP);
 
-	object_init(ps.objects);
+	object_init(ps.setup.objects);
 	camera_init(0);
 
-	for (i = 0; i < ps.objects; i++)
+	for (i = 0; i < ps.setup.objects; i++)
 		object_init_object(i, 1);
 
 	pthread_t tid;

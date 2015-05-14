@@ -97,11 +97,18 @@ void object_draw() {
 
 
 void *object_thread(void *arne) {
-	PacketObject po;
+	Packet pack;
 	for (;;) {
-		if (network_recv(&po, sizeof(po)) != sip)
+		if (network_recv(&pack, sizeof(Packet)) != sip)
 			continue;
-		if (po.type == PACKET_TYPE_OBJECT)
-			object_update(po.id, po.x, po.y, po.angle);
+		
+		switch(pack.type) {
+			case PACKET_TYPE_OBJECT:
+				object_update(pack.object.id, pack.object.x, pack.object.y, pack.object.angle);
+				break;
+			case PACKET_TYPE_SETUP_OBJECT:
+				object_init_object(pack.setup_object.id, pack.setup_object.sprite);
+				break;
+		}
 	}
 }
