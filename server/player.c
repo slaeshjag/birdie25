@@ -65,23 +65,20 @@ void player_thread(Packet pack, unsigned long addr) {
 				}
 				break;
 			case PACKET_TYPE_LOBBY:
-				if (pack.lobby.begin != 5) {
-					if (pack.lobby.begin < 6)
-						fprintf(stderr, "Invalid join packet\n");
+				if (pack.lobby.begin != 5)
 					break;
-				}
 
 				fprintf(stderr, "A player joined\n");
 				// TODO: Put this somewhere near the home planet
 				p = player_add(addr, 1.0, 2.0 + (rand() & 0xF) / 16., pack.lobby.name);
-				pack.lobby.begin = p->id + 6;
+				pack.lobby.begin = 6;
 				player_broadcast_package(pack);
 				Player *next;
 				for (next = player; next; next = next->next) {
 					if (next->id == p->id)
 						continue;
 					pack.type = PACKET_TYPE_LOBBY;
-					pack.lobby.begin = p->id + 6;
+					pack.lobby.begin = 6;
 					strcpy(pack.lobby.name, p->pname);
 					network_send(p->addr, &pack, sizeof(pack));
 				}

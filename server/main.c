@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <math.h>
 #include <pthread.h>
+#include <string.h>
 
 #include <network.h>
 #include <protocol.h>
@@ -111,6 +112,8 @@ static void _setup(Body *body, size_t bodies) {
 void *server_main(void *argleblargle) {
 	Packet p = {};
 	pthread_t pth;
+	int i;
+
 	
 
 	/*if(network_init(PORT)) {
@@ -120,11 +123,20 @@ void *server_main(void *argleblargle) {
 	
 	
 	//pthread_create(&pth, NULL, player_thread, NULL);
-	for(;;) {
+	for(i = 0;; i++) {
 		if (game_has_started) {
 			nbody_calc_forces(body, BODIES + players);
 			nbody_move_bodies(body, BODIES + players, 1);
 			_send(body, BODIES);
+		} else if (!(i & 0x1F)) {
+				p.type = PACKET_TYPE_LOBBY;
+				p.lobby.begin = 3;
+			if (player) {
+				strcpy(p.lobby.name, player->pname);
+			} else {
+				strcpy(p.lobby.name, "Arne");
+			}
+				network_broadcast(&p, sizeof(Packet));
 		}
 		usleep(16666); //60 fps
 	}
@@ -149,9 +161,9 @@ void server_start() {
 	pthread_t serber;
 	pthread_create(&serber, NULL, server_main, NULL);
 
-	p.type = PACKET_TYPE_LOBBY;
+/*	p.type = PACKET_TYPE_LOBBY;
 	p.lobby.begin = 3;
-	network_broadcast(&p, sizeof(Packet));
+	network_broadcast(&p, sizeof(Packet));*/
 }
 
 
@@ -163,7 +175,7 @@ void server_packet_dispatch(Packet p, unsigned long addr) {
 			return;
 
 		printf("begin\n");
-		p.lobby.begin = 2;
+		p.lobby.begin = 6;
 		network_send(addr, &p, sizeof(Packet));
 		
 		player_add(addr, 1.0, 2.0, p.lobby.name);
