@@ -29,6 +29,7 @@ int main(int argc, char **argv) {
 	pl.lobby.begin = 1;
 	network_broadcast(&pl, sizeof(Packet));
 	d_cursor_show(1);
+	load_player_stuff_once();
 	
 	do {
 		pl.lobby.begin = 0;

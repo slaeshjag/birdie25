@@ -13,9 +13,18 @@ static struct {
 	int		focus_object;
 } camera;
 
+static DARNIT_TILE *powermeter;
+static DARNIT_TILESHEET *powerts;
+static double power;
 
 void camera_init(int focus_object) {
 	camera.focus_object = focus_object;
+}
+
+
+void load_player_stuff_once() {
+	powerts = d_render_tilesheet_load("res/powermeter.png", 256, 32, DARNIT_PFORMAT_RGBA8);
+	powermeter = d_render_tile_new(2, powerts);
 }
 
 
@@ -80,5 +89,15 @@ int player_get() {
 
 
 int player_draw_hud() {
+	power = 0.5;
 	d_render_offset(0,0);
+	d_render_tile_set(powermeter, 0, 0);
+	d_render_tile_set(powermeter, 1, 1);
+	d_render_tile_move(powermeter, 0, 0, 0);
+	d_render_tile_move(powermeter, 1, power * 256, 0);
+	d_render_tile_size_set(powermeter, 0, power * 256, 32);
+	d_render_tile_size_set(powermeter, 1, 256 - power * 256, 32);
+	d_render_tile_tilesheet_coord_set(powermeter, 0, 0, 0, power * 256, 32);
+	d_render_tile_tilesheet_coord_set(powermeter, 1, power * 256, 32, 256 - power * 256, 32);
+	d_render_tile_draw(powermeter, 2);
 }
