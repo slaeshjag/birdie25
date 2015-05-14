@@ -59,7 +59,11 @@ void object_update(int id, double x, double y, double angle) {
 		d_sprite_rotate(obj[id].pic.sprite, ai);
 		d_sprite_move(obj[id].pic.sprite, xi, yi);
 	} else {
-		d_render_tile_move(obj[id].pic.tile, 0, xi, yi);
+		int cx, cy;
+
+		cx = xi + (gw * (object_scale - 1.));
+		cy = yi + (gh * (object_scale - 1.));
+		d_render_tile_move(obj[id].pic.tile, 0, cx, cy);
 		d_render_tile_size_set(obj[id].pic.tile, 0, ((double) object_scale * gw), ((double) object_scale * gh));
 	}
 

@@ -26,6 +26,7 @@ int main(int argc, char **argv) {
 	pl.lobby.type = PACKET_TYPE_LOBBY;
 	pl.lobby.begin = 1;
 	network_broadcast(&pl, sizeof(Packet));
+	d_cursor_show(1);
 	
 	do {
 		pl.lobby.begin = 0;
@@ -48,6 +49,7 @@ int main(int argc, char **argv) {
 	object_init(ps.setup.objects);
 	camera_init(0);
 
+	// NOTE: Don't remove this! It leaks RAM, but prevents segfault in OpenGL
 	for (i = 0; i < ps.setup.objects; i++)
 		object_init_object(i, 64);
 	object_init_object(0, 65);
@@ -60,6 +62,7 @@ int main(int argc, char **argv) {
 		d_render_begin();
 		d_render_blend_enable();
 		handle_camera();
+		handle_player();
 		object_draw();
 		d_render_end();
 		d_loop();
