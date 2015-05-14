@@ -4,12 +4,17 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
+#include <pthread.h>
 
 #include <network.h>
 #include <protocol.h>
 
 #include "main.h"
 #include "nbody.h"
+#include "player.h"
+
+extern Player *player;
+extern int players;
 
 Body body[BODIES] = {
 	{
@@ -80,6 +85,7 @@ static void _setup(Body *body, size_t bodies) {
 
 int main(int argc, char **argv) {
 	Packet p = {};
+	pthread_t pth;
 	
 	body[1].velocity.y = sqrt(G*(body[0].mass + body[1].mass)/DIST(body[0], body[1]));
 	body[2].velocity.y = sqrt(G*(body[0].mass + body[2].mass)/DIST(body[0], body[2]));
@@ -100,6 +106,10 @@ int main(int argc, char **argv) {
 	p.lobby.begin = 2;
 	network_send(peer, &p, sizeof(Packet));
 	_setup(body, BODIES);
+	
+	player_init(1);
+	player[0].addr = peer;
+	pthread_create(&pth, NULL, player_thread, NULL);
 	
 	for(;;) {
 		nbody_calc_forces(body, BODIES);

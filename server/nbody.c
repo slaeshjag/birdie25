@@ -32,10 +32,10 @@ void nbody_calc_forces(Body *body, int n) {
 			direction.x = body[j].position.x - body[i].position.x;
 			direction.y = body[j].position.y - body[i].position.y;
 			
-			body[i].force.x += magnitude * direction.x / distance;
-			body[j].force.x -= magnitude * direction.x / distance;
-			body[i].force.y += magnitude * direction.y / distance;
-			body[j].force.y -= magnitude * direction.y / distance;
+			body[i].force.x += magnitude * direction.x / distance + body[i].mass*body[i].accel.x;
+			body[j].force.x -= magnitude * direction.x / distance + body[j].mass*body[j].accel.x;
+			body[i].force.y += magnitude * direction.y / distance + body[i].mass*body[i].accel.y;
+			body[j].force.y -= magnitude * direction.y / distance + body[j].mass*body[j].accel.y;
 		}
 	}
 }

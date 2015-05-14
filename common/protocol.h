@@ -9,6 +9,7 @@ enum PacketType {
 	PACKET_TYPE_SETUP,
 	PACKET_TYPE_SETUP_OBJECT,
 	PACKET_TYPE_OBJECT,
+	PACKET_TYPE_CLIENT,
 };
 
 typedef struct PacketLobby PacketLobby;
