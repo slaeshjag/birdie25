@@ -15,6 +15,7 @@
 
 extern Player *player;
 extern int players;
+static bool game_has_started = false;
 
 Body body[BODIES + PLAYER_MAX] = {
 	{
@@ -124,13 +125,20 @@ void *server_main(void *argleblargle) {
 	
 	//pthread_create(&pth, NULL, player_thread, NULL);
 	for(;;) {
-		nbody_calc_forces(body, BODIES + players);
-		nbody_move_bodies(body, BODIES + players, 1);
-		_send(body, BODIES);
+		if (game_has_started) {
+			nbody_calc_forces(body, BODIES + players);
+			nbody_move_bodies(body, BODIES + players, 1);
+			_send(body, BODIES);
+		}
 		usleep(16666); //60 fps
 	}
 
 	pthread_exit(NULL);
+}
+
+
+void server_start_game() {
+	game_has_started = true;
 }
 
 

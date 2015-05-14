@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <network.h>
 #include <protocol.h>
 #include "player.h"
@@ -30,6 +31,17 @@ Player *player_add(unsigned long addr, double x, double y) {
 	return p;
 }
 
+
+void player_broadcast_package(Packet pack) {
+	int i;
+	Player *p;
+
+	for (p = player; p; p = p->next)
+		network_send(p->addr, &pack, sizeof(pack));
+	return;
+}
+
+
 void player_thread(Packet pack, unsigned long addr) {
 	Player *p;
 	
@@ -50,6 +62,20 @@ void player_thread(Packet pack, unsigned long addr) {
 					p->body->accel.x = -PLAYER_ACCEL*cos(pack.client.angle);
 					p->body->accel.y = -PLAYER_ACCEL*sin(pack.client.angle);
 				}
+				break;
+			case PACKET_TYPE_LOBBY:
+				if (pack.lobby.begin != 5) {
+					if (pack.lobby.begin < 6)
+						fprintf(stderr, "Invalid join packet\n");
+					break;
+				}
+
+				fprintf(stderr, "A player joined\n");
+				// TODO: Put this somewhere near the home planet
+				p = player_add(addr, 1.0, 2.0 + (rand() & 0xF) / 16.);
+				pack.lobby.begin = p->id + 6;
+				player_broadcast_package(pack);
+
 				break;
 		}
 //	}
