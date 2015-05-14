@@ -9,5 +9,14 @@ static struct {
 
 
 void handle_camera() {
+	#if 0
+	int x, y;
+	DARNIT_PLATFORM plat;
 
+	plat = d_get_platform();
+	#endif
+	
 }
+
+
+

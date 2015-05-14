@@ -30,14 +30,20 @@ void object_update(int id, double x, double y, double angle) {
 	xi = x * CLIENT_OBJECT_COORD_SCALE;
 	yi = y * CLIENT_OBJECT_COORD_SCALE;
 	ai = (angle / M_PI * 1800);
-	xi -= d_sprite_width(obj[id].sprite);
-	yi -= d_sprite_height(obj[id].sprite);
-	d_sprite_rotate(obj->sprite, ai);
-	d_sprite_move(obj->sprite, xi, yi);
+	xi -= d_sprite_width(obj[id].sprite) / 2;
+	yi -= d_sprite_height(obj[id].sprite) / 2;
+	d_sprite_rotate(obj[id].sprite, ai);
+	d_sprite_move(obj[id].sprite, xi, yi);
 
 	obj[id].x = xi;
 	obj[id].y = yi;
 	obj[id].angle = ai;
+	fprintf(stderr, "Object %i at %i, %i @ %i\n", id, xi, yi, ai);
+}
+
+
+void object_get_coord(int x, int y, int w, int h) {
+	
 }
 
 
