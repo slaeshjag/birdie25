@@ -43,6 +43,19 @@ struct PacketObject {
 	double angle;
 };
 
+typedef struct PacketClient PacketClient;
+struct PacketClient {
+	uint32_t type;
+	
+	double angle;
+	struct {
+		uint32_t forward : 1;
+		uint32_t backward : 1;
+		uint32_t shoot : 1;
+		uint32_t beam : 1;
+	} button;
+};
+
 typedef union Packet Packet;
 union Packet {
 	uint32_t type;
@@ -50,6 +63,7 @@ union Packet {
 	PacketSetup setup;
 	PacketSetupObject setup_object;
 	PacketObject object;
+	PacketClient client;
 };
 
 #endif
