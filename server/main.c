@@ -22,8 +22,6 @@ Body body[BODIES] = {
 };
 
 int main(int argc, char **argv) {
-	Rectangle rect;
-	double theta = 0.0;
 	//double dt = 0;
 	
 	network_init();

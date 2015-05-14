@@ -3,7 +3,8 @@
 MAKEFLAGS	+=	--no-print-directory
 
 #Binaries
-BINFILE		=	birdie25
+CLIENT		=	birdie25
+SERVER		=	birdie25-server
 
 #General flags
 LDFLAGS		+=	-ldarnit -lm
