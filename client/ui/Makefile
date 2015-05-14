@@ -19,7 +19,7 @@ ASFLAGS		+=
 LDFLAGS		+=	
 
 # Sub directories to build
-SUBDIRS		=	ui
+SUBDIRS		=	
 
 LIBS		=	$(addsuffix /out.a,$(SUBDIRS))
 
