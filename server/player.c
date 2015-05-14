@@ -3,41 +3,51 @@
 #include <network.h>
 #include <protocol.h>
 #include "player.h"
+#include "main.h"
 
 
 Player *player;
 int players;
+extern Body body[];
 
-int player_init(int _players) { 
-	player = calloc(_players, sizeof(Player));
-	players = _players;
-}
-
-void player_set_accel(int id, double velocity) {
+Player *player_add(unsigned long addr, double x, double y) {
+	Player *p;
+	p = malloc(sizeof(Player));
+	p->addr = addr;
+	p->id = BODIES + players;
+	p->body = body + BODIES + players;
+	p->body->position.x = x;
+	p->body->position.y = y;
+	p->body->sprite = 64 + players;
 	
+	p->next = player;
+	players++;
+	player = p;
+	return p;
 }
 
 void *player_thread(void *arg) {
 	Packet pack;
+	Player *p;
 	unsigned long ip;
-	int i;
 	
 	for(;;) {
 		ip = network_recv(&pack, sizeof(Packet));
-		printf("arnearearnae\n");
 		switch(pack.type) {
 			case PACKET_TYPE_CLIENT:
-				for(i = 0; i < players; i ++)
-					if(player[i].addr == ip)
+				for(p = player; p; p = p->next)
+					if(p->addr == ip)
 						break;
-				player[i].body->angle = pack.client.angle;
+				if(!p)
+					break;
+				p->body->angle = pack.client.angle;
 				if(pack.client.button.forward) {
-					player[i].body->accel.x = PLAYER_ACCEL*cos(pack.client.angle);
-					player[i].body->accel.y = PLAYER_ACCEL*sin(pack.client.angle);
+					p->body->accel.x = PLAYER_ACCEL*cos(pack.client.angle);
+					p->body->accel.y = PLAYER_ACCEL*sin(pack.client.angle);
 				}
 				if(pack.client.button.backward) {
-					player[i].body->accel.x = -PLAYER_ACCEL*cos(pack.client.angle);
-					player[i].body->accel.y = -PLAYER_ACCEL*sin(pack.client.angle);
+					p->body->accel.x = -PLAYER_ACCEL*cos(pack.client.angle);
+					p->body->accel.y = -PLAYER_ACCEL*sin(pack.client.angle);
 				}
 				break;
 		}

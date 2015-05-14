@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#define NAME_LEN_MAX 16
+
 typedef enum PacketType PacketType;
 enum PacketType {
 	PACKET_TYPE_LOBBY,
@@ -17,13 +19,17 @@ struct PacketLobby {
 	uint32_t type;
 	
 	uint32_t begin;
+	char name[NAME_LEN_MAX];
 };
 
 typedef struct PacketSetup PacketSetup;
 struct PacketSetup {
 	uint32_t type;
 	
+	uint32_t id;
 	uint32_t objects;
+	double width;
+	double height;
 };
 
 typedef struct PacketSetupObject PacketSetupObject;

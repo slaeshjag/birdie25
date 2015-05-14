@@ -4,6 +4,7 @@
 #include "nbody.h"
 
 #define PLAYER_ACCEL 5.0
+#define PLAYER_MAX 16
 
 typedef struct Player Player;
 struct Player {
@@ -11,9 +12,11 @@ struct Player {
 	unsigned long addr;
 	
 	Body *body;
+	
+	Player *next;
 };
 
-int player_init(int);
 void *player_thread(void *);
+Player *player_add(unsigned long addr, double x, double y);
 
 #endif

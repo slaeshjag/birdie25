@@ -16,7 +16,7 @@
 extern Player *player;
 extern int players;
 
-Body body[BODIES] = {
+Body body[BODIES + PLAYER_MAX] = {
 	{
 		.position = {0.0, 0.0},
 		.velocity = {0.0, 0.0},
@@ -44,48 +44,76 @@ Body body[BODIES] = {
 		.force = {0.0, 0.0},
 		.mass = 1000.0,
 		.movable = true,
-		.sprite = 64,
+		.sprite = 0,
 	}
 };
-
-unsigned long peer;
 
 static void _send(Body *body, size_t bodies) {
 	Packet pack = {PACKET_TYPE_OBJECT};
 	PacketObject *po = &pack.object;
+	Player *p, *q;
 	
 	int i;
-	for(i = 0; i < bodies; i++) {
-		printf("Body %i: {%f, %f} angle %f\n", i, body[i].position.x, body[i].position.y, body[i].angle);
-		po->id = i;
-		po->x = body[i].position.x;
-		po->y = body[i].position.y;
-		po->angle = body[i].angle;
-		network_send(peer, po, sizeof(Packet));
+	for(q = player; q; q = q->next) {
+		for(i = 0; i < bodies; i++) {
+			printf("Body %i: {%f, %f} angle %f\n", i, body[i].position.x, body[i].position.y, body[i].angle);
+			po->id = i;
+			po->x = body[i].position.x;
+			po->y = body[i].position.y;
+			po->angle = body[i].angle;
+			network_send(q->addr, po, sizeof(Packet));
+		}
+		
+		for(p = player; p; p = p->next) {
+			printf("Player %i: {%f, %f} angle %f\n", player->id, body[i].position.x, body[i].position.y, body[i].angle);
+			po->id = p->id;
+			po->x = p->body->position.x;
+			po->y = p->body->position.y;
+			po->angle = p->body->angle;
+			network_send(q->addr, po, sizeof(Packet));
+		}
 	}
 }
 
 static void _setup(Body *body, size_t bodies) {
 	Packet pack[2];
+	Player *p, *q;
 	PacketSetup *ps = &pack[0].setup;
 	PacketSetupObject *pso = &pack[1].setup_object;
 	int i;
 	
-	ps->type = PACKET_TYPE_SETUP;
-	ps->objects = BODIES;
-	network_send(peer, ps, sizeof(Packet));
-	
-	pso->type = PACKET_TYPE_SETUP_OBJECT;
-	for(i = 0; i < bodies; i++) {
-		pso->id = i;
-		pso->sprite = body[i].sprite;
-		network_send(peer, pso, sizeof(Packet));
+	//Fuck multicast
+	for(q = player; q; q = q->next) {
+		ps->id = q->id;
+		ps->type = PACKET_TYPE_SETUP;
+		ps->objects = BODIES + players;
+		ps->width = WIDTH;
+		ps->height = HEIGHT;
+		network_send(q->addr, ps, sizeof(Packet));
+		
+		pso->type = PACKET_TYPE_SETUP_OBJECT;
+		for(i = 0; i < bodies; i++) {
+			pso->id = i;
+			pso->sprite = body[i].sprite;
+			network_send(q->addr, pso, sizeof(Packet));
+		}
+		
+		for(p = player; p; p = p->next) {
+			pso->id = p->id;
+			pso->sprite = p->body->sprite;
+			network_send(q->addr, pso, sizeof(Packet));
+		}
 	}
+}
+
+void lobby() {
+	
 }
 
 int main(int argc, char **argv) {
 	Packet p = {};
 	pthread_t pth;
+	unsigned long peer;
 	
 	body[1].velocity.y = sqrt(G*(body[0].mass + body[1].mass)/DIST(body[0], body[1]));
 	body[2].velocity.y = sqrt(G*(body[0].mass + body[2].mass)/DIST(body[0], body[2]));
@@ -105,16 +133,15 @@ int main(int argc, char **argv) {
 	printf("begin\n");
 	p.lobby.begin = 2;
 	network_send(peer, &p, sizeof(Packet));
+	
+	player_add(peer, 1.0, 2.0);
 	_setup(body, BODIES);
 	
-	player_init(1);
-	player[0].addr = peer;
-	player[0].body = body + 3;
 	pthread_create(&pth, NULL, player_thread, NULL);
 	
 	for(;;) {
-		nbody_calc_forces(body, BODIES);
-		nbody_move_bodies(body, BODIES, 1);
+		nbody_calc_forces(body, BODIES + players);
+		nbody_move_bodies(body, BODIES + players, 1);
 		_send(body, BODIES);
 		usleep(16666); //60 fps
 	}
