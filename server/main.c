@@ -107,10 +107,6 @@ static void _setup(Body *body, size_t bodies) {
 	}
 }
 
-void lobby() {
-	
-}
-
 
 void *server_main(void *argleblargle) {
 	Packet p = {};
