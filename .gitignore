@@ -1,0 +1,11 @@
+bin/
+sockettest/udpbroadcast
+sockettest/udplisten
+*.o
+*.swp
+*.swo
+*.ldi
+*.ldmz
+*.res
+*.elf
+*.dll
