@@ -17,6 +17,8 @@ all: $(SUBDIRS)
 	@echo " [ LD ] bin/$(CLIENT)"
 	@$(CC) -o bin/$(CLIENT) $(CFLAGS) client/out.a common/out.a $(LDFLAGS)
 	
+	@cp res/DejaVuSansMono.ttf bin/font.ttf
+	
 	@echo "Build complete."
 	@echo 
 

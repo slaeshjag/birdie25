@@ -4,24 +4,107 @@
 #include <network.h>
 #include <pthread.h>
 #include <signal.h>
-
+#include <libgen.h>
+#include <unistd.h>
+#include <limits.h>
+#include "ui/ui.h"
+#include "game.h"
+#include "main.h"
+#include "menu.h"
+#include "lobby.h"
+#include "gameroom.h"
 unsigned long sip;
 
-enum GameState {
-	GAME_STATE_SELECT_NAME,
-	GAME_STATE_LOBBY,
-	GAME_STATE_HOST,
-	GAME_STATE_PLAYING,
+Gfx gfx;
+GameState gamestate;
+
+char player_name[NAME_LEN_MAX];
+
+void (*state_render[GAME_STATES])()={
+	[GAME_STATE_MENU] = menu_render,
+	[GAME_STATE_GAME] = game_render,
+	[GAME_STATE_SELECT_NAME] = NULL,
 };
 
+struct UI_PANE_LIST *gamestate_pane[GAME_STATES];
+
+void game_state(GameState state) {
+	//Game state destructors
+	switch(gamestate) {
+		case GAME_STATE_GAME:
+			/*ui_event_global_remove(game_view_buttons, UI_EVENT_TYPE_BUTTONS);
+			ui_event_global_remove(game_view_mouse_click, UI_EVENT_TYPE_MOUSE_PRESS);
+			ui_event_global_remove(game_view_mouse_move, UI_EVENT_TYPE_MOUSE_ENTER);
+			ui_event_global_remove(game_mouse_draw, UI_EVENT_TYPE_MOUSE_ENTER);
+			ui_event_global_remove(game_view_key_press, UI_EVENT_TYPE_KEYBOARD_PRESS);*/
+			break;
+		case GAME_STATE_MENU:
+			//ui_event_global_remove(menu_buttons, UI_EVENT_TYPE_BUTTONS);
+		case GAME_STATE_SELECT_NAME:
+		case GAME_STATE_HOST:
+		case GAME_STATE_LOBBY:
+		case GAME_STATE_GAMEROOM:
+		case GAME_STATE_QUIT:
+		
+		case GAME_STATES:
+			break;
+	}
+	//Game state constructors
+	switch(state) {
+		case GAME_STATE_GAME:
+			/*ui_event_global_add(game_view_mouse_click, UI_EVENT_TYPE_MOUSE_PRESS);
+			ui_event_global_add(game_view_mouse_move, UI_EVENT_TYPE_MOUSE_ENTER);
+			ui_event_global_add(game_mouse_draw, UI_EVENT_TYPE_MOUSE_ENTER);
+			ui_event_global_add(game_view_buttons, UI_EVENT_TYPE_BUTTONS);
+			ui_event_global_add(game_view_key_press, UI_EVENT_TYPE_KEYBOARD_PRESS);*/
+			#ifndef __DEBUG__
+			d_input_grab();
+			#endif
+			break;
+		case GAME_STATE_MENU:
+			//ui_event_global_add(menu_buttons, UI_EVENT_TYPE_BUTTONS);
+		case GAME_STATE_SELECT_NAME:
+			ui_selected_widget = select_name.entry;
+			break;
+		case GAME_STATE_LOBBY:
+			case GAME_STATE_HOST:
+			//server_start();
+			state = GAME_STATE_GAMEROOM;
+		case GAME_STATE_GAMEROOM:
+		case GAME_STATE_QUIT:
+			d_input_release();
+		
+		case GAME_STATES:
+			break;
+	}
+	
+	gamestate=state;
+}
 
 int main(int argc, char **argv) {
 	int i;
 	Packet pl, pl2;
 	Packet ps;
+	char font_path[4096];
 
-	d_init_custom("Jymdsjepp", 1280, 720, 0, "birdie25", NULL);
-
+	d_init_custom("Jymdsjepp", DISPLAY_WIDTH, DISPLAY_HEIGHT, 0, "birdie25", NULL);
+	
+	sprintf(font_path, "%s", d_fs_exec_path());
+	sprintf(font_path, "%s/font.ttf", dirname(font_path));
+	gfx.font.large = d_font_load(font_path, 48, 256, 256);
+	gfx.font.small = d_font_load(font_path, 16, 256, 256);
+	
+	ui_init(4);
+	menu_init();
+	lobby_init();
+	gameroom_init();
+	game_init();
+	
+	gamestate_pane[GAME_STATE_MENU] = &menu.pane;
+	gamestate_pane[GAME_STATE_SELECT_NAME] = &select_name.pane;
+	gamestate_pane[GAME_STATE_LOBBY] = &lobby.pane;
+	gamestate_pane[GAME_STATE_GAMEROOM] = &gameroom.pane;
+	
 	signal(SIGINT, d_quit); //lol
 	network_init(PORT);
 	
@@ -30,7 +113,26 @@ int main(int argc, char **argv) {
 	network_broadcast(&pl, sizeof(Packet));
 	d_cursor_show(1);
 	load_player_stuff_once();
-	
+
+	game_state(GAME_STATE_SELECT_NAME);
+	while(gamestate!=GAME_STATE_QUIT) {
+		//server_loop(d_last_frame_time());
+		
+		/*if(gamestate>=GAME_STATE_LOBBY)
+			client_check_incoming();*/
+		
+		d_render_begin();
+		d_render_blend_enable();
+		if(state_render[gamestate])
+			state_render[gamestate]();
+		
+		if(gamestate_pane[gamestate])
+			ui_events(gamestate_pane[gamestate], 1);
+			
+		d_render_end();
+		d_loop();
+	}
+
 	do {
 		pl.lobby.begin = 0;
 		sip = network_recv(&pl, sizeof(Packet));
@@ -64,10 +166,6 @@ int main(int argc, char **argv) {
 	for (;;) {
 		d_render_begin();
 		d_render_blend_enable();
-		handle_camera();
-		handle_player();
-		object_draw();
-		player_draw_hud();
 		d_render_end();
 		d_loop();
 	}
