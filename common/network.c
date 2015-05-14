@@ -40,6 +40,7 @@ static int port;
 
 int network_init(int _port) {
 	int broadcast_enabled = 1;
+	int reuse_enabled = 1;
 	struct hostent *broadcasthost;
 	
 	if(sock != INVALID_SOCKET)
@@ -58,6 +59,7 @@ int network_init(int _port) {
 	}
 	
 	setsockopt(sock, SOL_SOCKET, SO_BROADCAST, (void *) &broadcast_enabled, sizeof(broadcast_enabled));
+	setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (void *) &reuse_enabled, sizeof(broadcast_enabled));
 	
 	if(bind(sock, (struct sockaddr *) &addr, sizeof(addr)) == INVALID_SOCKET) {
 		closesocket(sock);
@@ -99,5 +101,6 @@ unsigned long network_recv(void *buf, size_t bufsize) {
 	socklen_t addrlen = sizeof(addr);
 	
 	recvfrom(sock, buf, bufsize, 0, (struct sockaddr *) &addr, &addrlen);
+	printf("recv\n");
 	return addr.sin_addr.s_addr;	
 }

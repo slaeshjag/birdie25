@@ -45,11 +45,8 @@ int main(int argc, char **argv) {
 	}
 	
 	do {
-		redo:
 		peer = network_recv(&pack, sizeof pack);
-		if(pack.type == PACKET_TYPE_LOBBY)
-			goto redo;
-	} while(pack.begin != 1);
+	} while(pack.type != PACKET_TYPE_LOBBY && pack.begin != 1);
 	printf("begin\n");
 	pack.begin = 2;
 	network_send(peer, &pack, sizeof pack);
