@@ -65,7 +65,7 @@ void handle_player() {
 	p.client.button.backward = 0;
 	p.client.button.shoot = 0;
 
-	network_send(sip, &p, sizeof(p));
+	network_send(sip, &p, sizeof(Packet));
 /*
 	if (mx > 0)
 		angle = (M_PI * 2.) - angle;*/

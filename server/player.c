@@ -24,7 +24,7 @@ void *player_thread(void *arg) {
 	
 	for(;;) {
 		ip = network_recv(&pack, sizeof(Packet));
-		
+		printf("arnearearnae\n");
 		switch(pack.type) {
 			case PACKET_TYPE_CLIENT:
 				for(i = 0; i < players; i ++)
