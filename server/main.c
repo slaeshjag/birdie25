@@ -60,7 +60,7 @@ static void _send(Body *body, size_t bodies) {
 		po->id = i;
 		po->x = body[i].position.x;
 		po->y = body[i].position.y;
-		po->angle = 0.0;
+		po->angle = body[i].angle;
 		network_send(peer, po, sizeof(Packet));
 	}
 }
