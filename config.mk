@@ -6,8 +6,8 @@ MAKEFLAGS	+=	--no-print-directory
 BINFILE		=	birdie25
 
 #General flags
-LDFLAGS		+=	-ldarnit
-CFLAGS		+=	-Wall -std=c99 -g -O0 -D_XOPEN_SOURCE=600
+LDFLAGS		+=	-ldarnit -lm
+CFLAGS		+=	-Wall -std=c99 -g -O0 -D_XOPEN_SOURCE=600 -fopenmp
 ASFLAGS		+=
 
 #Extra install targets

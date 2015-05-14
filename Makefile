@@ -3,7 +3,7 @@ TOPDIR	=	.
 include config.mk
 
 # Sub directories to build
-SUBDIRS		=	src
+SUBDIRS		=	server
 
 LIBS		=	$(addsuffix /out.a,$(SUBDIRS))
 

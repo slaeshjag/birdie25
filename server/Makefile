@@ -36,8 +36,8 @@ all: $(OBJFILES) $(DEPENDS) $(SUBDIRS)
 	
 clean: $(SUBDIRS)
 	@echo
-	@echo " [ RM ] $(OBJFILES) $(BINFILE)"
-	@$(RM) $(OBJFILES) $(BINFILE)
+	@echo " [ RM ] $(OBJFILES) $(OUTFILE)"
+	@$(RM) $(OBJFILES) $(OUTFILE)
 	@echo "Done."
 	@echo 
 
