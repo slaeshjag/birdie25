@@ -109,6 +109,7 @@ int main(int argc, char **argv) {
 	
 	player_init(1);
 	player[0].addr = peer;
+	player[0].body = body + 3;
 	pthread_create(&pth, NULL, player_thread, NULL);
 	
 	for(;;) {
