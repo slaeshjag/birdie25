@@ -32,11 +32,13 @@ void object_init_object(int id, int sprite_id) {
 	char path[512];
 
 	if (sprite_id < 64) {
+		obj[id].sprite = false;
 		obj[id].pic.tile = d_render_tile_new(1, planets);
 		d_render_tile_set(obj[id].pic.tile, 0, sprite_id);
 	} else {
-		sprintf(path, "res/%i.spr", sprite_id);
-		obj[id].sprite = d_sprite_load(path, 0, DARNIT_PFORMAT_RGBA8);
+		sprintf(path, "res/%i.spr", sprite_id - 64);
+		obj[id].pic.sprite = d_sprite_load(path, 0, DARNIT_PFORMAT_RGBA8);
+		obj[id].sprite = true;
 	}
 
 	return;

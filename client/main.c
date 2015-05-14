@@ -49,7 +49,8 @@ int main(int argc, char **argv) {
 	camera_init(0);
 
 	for (i = 0; i < ps.setup.objects; i++)
-		object_init_object(i, 1);
+		object_init_object(i, 64);
+	object_init_object(0, 65);
 
 	pthread_t tid;
 	pthread_create(&tid, NULL, object_thread, NULL);
