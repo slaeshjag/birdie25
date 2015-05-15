@@ -9,6 +9,8 @@
 #define PRE_SIMULATIONS 20
 #define BULLETS 80
 
+#define BULLET_SPEED 0.3
+
 #define WIDTH 50.0
 #define SPEED_LIMIT 0.1
 
@@ -21,5 +23,10 @@ void prepare_orbit(Body *smaller, Body *larger);
 void server_packet_dispatch(Packet p, unsigned long addr);
 void server_start();
 void server_start_game();
+
+void reset_bullet(int i);
+void send_bullets();
+int alloc_bullet();
+
 
 #endif

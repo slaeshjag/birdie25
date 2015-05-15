@@ -1,6 +1,7 @@
 #ifndef __PLAYER_H__
 #define __PLAYER_H__
 
+#include <stdbool.h>
 #include "nbody.h"
 
 #define PLAYER_ACCEL .00001
@@ -11,7 +12,9 @@ struct Player {
 	int id;
 	unsigned long addr;
 	char *pname;
-	
+	uint32_t cooldown[3];
+	int cooldown_current;
+	bool pressed;
 	Body *body;
 	Player *next;
 };

@@ -88,8 +88,7 @@ Body body[BODIES + PLAYER_MAX + BULLETS] = {
 };
 
 void prepare_orbit(Body *smaller, Body *larger) {
-	double distance, magnitude;
-	Point direction, new;
+	Point direction;
 	
 	if((direction.x = (smaller->position.x - larger->position.x)) == 0.0)
 		direction.y = 0.00000000000001;
@@ -170,6 +169,7 @@ static void _send(Body *body, size_t bodies) {
 			network_send(q->addr, &pack, sizeof(Packet));
 		}
 		
+		send_bullets();
 		
 		pack.type = PACKET_TYPE_PLAYER;
 		pack.player.energy = q->body->energy;
@@ -190,7 +190,7 @@ static void _setup(Body *body, size_t bodies) {
 	for(q = player; q; q = q->next) {
 		ps->id = q->id;
 		ps->type = PACKET_TYPE_SETUP;
-		ps->objects = BODIES + players + BULLETS;
+		ps->objects = BODIES + PLAYER_MAX + BULLETS;
 		ps->map_width = WIDTH;
 		ps->pre_simulations = PRE_SIMULATIONS;
 		ps->home = q->id - BODIES;
@@ -209,12 +209,17 @@ static void _setup(Body *body, size_t bodies) {
 			pso->sprite = p->body->sprite;
 			network_send(q->addr, pso, sizeof(Packet));
 		}
+		
+		for(i = 0; i < BULLETS; i++) {
+			pso->id = BODIES + PLAYER_MAX + i;
+			pso->sprite = 64 + 16;
+			network_send(q->addr, pso, sizeof(Packet));
+		}
 	}
 }
 
 void *server_main(void *argleblargle) {
 	Packet p = {};
-	pthread_t pth;
 	int i;
 
 	
@@ -228,8 +233,8 @@ void *server_main(void *argleblargle) {
 	//pthread_create(&pth, NULL, player_thread, NULL);
 	for(i = 0;; i++) {
 		if (game_has_started) {
-			nbody_calc_forces(body, BODIES + players);
-			nbody_move_bodies(body, BODIES + players, 1);
+			nbody_calc_forces(body, BODIES + PLAYER_MAX + BULLETS);
+			nbody_move_bodies(body, BODIES + PLAYER_MAX + BULLETS, 1);
 			_send(body, BODIES);
 		} else if (!(i & 0x1F)) {
 				p.type = PACKET_TYPE_LOBBY;
@@ -253,30 +258,83 @@ void server_start_game() {
 	game_has_started = true;
 }
 
-static struct Bullet {
-	Body *body;
+struct Bullet {
+	int body;
+	uint32_t timer;
 	struct Bullet *next;
 };
-static struct Bullet *bullet;
+static struct Bullet *bullet_free;
+static struct Bullet *bullet_allocated;
 
-static void reset_bullet(int i) {
+int alloc_bullet() {
+	int ret;
+	struct Bullet *b = bullet_free;
+	printf("allocated bullet\n");
+	bullet_free = bullet_free->next;
+	ret = b->body;
+	b->timer = 0;
+	b->next = bullet_allocated;
+	bullet_allocated = b;
+	
+	return ret;
+}
+
+void send_bullets() {
+	struct Bullet **b, *tmp;
+	Packet pack;
+	Player *q;
+	int i;
+	
+	pack.type = PACKET_TYPE_OBJECT;
+	for(b = &bullet_allocated; *b;) {
+		if((*b)->timer++ > 100) {
+			tmp = *b;
+			*b = tmp->next;
+			i = tmp->body;
+			reset_bullet(i);
+			free(tmp);
+			
+			pack.object.id = BODIES + PLAYER_MAX + i;
+			pack.object.x = body[i].position.x;
+			pack.object.y = body[i].position.y;
+			pack.object.angle = body[i].angle;
+			for(q = player; q; q = q->next)
+				network_send(q->addr, &pack, sizeof(Packet));
+			continue;
+		}
+		i = BODIES + PLAYER_MAX + (*b)->body;
+		pack.object.id = i;
+		pack.object.x = body[i].position.x;
+		pack.object.y = body[i].position.y;
+		pack.object.angle = body[i].angle;
+		for(q = player; q; q = q->next)
+			network_send(q->addr, &pack, sizeof(Packet));
+		b = &((*b)->next);
+	}
+}
+
+void reset_bullet(int i) {
 	struct Bullet *b;
+	printf("freeing bullet\n");
 	body[BODIES + PLAYER_MAX + i].position.x = -5000.0;
 	body[BODIES + PLAYER_MAX + i].position.y = -5000.0;
 	body[BODIES + PLAYER_MAX + i].velocity.x = 0.0;
 	body[BODIES + PLAYER_MAX + i].velocity.y = 0.0;
 	body[BODIES + PLAYER_MAX + i].force.x = 0.0;
-	body[BODIES + PLAYER_MAX + i].force.y = 0.0;	body[BODIES + PLAYER_MAX + i].mass = 0.00000000000001;
+	body[BODIES + PLAYER_MAX + i].force.y = 0.0;
+	body[BODIES + PLAYER_MAX + i].mass = 0.01;
 	body[BODIES + PLAYER_MAX + i].radius = 0.001;
 	body[BODIES + PLAYER_MAX + i].movable = false;
-	body[BODIES + PLAYER_MAX + i].sprite = 16;
+	body[BODIES + PLAYER_MAX + i].sprite = 64 + 16;
 	
 	b = malloc(sizeof(struct Bullet));
-	b->body = &body[BODIES + PLAYER_MAX + i];
+	b->body = i;
+	b->timer = 0;
+	b->next = bullet_free;
+	bullet_free = b;
 }
 
 void server_start() {
-	Packet p;
 	int i;
 	
 	/*Of doom*/
@@ -338,8 +396,7 @@ void server_packet_dispatch(Packet p, unsigned long addr) {
 		p.lobby.begin = 6;
 		network_send(addr, &p, sizeof(Packet));
 		
-		Player *pl;
-		pl = player_add(addr, 0, 3.0, p.lobby.name);
+		player_add(addr, 0, 3.0, p.lobby.name);
 		
 		init = true;
 	} else {
