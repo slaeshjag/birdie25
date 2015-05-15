@@ -3,7 +3,7 @@
 
 #include "nbody.h"
 
-#define PLAYER_ACCEL .001
+#define PLAYER_ACCEL .00001
 #define PLAYER_MAX 16
 
 typedef struct Player Player;

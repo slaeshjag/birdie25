@@ -54,9 +54,16 @@ static void _send(Body *body, size_t bodies) {
 	Packet pack = {PACKET_TYPE_OBJECT};
 	PacketObject *po = &pack.object;
 	Player *p, *q;
+	int i, j;
+	Point pre[PRE_SIMULATIONS * players];
+	int me[players];
 	
-	int i;
-	for(q = player; q; q = q->next) {
+	for(q = player; q; q = q->next)
+		me[player->id - BODIES] = player->id;
+	
+	nbody_pre_simulate(pre, PRE_SIMULATIONS, body, BODIES + players, me, players, 60.0);
+	
+	for(q = player, j = 0; q; q = q->next, j++) {
 		for(i = 0; i < bodies; i++) {
 		//	printf("Body %i: {%f, %f} angle %f\n", i, body[i].position.x, body[i].position.y, body[i].angle);
 			po->id = i;
@@ -73,6 +80,14 @@ static void _send(Body *body, size_t bodies) {
 			po->y = p->body->position.y;
 			po->angle = p->body->angle;
 			network_send(q->addr, po, sizeof(Packet));
+		}
+		
+		for(i = 0; i < PRE_SIMULATIONS; i++) {
+			pack.type = PACKET_TYPE_PRE_SIMULATION;
+			pack.simul.id = i;
+			pack.simul.x = pre[i * PRE_SIMULATIONS + j].x;
+			pack.simul.y = pre[i * PRE_SIMULATIONS + j].y;
+			//network_send(q->addr, &pack, sizeof(Packet));
 		}
 	}
 }
@@ -91,6 +106,7 @@ static void _setup(Body *body, size_t bodies) {
 		ps->objects = BODIES + players;
 		ps->width = WIDTH;
 		ps->height = HEIGHT;
+		ps->pre_simulations = PRE_SIMULATIONS;
 		network_send(q->addr, ps, sizeof(Packet));
 		fprintf(stderr, "Announcing player %i\n", ps->id);
 		
@@ -179,7 +195,12 @@ void server_packet_dispatch(Packet p, unsigned long addr) {
 		p.lobby.begin = 6;
 		network_send(addr, &p, sizeof(Packet));
 		
-		player_add(addr, 0., -1.0, 0.0, 0.0, p.lobby.name);
+		double vel;
+		Body b;
+		b.position.x = 0.0;
+		b.position.y = 1.0;
+		vel = sqrt(G*(body[0].mass + 1.0)/DIST(body[0], b));
+		player_add(addr, 0.0, 1.0, -vel, 0.0, p.lobby.name);
 		init = true;
 	} else {
 		player_thread(p, addr);

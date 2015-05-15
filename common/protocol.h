@@ -12,6 +12,7 @@ enum PacketType {
 	PACKET_TYPE_SETUP_OBJECT,
 	PACKET_TYPE_OBJECT,
 	PACKET_TYPE_CLIENT,
+	PACKET_TYPE_PRE_SIMULATION,
 };
 
 typedef struct PacketLobby PacketLobby;
@@ -30,6 +31,7 @@ struct PacketSetup {
 	uint32_t objects;
 	double width;
 	double height;
+	uint32_t pre_simulations;
 };
 
 typedef struct PacketSetupObject PacketSetupObject;
@@ -63,6 +65,15 @@ struct PacketClient {
 	} button;
 };
 
+typedef struct PacketPreSimulate PacketPreSimulate;
+struct PacketPreSimulate {
+	uint32_t type;
+	
+	uint32_t id;
+	double x;
+	double y;
+};
+
 typedef union Packet Packet;
 union Packet {
 	uint32_t type;
@@ -71,6 +82,7 @@ union Packet {
 	PacketSetupObject setup_object;
 	PacketObject object;
 	PacketClient client;
+	PacketPreSimulate simul;
 };
 
 #endif

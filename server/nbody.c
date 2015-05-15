@@ -70,6 +70,29 @@ void nbody_move_bodies(Body *body, int n, double dt) {
 	}
 }
 
+void nbody_pre_simulate(Point *out, int no, Body *b, int nb, int *me, int nm, double time) {
+	Body *copy;
+	double dt, t;
+	int i, j, d;
+	
+	copy = malloc(sizeof(Body) * nb);
+	memcpy(copy, b, sizeof(Body) * nb);
+	
+	dt = time / ((double) no);
+	for(t = 0, d = 0; t < time; t += dt, d++) {
+		printf("d is %i\n", d);
+		nbody_calc_forces(copy, nb);
+		nbody_move_bodies(copy, nb, dt);
+		for(i = 0; i < nm; i++) {
+			j = me[i];
+			out[d*nm + i].x = copy[j].position.x;
+			out[d*nm + i].y = copy[j].position.y;
+		}
+	}
+	
+	free(copy);
+}
+
 #if 0
 /**
  * Main program entry point. Parse command line arguments, create array of

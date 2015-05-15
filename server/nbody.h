@@ -41,5 +41,6 @@ struct Rectangle {
 
 void nbody_calc_forces(Body *body, int n);
 void nbody_move_bodies(Body *body, int n, double dt);
+void nbody_pre_simulate(Point *out, int no, Body *b, int nb, int *me, int nm, double time);
 
 #endif

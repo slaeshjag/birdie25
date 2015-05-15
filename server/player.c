@@ -23,6 +23,8 @@ Player *player_add(unsigned long addr, double x, double y, double vel_x, double 
 	p->body = body + BODIES + players;
 	p->body->position.x = x;
 	p->body->position.y = y;
+	p->body->velocity.x = vel_x;
+	p->body->velocity.y = vel_y;
 	p->body->sprite = 64 + players;
 	p->body->mass = 1.0;
 	p->body->movable = true;
