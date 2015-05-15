@@ -105,8 +105,7 @@ static void _setup(Body *body, size_t bodies) {
 		ps->id = q->id;
 		ps->type = PACKET_TYPE_SETUP;
 		ps->objects = BODIES + players;
-		ps->width = WIDTH;
-		ps->height = HEIGHT;
+		ps->map_width = WIDTH;
 		ps->pre_simulations = PRE_SIMULATIONS;
 		network_send(q->addr, ps, sizeof(Packet));
 		fprintf(stderr, "Announcing player %i with ip %lu\n", ps->id, q->addr);

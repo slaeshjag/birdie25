@@ -28,6 +28,7 @@ static DARNIT_POINT *pre_simulation_point;
 
 static double object_scale;
 static double coordinate_scale;
+static double map_width;
 
 void object_get_coord(int id, int *x, int *y, int *w, int *h);
 extern bool we_are_hosting_a_game;
@@ -83,6 +84,7 @@ void object_update(int id, double x, double y, double angle) {
 	ai = (angle / M_PI * 1800);
 
 	object_get_coord(id, &arne, &goesta, &gw, &gh);
+	fprintf(stderr, "Gösta %i %i\n", xi, yi);
 	
 	xi -= gw / 2;
 	yi -= gh / 2;
@@ -133,6 +135,7 @@ void object_draw() {
 
 	for (i = 0; i < objs; i++) {
 		if (obj[i].sprite) {
+			handle_camera();
 			if (i == player_get())
 				object_draw_tractor_beam(obj[i].dx, -obj[i].dy, obj[i].angle, 1.0);
 			d_sprite_draw(obj[i].pic.sprite);
@@ -163,6 +166,7 @@ void pre_simulation_draw() {
 	for(i = 0; i < pre_simulations; i++) {
 		d_render_point_move(pre_simulation_point, i, pre_simulation[i].x*coordinate_scale, pre_simulation[i].y*coordinate_scale);
 	}
+
 	d_render_point_draw(pre_simulation_point, pre_simulations);
 }
 
@@ -235,10 +239,33 @@ void object_draw_tractor_beam(double x, double y, double angle, double length) {
 
 		x1 += x, x2 += x;
 		y1 += y, y2 += y;
-		fprintf(stderr, "%f %f %f %f, %f %f\n", x1, y1, x2, y2, ami, ama);
 		d_render_line_move(dl, i, x1 * coordinate_scale, y1 * coordinate_scale, x2 * coordinate_scale, y2 * coordinate_scale);
 	}
 
 	d_render_line_draw(dl, ni);
 	d_render_line_free(dl);
+}
+
+
+void object_draw_world_border() {
+	double world_w;
+	DARNIT_LINE *dl;
+
+	d_render_tint(255, 0, 0, 255);
+	world_w = coordinate_scale * map_width;
+	dl = d_render_line_new(4, 5);
+	d_render_line_move(dl, 0, -world_w, -world_w, world_w, -world_w);
+	d_render_line_move(dl, 1, world_w, -world_w, world_w, world_w);
+	d_render_line_move(dl, 2, world_w, world_w, -world_w, world_w);
+	d_render_line_move(dl, 3, -world_w, world_w, -world_w, -world_w);
+	d_render_line_draw(dl, 4);
+	d_render_line_free(dl);
+	d_render_tint(255, 255, 255, 255);
+
+	return;
+}
+
+
+void object_init_border(double world_w) {
+	map_width = world_w;
 }
