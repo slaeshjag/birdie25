@@ -14,6 +14,7 @@ enum GameState {
 	GAME_STATE_HOST,
 	GAME_STATE_GAMEROOM,
 	GAME_STATE_GAME,
+	GAME_STATE_GAME_OVER,
 	GAME_STATE_QUIT,
 	GAME_STATES,
 };
@@ -31,5 +32,6 @@ extern char player_name[];
 extern unsigned long sip;
 
 void game_state(GameState state);
+void restart_to_menu(const char *name);
 
 #endif

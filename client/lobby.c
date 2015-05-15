@@ -13,7 +13,7 @@ static void button_callback(UI_WIDGET *widget, unsigned int type, UI_EVENT *e) {
 	Packet pack;
 	
 	if(widget == lobby.button.back) {
-		game_state(GAME_STATE_MENU);
+		restart_to_menu(player_name);
 	} else if(widget == lobby.button.join) {
 		v = lobby.list->get_prop(lobby.list, UI_LISTBOX_PROP_SELECTED);
 		if(v.i < 0)
@@ -62,7 +62,7 @@ void lobby_network_handler() {
 			s = ui_listbox_get(lobby.list, i);
 			if(strtoul(s, NULL, 10) == ip) {
 				if(strstr(s, "Unknown")) {
-					sprintf(name, "%lu: %s", ip, pack.lobby.name);
+					snprintf(name, "%lu: %s's game", 256, ip, pack.lobby.name);
 					ui_listbox_set(lobby.list, i, name);
 					return;
 				} else

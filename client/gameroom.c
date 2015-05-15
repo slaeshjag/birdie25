@@ -10,7 +10,7 @@ GameRoom gameroom;
 
 static void button_callback(UI_WIDGET *widget, unsigned int type, UI_EVENT *e) {
 	if(widget == gameroom.button.back) {
-		game_state(GAME_STATE_MENU);
+		restart_to_menu(player_name);
 	} else if(widget == gameroom.button.start) {
 		server_start_game();
 	}

@@ -18,13 +18,29 @@ struct Menu {
 	} button;
 };
 
+typedef struct MenuHelp MenuHelp;
+struct MenuHelp {
+	struct UI_PANE_LIST pane;
+	UI_WIDGET *vbox;
+	struct {
+		UI_WIDGET *title;
+		UI_WIDGET *help;
+		UI_WIDGET *web;
+	} label;
+};
+
 typedef struct SelectName SelectName;
 struct SelectName{
 	struct UI_PANE_LIST pane;
 	UI_WIDGET *vbox;
+	UI_WIDGET *hbox;
 	UI_WIDGET *label;
 	UI_WIDGET *entry;
-	UI_WIDGET *button;
+	struct {
+		UI_WIDGET *ok;
+		UI_WIDGET *quit;
+	} button;
+	
 };
 
 extern Menu menu;

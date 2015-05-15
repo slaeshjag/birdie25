@@ -15,6 +15,8 @@
 #include "menu.h"
 #include "lobby.h"
 #include "gameroom.h"
+#include "gameover.h"
+
 unsigned long sip;
 void *server_main(void *);
 bool we_are_hosting_a_game;
@@ -39,6 +41,18 @@ struct UI_PANE_LIST *gamestate_pane[GAME_STATES];
 
 extern int objs;
 
+void restart_to_menu(const char *name) {
+	// This is ugly :D
+	char buf[4096];
+	sprintf(buf, "%s", d_fs_exec_path());
+	sprintf(buf, "%s", basename(buf));
+	if(name)
+		execl(d_fs_exec_path(), buf, name, NULL);
+	else
+		execl(d_fs_exec_path(), buf, NULL);
+}
+
+
 void game_state(GameState state) {
 	int i;
 	Packet pack;
@@ -50,7 +64,7 @@ void game_state(GameState state) {
 			ui_event_global_remove(game_view_mouse_move, UI_EVENT_TYPE_MOUSE_ENTER);
 			ui_event_global_remove(game_mouse_draw, UI_EVENT_TYPE_MOUSE_ENTER);
 			ui_event_global_remove(game_view_key_press, UI_EVENT_TYPE_KEYBOARD_PRESS);*/
-			pthread_kill(game.thread, 9);
+			pthread_cancel(game.thread);
 			break;
 		case GAME_STATE_MENU:
 			//ui_event_global_remove(menu_buttons, UI_EVENT_TYPE_BUTTONS);
@@ -60,6 +74,7 @@ void game_state(GameState state) {
 			break;
 		case GAME_STATE_GAMEROOM:;
 			break;
+		GAME_STATE_GAME_OVER:
 		case GAME_STATE_QUIT:
 		
 		case GAME_STATES:
@@ -108,6 +123,7 @@ void game_state(GameState state) {
 			state = GAME_STATE_GAMEROOM;
 		case GAME_STATE_GAMEROOM:
 			ui_listbox_clear(gameroom.list);
+		case GAME_STATE_GAME_OVER:
 		case GAME_STATE_QUIT:
 			d_input_release();
 		
@@ -141,19 +157,25 @@ int main(int argc, char **argv) {
 	lobby_init();
 	gameroom_init();
 	game_init();
+	game_over_init();
 	
 	gamestate_pane[GAME_STATE_MENU] = &menu.pane;
 	gamestate_pane[GAME_STATE_SELECT_NAME] = &select_name.pane;
 	gamestate_pane[GAME_STATE_LOBBY] = &lobby.pane;
 	gamestate_pane[GAME_STATE_GAMEROOM] = &gameroom.pane;
+	gamestate_pane[GAME_STATE_GAME_OVER] = &game_over.pane;
 	
 	signal(SIGINT, d_quit); //lol
 	network_init(PORT);
 	
 	d_cursor_show(1);
 	load_player_stuff_once();
-
-	game_state(GAME_STATE_SELECT_NAME);
+	
+	if(argc > 1) {
+		snprintf(player_name, NAME_LEN_MAX, "%s", argv[1]);
+		game_state(GAME_STATE_MENU);
+	} else
+		game_state(GAME_STATE_SELECT_NAME);
 	while(gamestate!=GAME_STATE_QUIT) {
 		//server_loop(d_last_frame_time());
 		

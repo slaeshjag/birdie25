@@ -165,14 +165,13 @@ void object_draw() {
 			//closest = i;
 		}
 	}
-	
+#endif
 	d_text_surface_reset(time_text);
 	char buff[40];
 	sprintf(buff, "Time left: %.2i:%.2i", (time_remaining / 60), time_remaining % 60);
 	d_text_surface_string_append(time_text, buff);
 	//coordinate_scale = 30.0*min_distance;//pow(M_E, -0.01*min_distance);
 	//printf("scale %f, %f, closest is %i\n", coordinate_scale, min_distance, closest);
-#endif
 }
 
 void pre_simulation_draw() {
@@ -231,6 +230,9 @@ void *object_thread(void *arne) {
 			case PACKET_TYPE_AUX_PLAYER:
 				obj[pack.auxplayer.id].tractor_beam = pack.auxplayer.tractor_beam;
 				fprintf(stderr, "Score for %s: %i\n", pack.auxplayer.name, pack.auxplayer.score);
+				break;
+			case PACKET_TYPE_EXIT:
+				game_state(GAME_STATE_GAME_OVER);
 				break;
 		}
 	}
