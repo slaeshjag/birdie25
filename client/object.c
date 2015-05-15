@@ -229,7 +229,6 @@ void *object_thread(void *arne) {
 				break;
 			case PACKET_TYPE_AUX_PLAYER:
 				obj[pack.auxplayer.id].tractor_beam = pack.auxplayer.tractor_beam;
-				fprintf(stderr, "Score for %s: %i\n", pack.auxplayer.name, pack.auxplayer.score);
 				break;
 			case PACKET_TYPE_EXIT:
 				game_state(GAME_STATE_GAME_OVER);

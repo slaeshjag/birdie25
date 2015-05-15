@@ -229,6 +229,19 @@ void player_draw_icon_autoedge(int icon, int x, int y) {
 int player_draw_hud() {
 	char text[32];
 
+	if (power < 0)
+		power = 0;
+	if (power > 1)
+		power = 1;
+	if (velocity < 0)
+		velocity = 0;
+	if (velocity > 1)
+		velocity = 1;
+	if (thrust < 0)
+		thrust = 0;
+	if (thrust > 1)
+		thrust = 1;
+
 	d_render_offset(0,0);
 	d_render_tile_set(powermeter, 0, 0);
 	d_render_tile_set(powermeter, 1, 1);
