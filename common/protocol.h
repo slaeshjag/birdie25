@@ -13,6 +13,7 @@ enum PacketType {
 	PACKET_TYPE_OBJECT,
 	PACKET_TYPE_CLIENT,
 	PACKET_TYPE_PRE_SIMULATION,
+	PACKET_TYPE_PLAYER,
 };
 
 typedef struct PacketLobby PacketLobby;
@@ -74,6 +75,15 @@ struct PacketPreSimulate {
 	double y;
 };
 
+typedef struct PacketPlayer PacketPlayer;
+struct PacketPlayer {
+	uint32_t type;
+	
+	double velocity;
+	double accel;
+	double energy;
+};
+
 typedef union Packet Packet;
 union Packet {
 	uint32_t type;
@@ -82,6 +92,7 @@ union Packet {
 	PacketSetupObject setup_object;
 	PacketObject object;
 	PacketClient client;
+	PacketPlayer player;
 	PacketPreSimulate simul;
 };
 

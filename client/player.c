@@ -17,9 +17,9 @@ static DARNIT_TILE *powermeter;
 static DARNIT_TILE *velocitymeter;
 static DARNIT_TILE *thrustmeter;
 static DARNIT_TILESHEET *powerts;
-static double power;
-static double thrust;
-static double velocity;
+double power;
+double thrust;
+double velocity;
 
 extern struct ClientObject *obj;
 extern double coordinate_scale;
@@ -216,11 +216,6 @@ void player_draw_icon_autoedge(int icon, int x, int y) {
 
 int player_draw_hud() {
 	char text[32];
-
-	/* Remove to activate meters */
-	power = 0.5;
-	thrust = 0.75;
-	velocity = 0.50;
 
 	d_render_offset(0,0);
 	d_render_tile_set(powermeter, 0, 0);
