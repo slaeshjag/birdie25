@@ -72,7 +72,8 @@ void player_thread(Packet pack, unsigned long addr) {
 				if (pack.client.button.beam) {
 					player_attach_asteroid(p);
 				}
-
+				
+				p->body->tractor_beam = pack.client.button.beam;
 				if(p->body->da >= PLAYER_ACCEL)
 					p->body->da = PLAYER_ACCEL;
 				else if(p->body->da <= 0)

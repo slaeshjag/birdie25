@@ -108,7 +108,7 @@ static void set_planet(int i, int orbit_around, double orbit_height,  int sprite
 	if(i >= BODIES)
 		return;
 	
-	x = body[orbit_around].position.x; + orbit_height/M_SQRT2;
+	x = body[orbit_around].position.x + orbit_height/M_SQRT2;
 	y = body[orbit_around].position.y + orbit_height/M_SQRT2;
 	
 	body[i].position.x = x;
@@ -154,6 +154,13 @@ static void _send(Body *body, size_t bodies) {
 			pack.object.angle = p->body->angle;
 			network_send(q->addr, &pack, sizeof(Packet));
 		}
+
+		pack.type = PACKET_TYPE_AUX_PLAYER;
+		for(p = player; p; p = p->next) {
+			pack.auxplayer.id = p->id;
+			pack.auxplayer.tractor_beam = p->body->tractor_beam?p->body->energy:0.;
+			network_send(q->addr, &pack, sizeof(Packet));;
+		}
 		
 		for(i = 0; i < PRE_SIMULATIONS; i++) {
 			pack.type = PACKET_TYPE_PRE_SIMULATION;
@@ -162,6 +169,7 @@ static void _send(Body *body, size_t bodies) {
 			pack.simul.y = pre[i + j*PRE_SIMULATIONS].y;
 			network_send(q->addr, &pack, sizeof(Packet));
 		}
+		
 		
 		pack.type = PACKET_TYPE_PLAYER;
 		pack.player.energy = q->body->energy;

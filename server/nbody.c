@@ -132,7 +132,7 @@ void nbody_move_bodies(Body *body, int n, double dt) {
 			int l;
 
 			l = body[i].tract.obj;
-			if (3.0 * body[l].energy < body[i].tract.distance) {
+			if (3.0 * body[l].energy < body[i].tract.distance || !body[l].tractor_beam) {
 				body[i].tract.obj = 0;
 				goto no_attach;
 			}

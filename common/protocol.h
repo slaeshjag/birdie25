@@ -14,6 +14,7 @@ enum PacketType {
 	PACKET_TYPE_CLIENT,
 	PACKET_TYPE_PRE_SIMULATION,
 	PACKET_TYPE_PLAYER,
+	PACKET_TYPE_AUX_PLAYER,
 };
 
 typedef struct PacketLobby PacketLobby;
@@ -85,6 +86,15 @@ struct PacketPlayer {
 	double energy;
 };
 
+
+typedef struct PacketAuxPlayer PacketAuxPlayer;
+struct PacketAuxPlayer {
+	uint32_t type;
+	uint32_t id;
+	double tractor_beam;
+	uint8_t score[8];
+};
+
 typedef union Packet Packet;
 union Packet {
 	uint32_t type;
@@ -95,6 +105,7 @@ union Packet {
 	PacketClient client;
 	PacketPlayer player;
 	PacketPreSimulate simul;
+	PacketAuxPlayer auxplayer;
 };
 
 #endif
