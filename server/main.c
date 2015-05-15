@@ -125,6 +125,11 @@ static void _setup(Body *body, size_t bodies) {
 	}
 }
 
+void prepare_orbit(Body *b) {
+	b->velocity.x =sqrt(G*(body[0].mass + b->mass)/fabs(b->position.x - body[0].position.x));
+	b->velocity.y =sqrt(G*(body[0].mass + b->mass)/fabs(b->position.y - body[0].position.y));
+	printf("(%f, %f) (%f, %f)\n", b->position.x, b->position.y, b->velocity.x, b->velocity.y);
+}
 
 void *server_main(void *argleblargle) {
 	Packet p = {};
@@ -151,7 +156,7 @@ void *server_main(void *argleblargle) {
 			if (player) {
 				strcpy(p.lobby.name, player->pname);
 			} else {
-				strcpy(p.lobby.name, "Arne");
+				strcpy(p.lobby.name, "Unknown");
 			}
 				network_broadcast(&p, sizeof(Packet));
 		}
@@ -170,10 +175,21 @@ void server_start_game() {
 
 void server_start() {
 	Packet p;
+	int i;
 
 	body[1].velocity.y = sqrt(G*(body[0].mass + body[1].mass)/DIST(body[0], body[1]));
 	body[2].velocity.y = sqrt(G*(body[0].mass + body[2].mass)/DIST(body[0], body[2]));
 	body[3].velocity.y = sqrt(G*(body[2].mass + body[3].mass)/DIST(body[2], body[3]));
+	
+	for(i = 4; i < BODIES; i++) {
+		//printf("angle %f\n", 2.0*M_PI*(BODIES - 4 - i)/((double) (BODIES - 4)));
+		body[i].position.x = 5.0*cos(2.0*M_PI*(BODIES - 4 - i)/((double) (BODIES - 4)));
+		body[i].position.y = 5.0*sin(2.0*M_PI*(BODIES - 4 - i)/((double) (BODIES - 4)));
+		body[i].mass = 1000.0;
+		body[i].movable = false;
+		body[i].sprite = 74;
+		prepare_orbit(body + i);
+	}
 	
 	pthread_t serber;
 	pthread_create(&serber, NULL, server_main, NULL);
@@ -190,8 +206,7 @@ void server_packet_dispatch(Packet p, unsigned long addr) {
 	if (!init) {
 		if (p.lobby.type != PACKET_TYPE_LOBBY || p.lobby.begin != 1)
 			return;
-
-		printf("begin %s arne\n", p.lobby.name);
+		
 		p.lobby.begin = 6;
 		network_send(addr, &p, sizeof(Packet));
 		

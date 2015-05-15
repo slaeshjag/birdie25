@@ -84,7 +84,6 @@ void object_update(int id, double x, double y, double angle) {
 	ai = (angle / M_PI * 1800);
 
 	object_get_coord(id, &arne, &goesta, &gw, &gh);
-	fprintf(stderr, "Gösta %i %i\n", xi, yi);
 	
 	xi -= gw / 2;
 	yi -= gh / 2;
@@ -135,11 +134,10 @@ void object_draw() {
 
 	for (i = 0; i < objs; i++) {
 		if (obj[i].sprite) {
-			handle_camera();
 			if (i == player_get())
 				object_draw_tractor_beam(obj[i].dx, -obj[i].dy, obj[i].angle, 1.0);
 			d_sprite_draw(obj[i].pic.sprite);
-			player_draw_nametag("Arne", 0, obj[i].x + 32, obj[i].y - 16);
+			//player_draw_nametag("Arne", 0, obj[i].x + 32, obj[i].y - 16);
 		} else
 			d_render_tile_draw(obj[i].pic.tile, 1);
 	}
@@ -166,7 +164,6 @@ void pre_simulation_draw() {
 	for(i = 0; i < pre_simulations; i++) {
 		d_render_point_move(pre_simulation_point, i, pre_simulation[i].x*coordinate_scale, pre_simulation[i].y*coordinate_scale);
 	}
-
 	d_render_point_draw(pre_simulation_point, pre_simulations);
 }
 
@@ -239,6 +236,7 @@ void object_draw_tractor_beam(double x, double y, double angle, double length) {
 
 		x1 += x, x2 += x;
 		y1 += y, y2 += y;
+		//fprintf(stderr, "%f %f %f %f, %f %f\n", x1, y1, x2, y2, ami, ama);
 		d_render_line_move(dl, i, x1 * coordinate_scale, y1 * coordinate_scale, x2 * coordinate_scale, y2 * coordinate_scale);
 	}
 

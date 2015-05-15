@@ -46,7 +46,7 @@ void lobby_init() {
 void lobby_network_handler() {
 	UI_PROPERTY_VALUE v;
 	Packet pack;
-	char name[256];
+	char name[256], *s;
 	unsigned long ip;
 	int i;
 	
@@ -58,8 +58,15 @@ void lobby_network_handler() {
 	if(pack.lobby.begin == 3) {
 		v = lobby.list->get_prop(lobby.list, UI_LISTBOX_PROP_SIZE);
 		for(i = 0; i < v.i; i++) {
-			if(strtoul(ui_listbox_get(lobby.list, i), NULL, 10) == ip)
-				return;
+			s = ui_listbox_get(lobby.list, i);
+			if(strtoul(s, NULL, 10) == ip) {
+				if(strstr(s, "Unknown")) {
+					sprintf(name, "%lu: %s", ip, pack.lobby.name);
+					ui_listbox_set(lobby.list, i, name);
+					return;
+				} else
+					return;
+			}
 		}
 		sprintf(name, "%lu: %s", ip, pack.lobby.name);
 		ui_listbox_add(lobby.list, name);

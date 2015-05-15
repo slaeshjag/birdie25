@@ -99,7 +99,7 @@ void player_thread(Packet pack, unsigned long addr) {
 					pack.type = PACKET_TYPE_LOBBY;
 					pack.lobby.begin = 6;
 					strcpy(pack.lobby.name, next->pname);
-					fprintf(stderr, "Telling player about %s addr %i\n", pack.lobby.name, addr);
+					fprintf(stderr, "Telling player about %s addr %lu\n", pack.lobby.name, addr);
 					network_send(addr, &pack, sizeof(pack));
 				}
 
