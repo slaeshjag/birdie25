@@ -246,8 +246,8 @@ void *server_main(void *argleblargle) {
 	//pthread_create(&pth, NULL, player_thread, NULL);
 	for(i = 0;; i++) {
 		if (game_has_started && (d_time_get() - timer_start) / 1000 < GAME_TIMER) {
-			nbody_calc_forces(body, BODIES + PLAYER_MAX + BULLETS);
-			nbody_move_bodies(body, BODIES + PLAYER_MAX + BULLETS, 1);
+			nbody_calc_forces(body, BODIES + players);
+			nbody_move_bodies(body, BODIES + players, 1);
 			_send(body, BODIES);
 		} else if (!(i & 0x1F)) {
 				p.type = PACKET_TYPE_LOBBY;
@@ -334,16 +334,16 @@ void send_bullets() {
 void reset_bullet(int i) {
 	struct Bullet *b;
 	printf("freeing bullet\n");
-	body[BODIES + PLAYER_MAX + i].position.x = -5000.0;
-	body[BODIES + PLAYER_MAX + i].position.y = -5000.0;
-	body[BODIES + PLAYER_MAX + i].velocity.x = 0.0;
-	body[BODIES + PLAYER_MAX + i].velocity.y = 0.0;
-	body[BODIES + PLAYER_MAX + i].force.x = 0.0;
-	body[BODIES + PLAYER_MAX + i].force.y = 0.0;
-	body[BODIES + PLAYER_MAX + i].mass = 0.01;
-	body[BODIES + PLAYER_MAX + i].radius = 0.001;
-	body[BODIES + PLAYER_MAX + i].movable = false;
-	body[BODIES + PLAYER_MAX + i].sprite = 64 + 16;
+	body[BULLET_START + i].position.x = -5000.0;
+	body[BULLET_START + i].position.y = -5000.0;
+	body[BULLET_START + i].velocity.x = 0.0;
+	body[BULLET_START + i].velocity.y = 0.0;
+	body[BULLET_START + i].force.x = 0.0;
+	body[BULLET_START + i].force.y = 0.0;
+	body[BULLET_START + i].mass = 0.01;
+	body[BULLET_START + i].radius = 0.001;
+	body[BULLET_START + i].movable = false;
+	body[BULLET_START + i].sprite = 64 + 16;
 	
 	b = malloc(sizeof(struct Bullet));
 	b->body = i;
