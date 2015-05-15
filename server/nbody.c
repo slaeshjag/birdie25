@@ -94,8 +94,11 @@ void nbody_move_bodies(Body *body, int n, double dt) {
 		if(!body[i].movable)
 			goto out;
 	
-		if (body[i].sprite >= 64) {
-//			if (player_check_coordinate_
+		if (i != 10) {
+			if (player_check_coordinate_tractor_beam(body[10].position.x, body[10].position.y, body[10].angle, 3.0, body[i].position.x, body[i].position.y)) {
+//				fprintf(stderr, "Body %i is within tractor beam\n", i);
+				body[i].movable = false;
+			}
 		}
 		deltav.x = dt * (body[i].force.x / body[i].mass);
 		deltav.y = dt * (body[i].force.y / body[i].mass);

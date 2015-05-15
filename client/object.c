@@ -133,7 +133,7 @@ void object_draw() {
 	for (i = 0; i < objs; i++) {
 		if (obj[i].sprite) {
 			if (i == player_get())
-				object_draw_tractor_beam(obj[i].dx, -obj[i].dy, obj[i].angle, 4.0);
+				object_draw_tractor_beam(obj[i].dx, -obj[i].dy, obj[i].angle, 3.0);
 			d_sprite_draw(obj[i].pic.sprite);
 			//player_draw_nametag("Arne", 0, obj[i].x + 32, obj[i].y - 16);
 		} else

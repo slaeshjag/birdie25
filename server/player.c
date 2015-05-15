@@ -115,6 +115,8 @@ bool player_check_coordinate_tractor_beam(double trac_x, double trac_y, double a
 
 	dx = point_x - trac_x;
 	dy = point_y - trac_y;
+	dx *= -1;
+	dy *= -1;
 	if (dx*dx + dy*dy >= length*length)
 		return false;
 
