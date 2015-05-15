@@ -13,4 +13,7 @@ struct Client {
 	unsigned long addr;
 };
 
+void server_start();
+void server_start_game();
+
 #endif
