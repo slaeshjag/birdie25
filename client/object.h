@@ -6,6 +6,9 @@
 #include <darnit/darnit.h>
 #include <stdbool.h>
 
+#define SUP2(x) ((x)*(x))
+#define DIST(b1, b2) sqrt(SUP2((b1).dx - (b2).dx) + SUP2((b1).dy - (b2).dy))
+
 struct ClientObject {
 	int			x;
 	int			y;

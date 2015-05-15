@@ -58,7 +58,6 @@ bool ball_collision_handled(Body *body, int n, int ball, Point deltap, Point del
  * @param body The array of bodies to be processed
  * @param n Size of the body array
  */
-
 void nbody_calc_forces(Body *body, int n) {
 	int i, j;
 	double distance, magnitude;
@@ -102,6 +101,14 @@ void nbody_move_bodies(Body *body, int n, double dt) {
 		
 		body[i].velocity.x += deltav.x;
 		body[i].velocity.y += deltav.y;
+		if(body[i].velocity.x > SPEED_LIMIT)
+			body[i].velocity.x = SPEED_LIMIT;
+		else if(body[i].velocity.x < -SPEED_LIMIT)
+			body[i].velocity.x = -SPEED_LIMIT;
+		if(body[i].velocity.y > SPEED_LIMIT)
+			body[i].velocity.y = SPEED_LIMIT;
+		else if(body[i].velocity.y < -SPEED_LIMIT)
+			body[i].velocity.y = -SPEED_LIMIT;
 		
 		if (ball_collision_handled(body, n, i, deltap, deltav))
 			continue;

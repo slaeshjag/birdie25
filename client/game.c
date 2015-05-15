@@ -18,6 +18,7 @@ void game_init() {
 		map->data[i] = 1;
 	}
 	d_tilemap_recalc(map);
+	
 }
 
 extern struct {
@@ -32,7 +33,7 @@ void game_render() {
 	pl = player_get();
 	x = obj[pl].dx;
 	y = obj[pl].dy;
-	d_tilemap_camera_move(map, 128*32 + 20.0*x, 128*32 + 20.0*y);
+	d_tilemap_camera_move(map, 128*32 + 10.0*x, 128*32 + 10.0*y);
 	d_tilemap_draw(map);
 	handle_camera();
 	handle_player();
