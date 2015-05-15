@@ -40,6 +40,10 @@ bool ball_collision_handled(Body *body, int n, int ball, Point deltap, Point del
 		vx2 = (body[i].velocity.x * (body[i].mass - body[ball].mass) + 2 * body[ball].mass * cvx) / (body[ball].mass + body[i].mass);
 		vy1 = (cvx * (body[ball].mass - body[i].mass) + 2 * body[i].mass * body[i].velocity.x) / (body[ball].mass + body[i].mass);
 		vy2 = (body[i].velocity.x * (body[i].mass - body[ball].mass) + 2 * body[ball].mass * cvx) / (body[ball].mass + body[i].mass);
+		vy1 *= 0.7;
+		vy2 *= 0.7;
+		vx1 *= 0.7;
+		vx2 *= 0.7;
 		body[ball].velocity.x = vx1;
 		body[ball].velocity.y = vy1;
 		body[i].velocity.x = vx2;
@@ -121,19 +125,19 @@ void nbody_move_bodies(Body *body, int n, double dt) {
 
 		if (body[i].position.x + deltap.x > WIDTH) {
 			body[i].position.x = WIDTH;
-			body[i].velocity.x *= -1;
+			body[i].velocity.x *= -0.7;
 		} else if (body[i].position.x + deltap.x < -WIDTH) {
 			body[i].position.x = -WIDTH;
-			body[i].velocity.x *= -1;
+			body[i].velocity.x *= -0.7;
 		} else {
 			body[i].position.x += deltap.x;
 		}
 		if (body[i].position.y + deltap.y > WIDTH) {
 			body[i].position.y = WIDTH;
-			body[i].velocity.y *= -1;
+			body[i].velocity.y *= -0.7;
 		} else if (body[i].position.y + deltap.y < -WIDTH) {
 			body[i].position.y = -WIDTH;
-			body[i].velocity.y *= -1;
+			body[i].velocity.y *= -0.7;
 		} else {
 			body[i].position.y += deltap.y;
 		}

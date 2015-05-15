@@ -24,7 +24,7 @@ Body body[BODIES + PLAYER_MAX] = {
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
 		.mass = 10000000.0,
-		.radius = 0.1,
+		.radius = 0.15,
 		.movable = false,
 		.sprite = 0,
 	}, {
@@ -32,7 +32,7 @@ Body body[BODIES + PLAYER_MAX] = {
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
 		.mass = 10000.0,
-		.radius = 0.1,
+		.radius = 0.15,
 		.movable = true,
 		.sprite = 1,
 	}, {
@@ -40,7 +40,7 @@ Body body[BODIES + PLAYER_MAX] = {
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
 		.mass = 10000.0,
-		.radius = 0.1,
+		.radius = 0.15,
 		.movable = true,
 		.sprite = 1,
 	}, {
@@ -48,7 +48,7 @@ Body body[BODIES + PLAYER_MAX] = {
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
 		.mass = 1000.0,
-		.radius = 0.1,
+		.radius = 0.15,
 		.movable = true,
 		.sprite = 0,
 	}

@@ -28,6 +28,7 @@ Player *player_add(unsigned long addr, double x, double y, double vel_x, double 
 	p->body->sprite = 64 + players;
 	p->body->mass = 1.0;
 	p->body->movable = true;
+	p->body->radius = 0.1;
 	p->pname = strdup(pname);
 	
 	p->energy = 1.0;
