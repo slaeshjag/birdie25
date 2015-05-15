@@ -16,5 +16,6 @@ struct Lobby {
 
 extern Lobby lobby;
 void lobby_init();
+void lobby_network_handler();
 
 #endif

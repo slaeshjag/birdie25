@@ -28,6 +28,7 @@ struct Gfx {
 
 extern Gfx gfx;
 extern char player_name[];
+extern unsigned long sip;
 
 void game_state(GameState state);
 

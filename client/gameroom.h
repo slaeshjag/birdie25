@@ -1,5 +1,7 @@
 #ifndef __GAMEROOM_H__
 #define __GAMEROOM_H__
+#include "ui/ui.h"
+#include <pthread.h>
 
 typedef struct GameRoom GameRoom;
 struct GameRoom {
@@ -15,6 +17,7 @@ struct GameRoom {
 };
 
 extern GameRoom gameroom;
+void gameroom_network_handler();
 void gameroom_init();
 
 #endif

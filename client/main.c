@@ -8,6 +8,7 @@
 #include <libgen.h>
 #include <unistd.h>
 #include <limits.h>
+#include <string.h>
 #include "ui/ui.h"
 #include "game.h"
 #include "main.h"
@@ -29,9 +30,17 @@ void (*state_render[GAME_STATES])()={
 	[GAME_STATE_SELECT_NAME] = NULL,
 };
 
+void (*state_network_handler[GAME_STATES])()={
+	[GAME_STATE_GAMEROOM] = gameroom_network_handler,
+	[GAME_STATE_LOBBY] = lobby_network_handler,
+};
+
 struct UI_PANE_LIST *gamestate_pane[GAME_STATES];
 
+extern int objs;
+
 void game_state(GameState state) {
+	int i;
 	Packet pack;
 	//Game state destructors
 	switch(gamestate) {
@@ -41,13 +50,16 @@ void game_state(GameState state) {
 			ui_event_global_remove(game_view_mouse_move, UI_EVENT_TYPE_MOUSE_ENTER);
 			ui_event_global_remove(game_mouse_draw, UI_EVENT_TYPE_MOUSE_ENTER);
 			ui_event_global_remove(game_view_key_press, UI_EVENT_TYPE_KEYBOARD_PRESS);*/
+			pthread_kill(game.thread, 9);
 			break;
 		case GAME_STATE_MENU:
 			//ui_event_global_remove(menu_buttons, UI_EVENT_TYPE_BUTTONS);
 		case GAME_STATE_SELECT_NAME:
 		case GAME_STATE_HOST:
 		case GAME_STATE_LOBBY:
-		case GAME_STATE_GAMEROOM:
+			break;
+		case GAME_STATE_GAMEROOM:;
+			break;
 		case GAME_STATE_QUIT:
 		
 		case GAME_STATES:
@@ -61,8 +73,14 @@ void game_state(GameState state) {
 			ui_event_global_add(game_mouse_draw, UI_EVENT_TYPE_MOUSE_ENTER);
 			ui_event_global_add(game_view_buttons, UI_EVENT_TYPE_BUTTONS);
 			ui_event_global_add(game_view_key_press, UI_EVENT_TYPE_KEYBOARD_PRESS);*/
+			camera_init(0);
+			// NOTE: Don't remove this! It leaks RAM, but prevents segfault in OpenGL
+			for (i = 0; i < objs; i++)
+				object_init_object(i, 64);
+			object_init_object(0, 65);
+			pthread_create(&game.thread, NULL, object_thread, NULL);
 			#ifndef __DEBUG__
-			d_input_grab();
+			//d_input_grab();
 			#endif
 			break;
 		case GAME_STATE_MENU:
@@ -71,16 +89,20 @@ void game_state(GameState state) {
 			ui_selected_widget = select_name.entry;
 			break;
 		case GAME_STATE_LOBBY:
-			case GAME_STATE_HOST:
+			gameroom.button.start->enabled = false;
+			break;
+		case GAME_STATE_HOST:
 			we_are_hosting_a_game = true;
 			server_start();
 			pack.type = PACKET_TYPE_LOBBY;
 			pack.lobby.begin = 1;
+			printf("player name is %s\n", player_name);
 			memcpy(pack.lobby.name, player_name, NAME_LEN_MAX);
-			network_send(network_local_ip(), &pack, sizeof(Packet));
-			
+			network_send(sip = network_local_ip(), &pack, sizeof(Packet));
+			gameroom.button.start->enabled = true;
 			state = GAME_STATE_GAMEROOM;
 		case GAME_STATE_GAMEROOM:
+			ui_listbox_clear(gameroom.list);
 		case GAME_STATE_QUIT:
 			d_input_release();
 		
@@ -118,9 +140,6 @@ int main(int argc, char **argv) {
 	signal(SIGINT, d_quit); //lol
 	network_init(PORT);
 	
-	pl.lobby.type = PACKET_TYPE_LOBBY;
-	pl.lobby.begin = 1;
-	network_broadcast(&pl, sizeof(Packet));
 	d_cursor_show(1);
 	load_player_stuff_once();
 
@@ -130,6 +149,9 @@ int main(int argc, char **argv) {
 		
 		/*if(gamestate>=GAME_STATE_LOBBY)
 			client_check_incoming();*/
+		
+		if(state_network_handler[gamestate])
+			state_network_handler[gamestate]();
 		
 		d_render_begin();
 		d_render_blend_enable();
@@ -148,7 +170,6 @@ int main(int argc, char **argv) {
 		sip = network_recv(&pl, sizeof(Packet));
 		printf("%i %i\n", pl.type, pl.lobby.begin);
 		if(pl.lobby.type == PACKET_TYPE_LOBBY && pl.lobby.begin == 3) {
-			printf("arneeee\n");
 			pl2.lobby.type = PACKET_TYPE_LOBBY;
 			pl2.lobby.begin = 1;
 			network_broadcast(&pl2, sizeof(Packet));
@@ -160,17 +181,6 @@ int main(int argc, char **argv) {
 	do {
 		network_recv(&ps, sizeof(ps));
 	} while(ps.setup.type != PACKET_TYPE_SETUP);
-
-	object_init(ps.setup.objects);
-	camera_init(0);
-
-	// NOTE: Don't remove this! It leaks RAM, but prevents segfault in OpenGL
-	for (i = 0; i < ps.setup.objects; i++)
-		object_init_object(i, 64);
-	object_init_object(0, 65);
-
-	pthread_t tid;
-	pthread_create(&tid, NULL, object_thread, NULL);
 
 
 	for (;;) {

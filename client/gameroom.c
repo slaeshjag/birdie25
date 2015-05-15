@@ -3,14 +3,16 @@
 #include "main.h"
 #include "gameroom.h"
 #include <protocol.h>
+#include <network.h>
+#include "../server/main.h"
 
 GameRoom gameroom;
 
 static void button_callback(UI_WIDGET *widget, unsigned int type, UI_EVENT *e) {
 	if(widget == gameroom.button.back) {
-		game_state(GAME_STATE_LOBBY);
+		game_state(GAME_STATE_MENU);
 	} else if(widget == gameroom.button.start) {
-		
+		server_start_game();
 	}
 }
 
@@ -28,4 +30,22 @@ void gameroom_init() {
 	
 	gameroom.button.back->event_handler->add(gameroom.button.back, button_callback, UI_EVENT_TYPE_UI_WIDGET_ACTIVATE);
 	gameroom.button.start->event_handler->add(gameroom.button.start, button_callback, UI_EVENT_TYPE_UI_WIDGET_ACTIVATE);
+}
+
+
+void gameroom_network_handler() {
+	Packet pack;
+	if(!network_poll())
+		return;
+	sip = network_recv(&pack, sizeof(Packet));
+	if(pack.type == PACKET_TYPE_LOBBY) {
+		printf("pack %i\n", pack.lobby.begin);
+		if(pack.lobby.begin == 6) {
+			printf("joined: %s\n", pack.lobby.name);
+			ui_listbox_add(gameroom.list, pack.lobby.name);
+		}
+	} else if(pack.type == PACKET_TYPE_SETUP) {
+		object_init(pack.setup.objects);
+		game_state(GAME_STATE_GAME);
+	}
 }

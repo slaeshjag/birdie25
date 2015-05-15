@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <protocol.h>
+#include <sys/select.h>
 
 #define SOCKET int
 #define closesocket close
@@ -47,6 +48,17 @@ unsigned long network_local_ip() {
 	struct in_addr addr;
 	inet_pton(AF_INET, "127.0.0.1", &addr);
 	return addr.s_addr;
+}
+
+int network_poll() {
+	fd_set fds;
+	struct timeval tv = {
+		.tv_sec = 0,
+		.tv_usec = 0,
+	};
+	FD_ZERO(&fds);
+	FD_SET(sock, &fds);
+	return select(sock + 1, &fds, NULL, NULL, &tv);
 }
 
 int network_init(int _port) {

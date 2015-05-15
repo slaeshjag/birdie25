@@ -5,10 +5,10 @@
 #include <math.h>
 #include <network.h>
 #include <protocol.h>
+#include "main.h"
 
-extern unsigned long sip;
 static struct ClientObject *obj;
-static int objs;
+int objs;
 static DARNIT_TILESHEET *planets;
 
 static double object_scale;
@@ -127,14 +127,14 @@ void *object_thread(void *arne) {
 	for (;;) {
 		addr = network_recv(&pack, sizeof(Packet));
 		
-		if (we_are_hosting_a_game) {
-			player_thread(pack, addr);
+		//if (we_are_hosting_a_game) {
+			//player_thread(pack, addr);
 			/*datalen = sizeof(Packet);
 
 			write(server_forward_pipe[1], &datalen, sizeof(datalen));
 			write(server_forward_pipe[1], &addr, sizeof(addr));
 			write(server_forward_pipe[1], &pack, sizeof(pack));*/
-		}
+		//}
 
 		if (addr != sip)
 			continue;

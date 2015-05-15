@@ -174,7 +174,7 @@ void server_packet_dispatch(Packet p, unsigned long addr) {
 		if (p.lobby.type != PACKET_TYPE_LOBBY || p.lobby.begin != 1)
 			return;
 
-		printf("begin\n");
+		printf("begin %s arne\n", p.lobby.name);
 		p.lobby.begin = 6;
 		network_send(addr, &p, sizeof(Packet));
 		

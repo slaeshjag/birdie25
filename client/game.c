@@ -3,6 +3,8 @@
 #include "object.h"
 #include "player.h"
 
+Game game;
+
 void game_init() {
 	
 }

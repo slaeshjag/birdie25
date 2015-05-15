@@ -9,7 +9,7 @@ SelectName select_name;
 
 static void button_callback_name(UI_WIDGET *widget, unsigned int type, UI_EVENT *e) {
 	UI_PROPERTY_VALUE v;
-	v = widget->get_prop(widget, UI_ENTRY_PROP_TEXT);
+	v = select_name.entry->get_prop(select_name.entry, UI_ENTRY_PROP_TEXT);
 	snprintf(player_name, NAME_LEN_MAX, "%s", (char *) v.p);
 	game_state(GAME_STATE_MENU);
 }
