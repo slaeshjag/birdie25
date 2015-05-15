@@ -64,6 +64,16 @@ void nbody_move_bodies(Body *body, int n, double dt) {
 		
 		body[i].velocity.x += deltav.x;
 		body[i].velocity.y += deltav.y;
+		if(body[i].velocity.x > SPEED_LIMIT)
+			body[i].velocity.x = SPEED_LIMIT;
+		else if(body[i].velocity.x < -SPEED_LIMIT)
+			body[i].velocity.x = -SPEED_LIMIT;
+		if(body[i].velocity.y > SPEED_LIMIT)
+			body[i].velocity.y = SPEED_LIMIT;
+		else if(body[i].velocity.y < -SPEED_LIMIT)
+			body[i].velocity.y = -SPEED_LIMIT;
+		
+		
 		if (body[i].position.x + deltap.x > WIDTH) {
 			body[i].position.x = WIDTH;
 			body[i].velocity.x *= -1;

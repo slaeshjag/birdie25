@@ -7,7 +7,8 @@
 #define BODIES 10
 #define PRE_SIMULATIONS 20
 
-#define WIDTH 100
+#define WIDTH 50.0
+#define SPEED_LIMIT 0.1
 
 typedef struct Client Client;
 struct Client {

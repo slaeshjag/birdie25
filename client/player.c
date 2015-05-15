@@ -27,6 +27,7 @@ struct {
 	int x;
 	int y;
 } static compass;
+static DARNIT_TEXT_SURFACE *trip;
 
 void camera_init(int focus_object) {
 	camera.focus_object = focus_object;
@@ -46,6 +47,7 @@ void load_player_stuff_once() {
 	d_render_line_move(compass.north, 1, 0, 0, 0, 0);
 	d_render_line_move(compass.south, 0, 0, 0, 0, 0);
 	d_render_line_move(compass.south, 1, 0, 0, 0, 0);
+	trip = d_text_surface_new(gfx.font.small, 256, 256, DISPLAY_WIDTH - 128, 128);
 }
 
 
@@ -207,6 +209,7 @@ void player_draw_icon_autoedge(int icon, int x, int y) {
 
 
 int player_draw_hud() {
+	char text[32];
 	power = 0.5;
 	d_render_offset(0,0);
 	d_render_tile_set(powermeter, 0, 0);
@@ -237,5 +240,10 @@ int player_draw_hud() {
 	d_render_tint(255, 255, 255, 255);
 	d_render_line_draw(compass.south, 1);
 
+	d_text_surface_reset(trip);
+	sprintf(text, "Distance: %i", (int) (DIST(obj[0], obj[pl]) * 200.0));
+	d_text_surface_string_append(trip, text);
+	d_text_surface_draw(trip);
+	
 	return 1;
 }
