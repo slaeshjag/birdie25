@@ -65,14 +65,20 @@ void nbody_move_bodies(Body *body, int n, double dt) {
 		body[i].velocity.x += deltav.x;
 		body[i].velocity.y += deltav.y;
 		if (body[i].position.x + deltap.x > WIDTH) {
-			fprintf(stderr, "KRASH!\n");
-			body[i].position.y = WIDTH;
+			body[i].position.x = WIDTH;
+			body[i].velocity.x *= -1;
+		} else if (body[i].position.x + deltap.x < -WIDTH) {
+			body[i].position.x = -WIDTH;
+			body[i].velocity.x *= -1;
 		} else {
 			body[i].position.x += deltap.x;
 		}
 		if (body[i].position.y + deltap.y > WIDTH) {
-			fprintf(stderr, "KRASH!\n");
 			body[i].position.y = WIDTH;
+			body[i].velocity.y *= -1;
+		} else if (body[i].position.y + deltap.y < -WIDTH) {
+			body[i].position.y = -WIDTH;
+			body[i].velocity.y *= -1;
 		} else {
 			body[i].position.y += deltap.y;
 		}

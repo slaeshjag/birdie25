@@ -28,6 +28,7 @@ static DARNIT_POINT *pre_simulation_point;
 
 static double object_scale;
 static double coordinate_scale;
+static double map_width;
 
 void object_get_coord(int id, int *x, int *y, int *w, int *h);
 extern bool we_are_hosting_a_game;
@@ -75,12 +76,15 @@ void object_init_object(int id, int sprite_id) {
 void object_update(int id, double x, double y, double angle) {
 	int xi, yi, ai, arne, goesta, gw, gh;
 
+	obj[id].dx = x;
+	obj[id].dy = y;
 	y *= -1;
 	xi = x * coordinate_scale;
 	yi = y * coordinate_scale;
 	ai = (angle / M_PI * 1800);
 
 	object_get_coord(id, &arne, &goesta, &gw, &gh);
+	fprintf(stderr, "Gösta %i %i\n", xi, yi);
 	
 	xi -= gw / 2;
 	yi -= gh / 2;
@@ -105,8 +109,6 @@ void object_update(int id, double x, double y, double angle) {
 
 	obj[id].x = xi;
 	obj[id].y = yi;
-	obj[id].dx = x;
-	obj[id].dy = y;
 	obj[id].angle = ai;
 //	fprintf(stderr, "Object %i at %i, %i @ %i\n", id, xi, yi, ai);
 }
@@ -132,9 +134,13 @@ void object_draw() {
 	int i;
 
 	for (i = 0; i < objs; i++) {
-		if (obj[i].sprite)
+		if (obj[i].sprite) {
+			handle_camera();
+			if (i == player_get())
+				object_draw_tractor_beam(obj[i].dx, -obj[i].dy, obj[i].angle, 1.0);
 			d_sprite_draw(obj[i].pic.sprite);
-		else
+			//player_draw_nametag("Arne", 0, obj[i].x + 32, obj[i].y - 16);
+		} else
 			d_render_tile_draw(obj[i].pic.tile, 1);
 	}
 
@@ -142,13 +148,8 @@ void object_draw() {
 	int closest = 0;
 	int id = player_get();
 	for (i = 0; i < objs; i++) {
-<<<<<<< HEAD
-		object_draw_tractor_beam(obj[i].dx, obj[i].dy, obj[i].angle, 1.0);
-		if (obj[i].sprite)
-=======
 		if (obj[i].sprite) {
-			printf("%i is sprite\n", i);
->>>>>>> 40df34fcd639eae331ed55f660a812873df3fbad
+			//printf("%i is sprite\n", i);
 			continue;
 		}
 		if ((dist = DIST(obj[i], obj[id])) < min_distance) {
@@ -157,7 +158,7 @@ void object_draw() {
 		}
 	}
 	//coordinate_scale = 30.0*min_distance;//pow(M_E, -0.01*min_distance);
-	printf("scale %f, %f, closest is %i\n", coordinate_scale, min_distance, closest);
+	//printf("scale %f, %f, closest is %i\n", coordinate_scale, min_distance, closest);
 }
 
 void pre_simulation_draw() {
@@ -165,6 +166,7 @@ void pre_simulation_draw() {
 	for(i = 0; i < pre_simulations; i++) {
 		d_render_point_move(pre_simulation_point, i, pre_simulation[i].x*coordinate_scale, pre_simulation[i].y*coordinate_scale);
 	}
+
 	d_render_point_draw(pre_simulation_point, pre_simulations);
 }
 
@@ -185,8 +187,9 @@ void *object_thread(void *arne) {
 			write(server_forward_pipe[1], &pack, sizeof(pack));*/
 		//}
 
-		if (addr != sip)
+		if (addr != sip) {
 			continue;
+		}
 		
 		switch(pack.type) {
 			case PACKET_TYPE_OBJECT:
@@ -198,7 +201,7 @@ void *object_thread(void *arne) {
 				break;
 			case PACKET_TYPE_PRE_SIMULATION:
 				pre_simulation[pack.simul.id].x = pack.simul.x;
-				pre_simulation[pack.simul.id].y = pack.simul.y;
+				pre_simulation[pack.simul.id].y = -pack.simul.y;
 				break;
 		}
 	}
@@ -215,25 +218,58 @@ void object_draw_tractor_beam(double x, double y, double angle, double length) {
 	int t, ni, i;
 	DARNIT_LINE *dl;
 
+	angle /= 1800.;
+	angle *= M_PI;
+	angle *= -1;
+	angle += M_PI;
 
-	n = length / 0.05;
-	t = d_time_get() % 250;
-	td = (double) t / 250;
+	n = length / 0.1;
+	t = d_time_get() % 100;
+	td = (double) t / 100*-1;
 	ni = n;
 	
 	dl = d_render_line_new(ni, 1);
 
 	for (i = 0; i < ni; i++) {
 		double x1, y1, x2, y2, ami, ama;
-		ami = angle - M_PI_4;
-		ama = angle + M_PI_4;
-		x1 = cos(ami) * (0.05 * i), y1 = sin(ami) * (0.05 * i);
-		x2 = cos(ama) * (0.05 * i), y2 = sin(ama) * (0.05 * i);
+		ami = angle - M_PI/8;
+		ama = angle + M_PI/8;
+		x1 = cos(ami) * (0.1 * i + td/10), y1 = sin(ami) * (0.1 * i + td/10);
+		x2 = cos(ama) * (0.1 * i + td/10), y2 = sin(ama) * (0.1 * i + td/10);
 
 		x1 += x, x2 += x;
 		y1 += y, y2 += y;
+<<<<<<< HEAD
+=======
+		//fprintf(stderr, "%f %f %f %f, %f %f\n", x1, y1, x2, y2, ami, ama);
+>>>>>>> refs/remotes/origin/master
 		d_render_line_move(dl, i, x1 * coordinate_scale, y1 * coordinate_scale, x2 * coordinate_scale, y2 * coordinate_scale);
 	}
-	
+
+	d_render_line_draw(dl, ni);
 	d_render_line_free(dl);
+}
+
+
+void object_draw_world_border() {
+	double world_w;
+	DARNIT_LINE *dl;
+
+	d_render_tint(255, 0, 0, 255);
+	world_w = coordinate_scale * map_width;
+	dl = d_render_line_new(4, 5);
+	d_render_line_move(dl, 0, -world_w, -world_w, world_w, -world_w);
+	d_render_line_move(dl, 1, world_w, -world_w, world_w, world_w);
+	d_render_line_move(dl, 2, world_w, world_w, -world_w, world_w);
+	d_render_line_move(dl, 3, -world_w, world_w, -world_w, -world_w);
+	d_render_line_draw(dl, 4);
+	d_render_line_free(dl);
+	d_render_tint(255, 255, 255, 255);
+
+	return;
+}
+
+
+void object_init_border(double world_w) {
+	map_width = world_w;
 }
