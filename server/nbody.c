@@ -84,8 +84,8 @@ void nbody_pre_simulate(Point *out, int no, Body *b, int nb, int *me, int nm, do
 		nbody_move_bodies(copy, nb, dt);
 		for(i = 0; i < nm; i++) {
 			j = me[i];
-			out[i*nm + d].x = copy[j].position.x;
-			out[i*nm + d].y = copy[j].position.y;
+			out[i*no + d].x = copy[j].position.x;
+			out[i*no + d].y = copy[j].position.y;
 		}
 	}
 	

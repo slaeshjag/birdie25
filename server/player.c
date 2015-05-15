@@ -74,7 +74,12 @@ void player_thread(Packet pack, unsigned long addr) {
 
 				fprintf(stderr, "A player joined\n");
 				// TODO: Put this somewhere near the home planet
-				p = player_add(addr, 1.0, 2.0 + (rand() & 0xF) / 16., 0, 0, pack.lobby.name);
+				double vel;
+				Body b;
+				b.position.x = 0.0;
+				b.position.y = -1.0;
+				vel = sqrt(G*(body[0].mass + 1.0)/DIST(body[0], b));
+				p = player_add(addr, 0.0, 1.0, vel, 0.0, pack.lobby.name);
 				pack.lobby.begin = 6;
 				player_broadcast_package(pack);
 				fprintf(stderr, "Broadcasting %s\n", pack.lobby.name);

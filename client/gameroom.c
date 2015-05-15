@@ -35,9 +35,10 @@ void gameroom_init() {
 
 void gameroom_network_handler() {
 	Packet pack;
+	unsigned long int ip;
 	if(!network_poll())
 		return;
-	sip = network_recv(&pack, sizeof(Packet));
+	ip = network_recv(&pack, sizeof(Packet));
 	if(pack.type == PACKET_TYPE_LOBBY) {
 		printf("pack %i\n", pack.lobby.begin);
 		if(pack.lobby.begin == 6) {
