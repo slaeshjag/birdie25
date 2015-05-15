@@ -76,7 +76,10 @@ void game_state(GameState state) {
 			// NOTE: Don't remove this! It leaks RAM, but prevents segfault in OpenGL
 			for (i = 0; i < objs; i++)
 				object_init_object(i, 64);
-			object_init_object(0, 65);
+			
+			for(i = 0; i < 8; i++)
+				object_init_object(0, 64 + i);
+			
 			object_init_object(0, 74);
 			pthread_create(&game.thread, NULL, object_thread, NULL);
 			#ifndef __DEBUG__
