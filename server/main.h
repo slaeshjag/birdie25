@@ -5,6 +5,7 @@
 #include <protocol.h>
 
 #define BODIES 4
+#define PRE_SIMULATIONS 20
 
 #define WIDTH 100
 #define HEIGHT 100

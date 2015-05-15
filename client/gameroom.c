@@ -45,7 +45,7 @@ void gameroom_network_handler() {
 			ui_listbox_add(gameroom.list, pack.lobby.name);
 		}
 	} else if(pack.type == PACKET_TYPE_SETUP) {
-		object_init(pack.setup.objects);
+		object_init(pack.setup.objects, pack.setup.pre_simulations);
 		camera_init(pack.setup.id);
 		game_state(GAME_STATE_GAME);
 	}

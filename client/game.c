@@ -13,5 +13,6 @@ void game_render() {
 	handle_camera();
 	handle_player();
 	object_draw();
+	pre_simulation_draw();
 	player_draw_hud();
 }

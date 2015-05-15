@@ -1,4 +1,3 @@
-#include <darnit/darnit.h>
 #include "object.h"
 #include <string.h>
 #include <stdbool.h>
@@ -17,14 +16,6 @@ int objs;
 static DARNIT_TILESHEET *planets;
 static DARNIT_TILESHEET *icons;
 
-static int pre_simulations;
-
-static struct PreSimulation {
-	double x;
-	double y;
-} *pre_simulation;
-static DARNIT_POINT *pre_simulation_point;
-
 static double object_scale;
 static double coordinate_scale;
 
@@ -33,8 +24,7 @@ extern bool we_are_hosting_a_game;
 
 void player_thread(Packet pack, unsigned long addr);
 
-void object_init(int objects, int _pre_simulations) {
-	int i;
+void object_init(int objects) {
 	obj = malloc(sizeof(*obj) * objects);
 	memset(obj, 0, sizeof(*obj) * objects);
 	objs = objects;
@@ -43,12 +33,6 @@ void object_init(int objects, int _pre_simulations) {
 	d_render_tilesheet_scale_algorithm(planets, DARNIT_SCALE_LINEAR);
 	coordinate_scale = CLIENT_OBJECT_COORD_SCALE;
 	object_scale = 0.3;
-	pre_simulation = malloc(sizeof(struct PreSimulation)*_pre_simulations);
-	pre_simulations = _pre_simulations;
-	pre_simulation_point = d_render_point_new(_pre_simulations, 2);
-	for(i = 0; i < pre_simulations; i++) {
-		d_render_point_move(pre_simulation_point, i, 0, 0);
-	}
 	return;
 }
 
@@ -73,9 +57,14 @@ void object_init_object(int id, int sprite_id) {
 void object_update(int id, double x, double y, double angle) {
 	int xi, yi, ai, arne, goesta, gw, gh;
 
-	y *= -1;
+<<<<<<< HEAD
 	xi = x * coordinate_scale;
 	yi = y * coordinate_scale;
+=======
+	y *= -1;
+	xi = x * CLIENT_OBJECT_COORD_SCALE;
+	yi = y * CLIENT_OBJECT_COORD_SCALE;
+>>>>>>> 9064781a836e9e24cff04080945ae8c15bd1a844
 	ai = (angle / M_PI * 1800);
 
 	object_get_coord(id, &arne, &goesta, &gw, &gh);
@@ -153,14 +142,6 @@ void object_draw() {
 	printf("scale %f, %f, closest is %i\n", coordinate_scale, min_distance, closest);
 }
 
-void pre_simulation_draw() {
-	int i;
-	for(i = 0; i < pre_simulations; i++) {
-		d_render_point_move(pre_simulation_point, i, pre_simulation[i].x*coordinate_scale, pre_simulation[i].y*coordinate_scale);
-	}
-	d_render_point_draw(pre_simulation_point, pre_simulations);
-}
-
 
 void *object_thread(void *arne) {
 	Packet pack;
@@ -188,10 +169,6 @@ void *object_thread(void *arne) {
 			case PACKET_TYPE_SETUP_OBJECT:
 				object_init_object(pack.setup_object.id, pack.setup_object.sprite);
 				//camera_init(pack.setup.id);
-				break;
-			case PACKET_TYPE_PRE_SIMULATION:
-				pre_simulation[pack.simul.id].x = pack.simul.x;
-				pre_simulation[pack.simul.id].y = pack.simul.y;
 				break;
 		}
 	}

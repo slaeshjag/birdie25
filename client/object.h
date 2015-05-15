@@ -21,7 +21,7 @@ struct ClientObject {
 };
 
 
-void object_init(int objects);
+void object_init(int objects, int _pre_simulations);
 void object_init_object(int id, int sprite_id);
 void object_update(int id, double x, double y, double angle);
 void object_get_coord(int id, int *x, int *y, int *w, int *h);
