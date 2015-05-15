@@ -162,7 +162,7 @@ void player_draw_icon_autoedge(int icon, int x, int y) {
 			} else {
 				intersection *= ((double) d_platform_get().screen_w) / 2.;
 			}
-
+			// TODO: Finish this function
 			
 	}
 }
@@ -181,3 +181,5 @@ int player_draw_hud() {
 	d_render_tile_tilesheet_coord_set(powermeter, 1, power * 256, 32, 256 - power * 256, 32);
 	d_render_tile_draw(powermeter, 2);
 }
+
+

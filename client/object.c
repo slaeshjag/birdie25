@@ -53,6 +53,7 @@ void object_init_object(int id, int sprite_id) {
 void object_update(int id, double x, double y, double angle) {
 	int xi, yi, ai, arne, goesta, gw, gh;
 
+	y *= -1;
 	xi = x * CLIENT_OBJECT_COORD_SCALE;
 	yi = y * CLIENT_OBJECT_COORD_SCALE;
 	ai = (angle / M_PI * 1800);
@@ -159,4 +160,14 @@ void *object_thread(void *arne) {
 
 void *object_get_icons() {
 	return icons;
+}
+
+
+void object_draw_tractor_beam(double x, double y, double angle, double length) {
+	double n;
+	DARNIT_LINE *dl;
+
+	length /= 0.05;
+
+	dl = d_render_line_new(1, 1);
 }
