@@ -18,5 +18,6 @@ struct GameOver {
 
 extern GameOver game_over;
 void game_over_init();
+void game_over_render();
 
 #endif
