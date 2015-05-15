@@ -9,6 +9,7 @@
 #include <common_math.h>
 #include "main.h"
 #include "player.h"
+#include "../server/main.h"
 
 
 struct ClientObject *obj;
@@ -208,7 +209,7 @@ void *object_thread(void *arne) {
 		if (addr != sip) {
 			continue;
 		}
-		
+		int iddd;
 		switch(pack.type) {
 			case PACKET_TYPE_OBJECT:
 				object_update(pack.object.id, pack.object.x, pack.object.y, pack.object.angle);
@@ -229,7 +230,14 @@ void *object_thread(void *arne) {
 				break;
 			case PACKET_TYPE_AUX_PLAYER:
 				obj[pack.auxplayer.id].tractor_beam = pack.auxplayer.tractor_beam;
-				fprintf(stderr, "Score for %s: %i\n", pack.auxplayer.name, pack.auxplayer.score);
+				//fprintf(stderr, "Score for %s: %i\n", pack.auxplayer.name, pack.auxplayer.score);
+				iddd = pack.auxplayer.id - BODIES;
+				if(!playerlist[pack.auxplayer.id].name) {
+					fprintf(stderr, "Score for %s: %i\n", pack.auxplayer.name, pack.auxplayer.score);
+					playerlist[iddd].name = strdup(pack.auxplayer.name);
+					playerlist[iddd].id = pack.auxplayer.id;
+				}
+				playerlist[iddd].score = pack.auxplayer.score;
 				break;
 			case PACKET_TYPE_EXIT:
 				game_state(GAME_STATE_GAME_OVER);

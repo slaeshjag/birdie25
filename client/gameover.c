@@ -6,6 +6,7 @@
 #include <network.h>
 #include <stdio.h>
 #include <libgen.h>
+#include "player.h"
 
 GameOver game_over;
 
@@ -14,6 +15,28 @@ static void button_callback(UI_WIDGET *widget, unsigned int type, UI_EVENT *e) {
 		restart_to_menu(player_name);
 	} else if(widget == game_over.button.quit) {
 		d_quit();
+	}
+}
+
+void game_over_render() {
+	static int firstrun = 1;
+	if(firstrun) {
+		game_over_build_scores();
+		firstrun = 0; 
+	}
+}
+
+void game_over_build_scores() {
+	int i;
+	char buf[256];
+	ui_listbox_clear(game_over.list);
+	for(i = 0; i < 8; i++) {
+		if(!playerlist[i].name) {
+			printf("no name with score %i\n", playerlist[i].score);
+			continue;
+		}
+		sprintf(buf, "%s: %i", playerlist[i].name, playerlist[i].score);
+		ui_listbox_add(game_over.list, buf);
 	}
 }
 

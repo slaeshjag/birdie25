@@ -43,11 +43,7 @@ void camera_init(int focus_object, int home) {
 }
 
 
-struct {
-	char			*name;
-	int			id;
-} static playerlist[8];
-
+PlayerList playerlist[8];
 
 void load_player_stuff_once() {
 	powerts = d_render_tilesheet_load("res/powermeter.png", 256, 32, DARNIT_PFORMAT_RGBA8);

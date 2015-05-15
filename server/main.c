@@ -21,7 +21,7 @@ static bool game_has_started = false;
 uint8_t score[8];
 uint32_t timer_start;
 
-#define	GAME_TIMER	180
+#define	GAME_TIMER	30
 
 Body body[BODIES + PLAYER_MAX + BULLETS] = {
 	{

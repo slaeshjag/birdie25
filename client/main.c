@@ -30,6 +30,7 @@ void (*state_render[GAME_STATES])()={
 	[GAME_STATE_MENU] = menu_render,
 	[GAME_STATE_GAME] = game_render,
 	[GAME_STATE_SELECT_NAME] = NULL,
+	[GAME_STATE_GAME_OVER] = game_over_render,
 };
 
 void (*state_network_handler[GAME_STATES])()={
@@ -74,7 +75,7 @@ void game_state(GameState state) {
 			break;
 		case GAME_STATE_GAMEROOM:;
 			break;
-		GAME_STATE_GAME_OVER:
+		case GAME_STATE_GAME_OVER:
 		case GAME_STATE_QUIT:
 		
 		case GAME_STATES:

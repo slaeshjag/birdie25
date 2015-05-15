@@ -1,5 +1,5 @@
-#ifndef __MAIN_H__
-#define __MAIN_H__
+#ifndef __SERVER_MAIN_H__
+#define ___SERVER_MAIN_H__
 
 #include "player.h"
 #include <protocol.h>
