@@ -179,7 +179,12 @@ void server_packet_dispatch(Packet p, unsigned long addr) {
 		p.lobby.begin = 6;
 		network_send(addr, &p, sizeof(Packet));
 		
-		player_add(addr, 0., -1.0, 0.0, 0.0, p.lobby.name);
+		double vel;
+		Body b;
+		b.position.x = 0.0;
+		b.position.y = 1.0;
+		vel = sqrt(G*(body[0].mass + 1.0)/DIST(body[0], b));
+		player_add(addr, 0.0, 1.0, vel, 0.0, p.lobby.name);
 		init = true;
 	} else {
 		player_thread(p, addr);

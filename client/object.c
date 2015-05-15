@@ -6,6 +6,10 @@
 #include <network.h>
 #include <protocol.h>
 #include "main.h"
+#include "player.h"
+
+#define SUP2(x) ((x)*(x))
+#define DIST(b1, b2) sqrt(SUP2((b1).dx - (b2).dx) + SUP2((b1).dy - (b2).dy))
 
 static struct ClientObject *obj;
 int objs;
@@ -53,8 +57,8 @@ void object_init_object(int id, int sprite_id) {
 void object_update(int id, double x, double y, double angle) {
 	int xi, yi, ai, arne, goesta, gw, gh;
 
-	xi = x * CLIENT_OBJECT_COORD_SCALE;
-	yi = y * CLIENT_OBJECT_COORD_SCALE;
+	xi = x * coordinate_scale;
+	yi = y * coordinate_scale;
 	ai = (angle / M_PI * 1800);
 
 	object_get_coord(id, &arne, &goesta, &gw, &gh);
@@ -82,6 +86,8 @@ void object_update(int id, double x, double y, double angle) {
 
 	obj[id].x = xi;
 	obj[id].y = yi;
+	obj[id].dx = x;
+	obj[id].dy = y;
 	obj[id].angle = ai;
 //	fprintf(stderr, "Object %i at %i, %i @ %i\n", id, xi, yi, ai);
 }
@@ -113,15 +119,21 @@ void object_draw() {
 			d_render_tile_draw(obj[i].pic.tile, 1);
 	}
 
-	double min_distance = HUGE_VAL;
+	double min_distance = HUGE_VAL, dist;
+	int closest = 0;
+	int id = player_get();
 	for (i = 0; i < objs; i++) {
-		if (obj[i].sprite)
+		if (obj[i].sprite) {
+			printf("%i is sprite\n", i);
 			continue;
-		if (obj[i].dx * obj[i].dx + obj[i].dy * obj[i].dy < min_distance)
-			min_distance = obj[i].dx * obj[i].dx + obj[i].dy * obj[i].dy;
-		
-		// TODO: Implement object scaling
+		}
+		if ((dist = DIST(obj[i], obj[id])) < min_distance) {
+			min_distance = dist;
+			closest = i;
+		}
 	}
+	//coordinate_scale = 30.0*min_distance;//pow(M_E, -0.01*min_distance);
+	printf("scale %f, %f, closest is %i\n", coordinate_scale, min_distance, closest);
 }
 
 

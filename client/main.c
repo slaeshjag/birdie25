@@ -90,6 +90,7 @@ void game_state(GameState state) {
 		case GAME_STATE_LOBBY:
 			gameroom.button.start->enabled = false;
 			we_are_hosting_a_game = false;
+			ui_listbox_clear(lobby.list);
 			break;
 		case GAME_STATE_HOST:
 			we_are_hosting_a_game = true;

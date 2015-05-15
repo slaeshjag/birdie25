@@ -10,5 +10,6 @@ enum ClientInputKeys {
 	CLIENT_INPUT_KEY_RELEASE = 010,
 };
 
+int player_get();
 
 #endif
