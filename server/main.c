@@ -51,42 +51,43 @@ Body body[BODIES + PLAYER_MAX] = {
 };
 
 static void _send(Body *body, size_t bodies) {
-	Packet pack = {PACKET_TYPE_OBJECT};
-	PacketObject *po = &pack.object;
+	Packet pack;
 	Player *p, *q;
 	int i, j;
 	Point pre[PRE_SIMULATIONS * players];
 	int me[players];
 	
-	for(q = player; q; q = q->next)
-		me[player->id - BODIES] = player->id;
+	for(q = player, i = 0; q; q = q->next, i++)
+		me[i] = q->id;
 	
 	nbody_pre_simulate(pre, PRE_SIMULATIONS, body, BODIES + players, me, players, 3*60.0);
 	
 	for(q = player, j = 0; q; q = q->next, j++) {
+		pack.type = PACKET_TYPE_OBJECT;
 		for(i = 0; i < bodies; i++) {
 		//	printf("Body %i: {%f, %f} angle %f\n", i, body[i].position.x, body[i].position.y, body[i].angle);
-			po->id = i;
-			po->x = body[i].position.x;
-			po->y = body[i].position.y;
-			po->angle = body[i].angle;
-			network_send(q->addr, po, sizeof(Packet));
+			pack.object.id = i;
+			pack.object.x = body[i].position.x;
+			pack.object.y = body[i].position.y;
+			pack.object.angle = body[i].angle;
+			network_send(q->addr, &pack, sizeof(Packet));
 		}
 		
+		pack.type = PACKET_TYPE_OBJECT;
 		for(p = player; p; p = p->next) {
 		//	printf("Player %i: {%f, %f} angle %f\n", player->id, body[i].position.x, body[i].position.y, body[i].angle);
-			po->id = p->id;
-			po->x = p->body->position.x;
-			po->y = p->body->position.y;
-			po->angle = p->body->angle;
-			network_send(q->addr, po, sizeof(Packet));
+			pack.object.id = p->id;
+			pack.object.x = p->body->position.x;
+			pack.object.y = p->body->position.y;
+			pack.object.angle = p->body->angle;
+			network_send(q->addr, &pack, sizeof(Packet));
 		}
 		
 		for(i = 0; i < PRE_SIMULATIONS; i++) {
 			pack.type = PACKET_TYPE_PRE_SIMULATION;
 			pack.simul.id = i;
-			pack.simul.x = pre[i + j*players].x;
-			pack.simul.y = pre[i + j*players].y;
+			pack.simul.x = pre[i + j*PRE_SIMULATIONS].x;
+			pack.simul.y = pre[i + j*PRE_SIMULATIONS].y;
 			network_send(q->addr, &pack, sizeof(Packet));
 		}
 	}
@@ -108,7 +109,7 @@ static void _setup(Body *body, size_t bodies) {
 		ps->height = HEIGHT;
 		ps->pre_simulations = PRE_SIMULATIONS;
 		network_send(q->addr, ps, sizeof(Packet));
-		fprintf(stderr, "Announcing player %i\n", ps->id);
+		fprintf(stderr, "Announcing player %i with ip %lu\n", ps->id, q->addr);
 		
 		pso->type = PACKET_TYPE_SETUP_OBJECT;
 		for(i = 0; i < bodies; i++) {

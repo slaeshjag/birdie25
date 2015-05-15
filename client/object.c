@@ -146,7 +146,7 @@ void object_draw() {
 	int id = player_get();
 	for (i = 0; i < objs; i++) {
 		if (obj[i].sprite) {
-			printf("%i is sprite\n", i);
+			//printf("%i is sprite\n", i);
 			continue;
 		}
 		if ((dist = DIST(obj[i], obj[id])) < min_distance) {
@@ -155,7 +155,7 @@ void object_draw() {
 		}
 	}
 	//coordinate_scale = 30.0*min_distance;//pow(M_E, -0.01*min_distance);
-	printf("scale %f, %f, closest is %i\n", coordinate_scale, min_distance, closest);
+	//printf("scale %f, %f, closest is %i\n", coordinate_scale, min_distance, closest);
 }
 
 void pre_simulation_draw() {
@@ -183,8 +183,9 @@ void *object_thread(void *arne) {
 			write(server_forward_pipe[1], &pack, sizeof(pack));*/
 		//}
 
-		if (addr != sip)
+		if (addr != sip) {
 			continue;
+		}
 		
 		switch(pack.type) {
 			case PACKET_TYPE_OBJECT:
