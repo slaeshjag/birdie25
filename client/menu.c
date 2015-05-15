@@ -67,7 +67,7 @@ void menu_init() {
 	ui_vbox_add_child(menu_help.vbox, ui_widget_create_spacer(), 1);
 	ui_vbox_add_child(menu_help.vbox, menu_help.label.title = ui_widget_create_label(gfx.font.small, "2015 party hack for Birdie Gamedev compo\nh4xxel (http://h4xxel.org) & slaesjag (http://rdw.se)"), 0);
 	
-	ui_vbox_add_child(menu.vbox, menu.label.title = ui_widget_create_label(gfx.font.large, "Jymdsjepp"), 1);
+	ui_vbox_add_child(menu.vbox, menu.label.title = ui_widget_create_label(gfx.font.large, "~Jymdsjepp~"), 1);
 	ui_vbox_add_child(menu.vbox, menu.label.author = ui_widget_create_label(gfx.font.small, "by h4xxel & slaeshjag"), 1);
 	//ui_vbox_add_child(menu.vbox, ui_widget_create_entry(font), 0);
 	ui_vbox_add_child(menu.vbox, menu.button.host = ui_widget_create_button_text(gfx.font.small, "Host game"), 0);
