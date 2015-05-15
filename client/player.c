@@ -114,7 +114,7 @@ void handle_player() {
 	p.client.button.beam = d_keys_get().l;
 	p.client.button.forward = d_keys_get().y;
 	p.client.button.backward = d_keys_get().x;
-	p.client.button.shoot = d_keys_get().r;
+	p.client.button.shoot = d_mouse_get().lmb;
 	display_tractor_beam = p.client.button.beam;
 
 	network_send(sip, &p, sizeof(Packet));
