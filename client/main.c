@@ -73,7 +73,6 @@ void game_state(GameState state) {
 			ui_event_global_add(game_mouse_draw, UI_EVENT_TYPE_MOUSE_ENTER);
 			ui_event_global_add(game_view_buttons, UI_EVENT_TYPE_BUTTONS);
 			ui_event_global_add(game_view_key_press, UI_EVENT_TYPE_KEYBOARD_PRESS);*/
-			camera_init(0);
 			// NOTE: Don't remove this! It leaks RAM, but prevents segfault in OpenGL
 			for (i = 0; i < objs; i++)
 				object_init_object(i, 64);

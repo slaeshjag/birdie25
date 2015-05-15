@@ -92,6 +92,7 @@ static void _setup(Body *body, size_t bodies) {
 		ps->width = WIDTH;
 		ps->height = HEIGHT;
 		network_send(q->addr, ps, sizeof(Packet));
+		fprintf(stderr, "Announcing player %i\n", ps->id);
 		
 		pso->type = PACKET_TYPE_SETUP_OBJECT;
 		for(i = 0; i < bodies; i++) {
