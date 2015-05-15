@@ -31,6 +31,30 @@ bool ball_collision_handled(Body *body, int n, int ball, Point deltap, Point del
 		if (dx * dx + dy * dy > distance * distance)
 			continue;
 		
+		if (body[ball].sprite >= 64 && body[ball].sprite < 73) {
+			double dv, dvx, dvy;
+			dvx = body[ball].velocity.x - body[i].velocity.x;
+			dvy = body[ball].velocity.y - body[i].velocity.y;
+			dv = sqrt(dvx*dvx + dvy*dvy);
+			dv *= (body[ball].mass + body[i].mass);
+			dv /= 1000000;
+			body[ball].energy -= dv;
+			if (body[ball].energy < 0)
+				body[ball].energy = 0;
+		}
+		
+		if (body[i].sprite >= 64 && body[i].sprite < 73) {
+			double dv, dvx, dvy;
+			dvx = body[ball].velocity.x - body[i].velocity.x;
+			dvy = body[ball].velocity.y - body[i].velocity.y;
+			dv = sqrt(dvx*dvx + dvy*dvy);
+			dv *= (body[ball].mass + body[i].mass);
+			dv /= 1000000;
+			body[i].energy -= dv;
+			if (body[i].energy < 0)
+				body[i].energy = 0;
+		}
+		
 		double vx1, vx2, vy1, vy2, cvx, cvy;
 
 		cvx = deltap.x + body[ball].velocity.x;
@@ -79,6 +103,7 @@ void nbody_calc_forces(Body *body, int n) {
 			body[j].force.x -= magnitude * direction.x / distance + body[j].mass*body[j].accel.x;
 			body[i].force.y += magnitude * direction.y / distance + body[i].mass*body[i].accel.y;
 			body[j].force.y -= magnitude * direction.y / distance + body[j].mass*body[j].accel.y;
+
 		}
 	}
 }
@@ -97,13 +122,27 @@ void nbody_move_bodies(Body *body, int n, double dt) {
 	for(i = 0; i < n; i++) {
 		if(!body[i].movable)
 			goto out;
-	
-		if (i != 10) {
-			if (player_check_coordinate_tractor_beam(body[10].position.x, body[10].position.y, body[10].angle, 3.0, body[i].position.x, body[i].position.y)) {
-//				fprintf(stderr, "Body %i is within tractor beam\n", i);
-				//body[i].movable = false;
-			}
+		if (body[i].sprite >= 64 && body[i].sprite < 73) {
+			body[i].energy += 0.00005;
+			if (body[i].energy > 1.0)
+				body[i].energy = 1.0;
 		}
+
+		if (body[i].tract.obj) {
+			int l;
+
+			l = body[i].tract.obj;
+			if (3.0 * body[l].energy < body[i].tract.distance) {
+				body[i].tract.obj = 0;
+				goto no_attach;
+			}
+			body[i].position.x = body[l].position.x - cos((body[l].angle - body[i].tract.angle) + M_PI_2) * body[i].tract.distance;
+			body[i].position.y = body[l].position.y - sin((body[l].angle - body[i].tract.angle) + M_PI_2) * body[i].tract.distance;
+//			body[i].position = body[body[i].tract.obj].position;
+			continue;
+		}
+
+		no_attach:
 		deltav.x = dt * (body[i].force.x / body[i].mass);
 		deltav.y = dt * (body[i].force.y / body[i].mass);
 		deltap.x = dt * (body[i].velocity.x + deltav.x/2);
@@ -123,24 +162,42 @@ void nbody_move_bodies(Body *body, int n, double dt) {
 		if (ball_collision_handled(body, n, i, deltap, deltav))
 			continue;
 
+		bool coll = false;
 		if (body[i].position.x + deltap.x > WIDTH) {
 			body[i].position.x = WIDTH;
 			body[i].velocity.x *= -0.7;
+			coll = true;
 		} else if (body[i].position.x + deltap.x < -WIDTH) {
 			body[i].position.x = -WIDTH;
 			body[i].velocity.x *= -0.7;
+			coll = true;
 		} else {
 			body[i].position.x += deltap.x;
 		}
 		if (body[i].position.y + deltap.y > WIDTH) {
 			body[i].position.y = WIDTH;
 			body[i].velocity.y *= -0.7;
+			coll = true;
 		} else if (body[i].position.y + deltap.y < -WIDTH) {
 			body[i].position.y = -WIDTH;
 			body[i].velocity.y *= -0.7;
+			coll = true;
 		} else {
 			body[i].position.y += deltap.y;
 		}
+		
+		if (body[i].sprite >= 64 && body[i].sprite < 73 && coll) {
+			double dv, dvx, dvy;
+			dvx = body[i].velocity.x;
+			dvy = body[i].velocity.y;
+			dv = sqrt(dvx*dvx + dvy*dvy);
+			dv *= (body[i].mass);
+			dv *= 12;
+			body[i].energy -= dv;
+			if (body[i].energy < 0)
+				body[i].energy = 0;
+		}
+		
 
 		out:
 		body[i].force.x = 0.0;

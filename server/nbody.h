@@ -29,7 +29,13 @@ struct Body {
 	double mass;
 	double radius;
 	double angle;
+	double energy;
 	bool movable;
+	struct {
+		int obj;
+		double angle;
+		double distance;
+	} tract;
 	uint32_t sprite;
 };
 

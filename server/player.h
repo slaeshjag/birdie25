@@ -13,7 +13,6 @@ struct Player {
 	char *pname;
 	
 	Body *body;
-	double energy;
 	Player *next;
 };
 

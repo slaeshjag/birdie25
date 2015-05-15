@@ -96,7 +96,7 @@ static void _send(Body *body, size_t bodies) {
 		}
 		
 		pack.type = PACKET_TYPE_PLAYER;
-		pack.player.energy = q->energy;
+		pack.player.energy = q->body->energy;
 		pack.player.accel = sqrt(SUP2(q->body->accel.x) + SUP2(q->body->accel.x)) / (PLAYER_ACCEL*M_SQRT2);
 		pack.player.velocity = sqrt(SUP2(q->body->velocity.x) + SUP2(q->body->velocity.x)) / (SPEED_LIMIT*M_SQRT2);
 		network_send(q->addr, &pack, sizeof(Packet));

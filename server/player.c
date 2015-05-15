@@ -14,6 +14,7 @@
 Player *player;
 int players;
 extern Body body[];
+void player_attach_asteroid(Player *p);
 
 Player *player_add(unsigned long addr, double x, double y, double vel_x, double vel_y, const char *pname) {
 	Player *p;
@@ -31,7 +32,7 @@ Player *player_add(unsigned long addr, double x, double y, double vel_x, double 
 	p->body->radius = 0.1;
 	p->pname = strdup(pname);
 	
-	p->energy = 1.0;
+	p->body->energy = 1.0;
 	
 	p->next = player;
 	players++;
@@ -68,6 +69,10 @@ void player_thread(Packet pack, unsigned long addr) {
 				} else
 					p->body->da -= PLAYER_ACCEL/30.0;
 				
+				if (pack.client.button.beam) {
+					player_attach_asteroid(p);
+				}
+
 				if(p->body->da >= PLAYER_ACCEL)
 					p->body->da = PLAYER_ACCEL;
 				else if(p->body->da <= 0)
@@ -121,9 +126,11 @@ bool player_check_coordinate_tractor_beam(double trac_x, double trac_y, double a
 	if (dx*dx + dy*dy >= length*length)
 		return false;
 
-	da = math_delta_to_angle(dx, dy);
-	a1 = angle - M_PI/10;
-	a2 = angle + M_PI/10;
+	da = math_delta_to_angle(dx, -dy);
+	if (da > 2 * M_PI)
+		da -= M_PI * 2;
+	a1 = angle - M_PI/11;
+	a2 = angle + M_PI/11;
 	
 	if (a1 < 0) {
 		a1 += M_PI * 2;
@@ -139,5 +146,32 @@ bool player_check_coordinate_tractor_beam(double trac_x, double trac_y, double a
 		if (da >= a1 && da <= a2)
 			return true;
 		return false;
+	}
+}
+
+
+void player_attach_asteroid(Player *p) {
+	int i, player;
+
+	player = p->id;
+
+	for (i = 0; i < BODIES; i++) {
+		if (!body[i].tract.obj) {
+			if (body[i].sprite < 74)
+				continue;
+			double trac_x, trac_y, length;
+			trac_x = body[player].position.x, trac_y = body[player].position.y;
+			length = p->body->energy * 3.0f;
+			if (!player_check_coordinate_tractor_beam(trac_x, trac_y, body[player].angle, length, body[i].position.x, body[i].position.y))
+				continue;
+
+			double dx, dy;
+			dx = -(trac_x - body[i].position.x);
+			dy = -(trac_y - body[i].position.y);
+			body[i].tract.obj = p->id;
+			body[i].tract.distance = sqrt(dx*dx+dy*dy);
+			body[i].tract.angle = math_delta_to_angle(dx, dy);
+		} else
+			continue;
 	}
 }

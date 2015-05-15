@@ -13,6 +13,7 @@ struct {
 	int		focus_object;
 } camera;
 
+
 static DARNIT_TILE *powermeter;
 static DARNIT_TILE *velocitymeter;
 static DARNIT_TILE *thrustmeter;
@@ -36,6 +37,12 @@ static DARNIT_TEXT_SURFACE *trip;
 void camera_init(int focus_object) {
 	camera.focus_object = focus_object;
 }
+
+
+struct {
+	char			*name;
+	int			id;
+} static playerlist[8];
 
 
 void load_player_stuff_once() {
