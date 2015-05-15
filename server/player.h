@@ -3,7 +3,7 @@
 
 #include "nbody.h"
 
-#define PLAYER_ACCEL 1.0
+#define PLAYER_ACCEL .001
 #define PLAYER_MAX 16
 
 typedef struct Player Player;
@@ -18,6 +18,6 @@ struct Player {
 };
 
 void player_thread(Packet pack, unsigned long addr);
-Player *player_add(unsigned long addr, double x, double y, const char *pname);
+Player *player_add(unsigned long addr, double x, double y, double vel_x, double vel_y, const char *pname);
 
 #endif
