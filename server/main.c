@@ -25,7 +25,7 @@ Body body[BODIES + PLAYER_MAX] = {
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
 		.mass = 10000000.0,
-		.radius = 0.12,
+		.radius = 0.65,
 		.movable = false,
 		.sprite = 0,
 	}, {
@@ -33,7 +33,7 @@ Body body[BODIES + PLAYER_MAX] = {
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
 		.mass = 10000000.0,
-		.radius = 0.12,
+		.radius = 0.65,
 		.movable = false,
 		.sprite = 0,
 	}, {
@@ -41,7 +41,7 @@ Body body[BODIES + PLAYER_MAX] = {
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
 		.mass = 10000000.0,
-		.radius = 0.12,
+		.radius = 0.65,
 		.movable = false,
 		.sprite = 0,
 	}, {
@@ -49,7 +49,7 @@ Body body[BODIES + PLAYER_MAX] = {
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
 		.mass = 10000000.0,
-		.radius = 0.12,
+		.radius = 0.65,
 		.movable = false,
 		.sprite = 0,
 	}, {
@@ -57,7 +57,7 @@ Body body[BODIES + PLAYER_MAX] = {
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
 		.mass = 10000000.0,
-		.radius = 0.12,
+		.radius = 0.65,
 		.movable = false,
 		.sprite = 0,
 	}, {
@@ -65,7 +65,7 @@ Body body[BODIES + PLAYER_MAX] = {
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
 		.mass = 10000000.0,
-		.radius = 0.12,
+		.radius = 0.65,
 		.movable = false,
 		.sprite = 0,
 	}, {
@@ -73,7 +73,7 @@ Body body[BODIES + PLAYER_MAX] = {
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
 		.mass = 10000000.0,
-		.radius = 0.12,
+		.radius = 0.65,
 		.movable = false,
 		.sprite = 0,
 	}, {
@@ -81,7 +81,7 @@ Body body[BODIES + PLAYER_MAX] = {
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
 		.mass = 10000000.0,
-		.radius = 0.12,
+		.radius = 0.65,
 		.movable = false,
 		.sprite = 0,
 	},
@@ -250,22 +250,22 @@ void server_start() {
 	int i;
 	
 	/*Of doom*/
-	set_planet(8, 0, -3.0, 1, 10000.0, 0.12);
-	set_planet(9, 0, -4.0, 1, 10000.0, 0.12);
-	set_planet(10, 2, 3.0, 1, 10000.0, 0.12);
-	set_planet(11, 2, 2.0, 1, 10000.0, 0.12);
-	set_planet(12, 3, 3.0, 1, 10000.0, 0.12);
-	set_planet(13, 4, 3.0, 1, 10000.0, 0.12);
-	set_planet(14, 4, 2.0, 1, 10000.0, 0.12);
-	set_planet(15, 4, 3.0, 1, 10000.0, 0.12);
-	set_planet(16, 5, 3.0, 1, 10000.0, 0.12);
-	set_planet(17, 6, 5.0, 1, 10000.0, 0.12);
-	set_planet(18, 6, 2.0, 1, 10000.0, 0.12);
-	set_planet(19, 6, 3.0, 1, 10000.0, 0.12);
-	set_planet(20, 6, 4.0, 1, 10000.0, 0.12);
-	set_planet(21, 7, 4.0, 1, 10000.0, 0.12);
-	set_planet(22, 7, 2.0, 1, 10000.0, 0.12);
-	set_planet(23, 7, 3.0, 1, 10000.0, 0.12);
+	set_planet(8, 0, -3.0, 1, 10000.0, 0.25);
+	set_planet(9, 0, -4.0, 1, 10000.0, 0.25);
+	set_planet(10, 2, 3.0, 1, 10000.0, 0.25);
+	set_planet(11, 2, 2.0, 1, 10000.0, 0.25);
+	set_planet(12, 3, 3.0, 1, 10000.0, 0.25);
+	set_planet(13, 4, 3.0, 1, 10000.0, 0.25);
+	set_planet(14, 4, 2.0, 1, 10000.0, 0.25);
+	set_planet(15, 4, 3.0, 1, 10000.0, 0.25);
+	set_planet(16, 5, 3.0, 1, 10000.0, 0.25);
+	set_planet(17, 6, 5.0, 1, 10000.0, 0.25);
+	set_planet(18, 6, 2.0, 1, 10000.0, 0.25);
+	set_planet(19, 6, 3.0, 1, 10000.0, 0.25);
+	set_planet(20, 6, 4.0, 1, 10000.0, 0.25);
+	set_planet(21, 7, 4.0, 1, 10000.0, 0.25);
+	set_planet(22, 7, 2.0, 1, 10000.0, 0.25);
+	set_planet(23, 7, 3.0, 1, 10000.0, 0.25);
 
 	
 	pthread_t serber;
