@@ -8,10 +8,22 @@
 Lobby lobby;
 
 static void button_callback(UI_WIDGET *widget, unsigned int type, UI_EVENT *e) {
+	UI_PROPERTY_VALUE v;
+	Packet pack;
+	
 	if(widget == lobby.button.back) {
 		game_state(GAME_STATE_MENU);
 	} else if(widget == lobby.button.join) {
+		v = lobby.list->get_prop(lobby.list, UI_LISTBOX_PROP_SELECTED);
+		if(v.i < 0)
+			return;
 		
+		sip = strtoul(ui_listbox_get(lobby.list, v.i), NULL, 10);
+		pack.type = PACKET_TYPE_LOBBY;
+		pack.lobby.begin = 5;
+		memcpy(pack.lobby.name, player_name, NAME_LEN_MAX);
+		network_send(sip, &pack, sizeof(Packet));
+		game_state(GAME_STATE_GAMEROOM);
 	}
 }
 
