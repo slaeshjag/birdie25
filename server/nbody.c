@@ -93,7 +93,10 @@ void nbody_move_bodies(Body *body, int n, double dt) {
 	for(i = 0; i < n; i++) {
 		if(!body[i].movable)
 			goto out;
-		
+	
+		if (body[i].sprite >= 64) {
+//			if (player_check_coordinate_
+		}
 		deltav.x = dt * (body[i].force.x / body[i].mass);
 		deltav.y = dt * (body[i].force.y / body[i].mass);
 		deltap.x = dt * (body[i].velocity.x + deltav.x/2);
