@@ -62,7 +62,7 @@ void lobby_network_handler() {
 			s = ui_listbox_get(lobby.list, i);
 			if(strtoul(s, NULL, 10) == ip) {
 				if(strstr(s, "Unknown")) {
-					snprintf(name, "%lu: %s's game", 256, ip, pack.lobby.name);
+					sprintf(name, "%lu: %s", ip, pack.lobby.name);
 					ui_listbox_set(lobby.list, i, name);
 					return;
 				} else
