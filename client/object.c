@@ -119,6 +119,7 @@ void object_draw() {
 			continue;
 		if (obj[i].dx * obj[i].dx + obj[i].dy * obj[i].dy < min_distance)
 			min_distance = obj[i].dx * obj[i].dx + obj[i].dy * obj[i].dy;
+		
 		// TODO: Implement object scaling
 	}
 }
@@ -149,7 +150,7 @@ void *object_thread(void *arne) {
 				break;
 			case PACKET_TYPE_SETUP_OBJECT:
 				object_init_object(pack.setup_object.id, pack.setup_object.sprite);
-				camera_init(pack.setup.id);
+				//camera_init(pack.setup.id);
 				break;
 		}
 	}
