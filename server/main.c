@@ -130,8 +130,10 @@ static void _setup(Body *body, size_t bodies) {
 }
 
 void prepare_orbit(Body *b) {
-	b->velocity.x =sqrt(G*(body[0].mass + b->mass)/fabs(b->position.x - body[0].position.x));
-	b->velocity.y =sqrt(G*(body[0].mass + b->mass)/fabs(b->position.y - body[0].position.y));
+	if(b->position.x - body[0].position.x != 0)
+		b->velocity.x =sqrt(G*(body[0].mass + b->mass)/fabs(b->position.x - body[0].position.x));
+	if(b->position.y - body[0].position.y != 0)	
+		b->velocity.y =sqrt(G*(body[0].mass + b->mass)/fabs(b->position.y - body[0].position.y));
 	printf("(%f, %f) (%f, %f)\n", b->position.x, b->position.y, b->velocity.x, b->velocity.y);
 }
 
@@ -189,8 +191,8 @@ void server_start() {
 		//printf("angle %f\n", 2.0*M_PI*(BODIES - 4 - i)/((double) (BODIES - 4)));
 		body[i].position.x = 5.0*cos(2.0*M_PI*(BODIES - 4 - i)/((double) (BODIES - 4)));
 		body[i].position.y = 5.0*sin(2.0*M_PI*(BODIES - 4 - i)/((double) (BODIES - 4)));
-		body[i].mass = 1000.0;
-		body[i].movable = false;
+		body[i].mass = 100.0;
+		body[i].movable = true;
 		body[i].sprite = 74;
 		prepare_orbit(body + i);
 	}

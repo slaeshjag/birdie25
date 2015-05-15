@@ -5,6 +5,7 @@
 #include "player.h"
 #include "object.h"
 #include "main.h"
+#include <common_math.h>
 
 struct {
 	int		x;
@@ -16,6 +17,17 @@ static DARNIT_TILE *powermeter;
 static DARNIT_TILESHEET *powerts;
 static double power;
 
+extern struct ClientObject *obj;
+extern double coordinate_scale;
+
+struct {
+	DARNIT_CIRCLE *ring;
+	DARNIT_LINE *north;
+	DARNIT_LINE *south;
+	int x;
+	int y;
+} static compass;
+
 void camera_init(int focus_object) {
 	camera.focus_object = focus_object;
 }
@@ -24,6 +36,16 @@ void camera_init(int focus_object) {
 void load_player_stuff_once() {
 	powerts = d_render_tilesheet_load("res/powermeter.png", 256, 32, DARNIT_PFORMAT_RGBA8);
 	powermeter = d_render_tile_new(2, powerts);
+	compass.ring = d_render_circle_new(30, 2);
+	compass.x = DISPLAY_WIDTH - 60;
+	compass.y = 60;
+	d_render_circle_move(compass.ring, compass.x, compass.y, 50);
+	compass.north = d_render_line_new(2, 1);
+	compass.south = d_render_line_new(2, 1);
+	d_render_line_move(compass.north, 0, 0, 0, 0, 0);
+	d_render_line_move(compass.north, 1, 0, 0, 0, 0);
+	d_render_line_move(compass.south, 0, 0, 0, 0, 0);
+	d_render_line_move(compass.south, 1, 0, 0, 0, 0);
 }
 
 
@@ -196,8 +218,24 @@ int player_draw_hud() {
 	d_render_tile_tilesheet_coord_set(powermeter, 0, 0, 0, power * 256, 32);
 	d_render_tile_tilesheet_coord_set(powermeter, 1, power * 256, 32, 256 - power * 256, 32);
 	d_render_tile_draw(powermeter, 2);
+	
+	d_render_circle_draw(compass.ring);
+	
+	int pl;
+	double x, y, angle;
+	pl = player_get();
+	x = -obj[pl].dx - obj[0].dx;
+	y = -obj[pl].dy - obj[0].dy;
+	angle = math_delta_to_angle(x, y);
+		
+	x = 30.0*cos(angle);
+	y = 30.0*sin(angle);
+	d_render_line_move(compass.north, 0, compass.x, compass.y, compass.x + x, compass.y + y);
+	d_render_line_move(compass.south, 0, compass.x, compass.y, compass.x - x, compass.y - y);
+	d_render_tint(255, 0, 0, 255);
+	d_render_line_draw(compass.north, 1);
+	d_render_tint(255, 255, 255, 255);
+	d_render_line_draw(compass.south, 1);
 
 	return 1;
 }
-
-
