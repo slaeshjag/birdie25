@@ -2,6 +2,7 @@
 #define __MAIN_H__
 
 #include "player.h"
+#include <protocol.h>
 
 #define BODIES 4
 
@@ -13,6 +14,8 @@ struct Client {
 	unsigned long addr;
 };
 
+
+void server_packet_dispatch(Packet p, unsigned long addr);
 void server_start();
 void server_start_game();
 

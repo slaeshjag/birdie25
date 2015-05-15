@@ -32,6 +32,8 @@
 
 #endif
 
+#include "../server/main.h"
+
 struct Peer {
 	struct sockaddr_in addr;
 };
@@ -122,12 +124,13 @@ int network_send(unsigned long to, void *buf, size_t bufsize) {
 unsigned long network_recv(void *buf, size_t bufsize) {
 	int datalen;
 	struct sockaddr_in addr;
+	Packet p;
 	socklen_t addrlen = sizeof(addr);
 	
 	recvfrom(sock, buf, bufsize, 0, (struct sockaddr *) &addr, &addrlen);
+	p = *((Packet *) buf);
 	if (we_are_hosting_a_game)
-		server_packet_dispatch(*((Packet *) buf));
+		server_packet_dispatch(p, addr.sin_addr.s_addr);
 
-	printf("recv\n");
 	return addr.sin_addr.s_addr;	
 }

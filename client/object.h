@@ -27,6 +27,7 @@ void object_update(int id, double x, double y, double angle);
 void object_get_coord(int id, int *x, int *y, int *w, int *h);
 void object_draw();
 void *object_thread(void *arne);
+void *object_get_icons();
 
 
 #endif

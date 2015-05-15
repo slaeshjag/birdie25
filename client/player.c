@@ -79,12 +79,89 @@ void handle_player() {
 /*
 	if (mx > 0)
 		angle = (M_PI * 2.) - angle;*/
-	fprintf(stderr, "Angle: %lf\n", angle);
+//	fprintf(stderr, "Angle: %lf\n", angle);
 }
 
 
 int player_get() {
 	return camera.focus_object;
+}
+
+
+void player_draw_nametag(const char *name, int color, int x, int y) {
+	int font_w, font_h;
+
+	DARNIT_TEXT_SURFACE *dt;
+	DARNIT_LINE *dl;
+	DARNIT_RECT *dr;
+
+	d_render_tint(0, 0, 0, 255);
+	/* TODO: Look up string geometrics */
+	dt = d_text_surface_new(NULL, 20, 800, x + 4, y + 4);
+	font_h = d_font_string_geometrics(NULL, name, 1000, &font_w);
+	//d_text_surface_string_append((char *) name);
+
+	dr = d_render_rect_new(1);
+	dl = d_render_line_new(4, 1);
+
+	d_render_rect_move(dr, 0, x, y, x + font_w + 8, y + font_h + 8);
+	d_render_rect_draw(dr, 1);
+	d_render_rect_free(dr);
+
+	/* TODO: Look up player color */
+	//d_render_tint();
+	d_render_line_move(dr, 0, x, y, x + font_w + 8, y);
+	d_render_line_move(dr, 1, x + font_w + 8, y, x + font_w + 8, y + font_h + 8);
+	d_render_line_move(dr, 2, x + font_w + 8, y + font_h + 8, x, y + font_h + 8);
+	d_render_line_move(dr, 3, x, y + font_h, x, y);
+	d_render_line_draw(dl, 4);
+	d_render_line_free(dr);
+
+	/* TODO: Look up font */
+	d_text_surface_draw(dt);
+	d_text_surface_free(dt);
+	d_render_tint(255, 255, 255, 255);
+	
+	return;
+}
+
+
+void player_draw_icon_autoedge(int icon, int x, int y) {
+	double midx, midy, dx, dy, delta, delta_for_x;
+	if (camera.x - x > 0 && camera.x - x < d_platform_get().screen_w)
+		if (camera.y - y > 0 && camera.y < d_platform_get().screen_h)
+			// Icon is within the screen, don't draw it
+			return;
+	midx = (double) d_platform_get().screen_w / 2 + camera.x;
+	midy = (double) d_platform_get().screen_h / 2 + camera.y;
+
+	dx = midx - x;
+	dy = midy - y;
+
+	if (dx == 0) {
+		if (dy < 0) {
+			d_render_tile_blit(object_get_icons(), icon, x, camera.y);
+		} else {
+			d_render_tile_blit(object_get_icons(), icon, x, camera.y + d_platform_get().screen_h - 32);
+		}
+	} else if (dy == 0) {
+		if (dx < 0) {
+			d_render_tile_blit(object_get_icons(), icon, camera.x, y);
+		} else {
+			d_render_tile_blit(object_get_icons(), icon, camera.x + d_platform_get().screen_w - 32, y);
+		}
+	} else {
+		delta = dx/dy;
+		delta_for_x = ((double) d_platform_get().screen_w) / ((double) d_platform_get().screen_h);
+//		if (delta_for_x > delta)  { // Intersection will be on the Y-axis */
+			double intersection;
+			intersection = (double) d_platform_get().screen_w / delta;
+			if (dx < 0) {
+				intersection *= -((double) d_platform_get().screen_w) / 2.;
+			} else {
+				intersection *= ((double) d_platform_get().screen_w) / 2.;
+			}
+	}
 }
 
 

@@ -73,14 +73,17 @@ void player_thread(Packet pack, unsigned long addr) {
 				p = player_add(addr, 1.0, 2.0 + (rand() & 0xF) / 16., pack.lobby.name);
 				pack.lobby.begin = 6;
 				player_broadcast_package(pack);
+				fprintf(stderr, "Broadcasting %s\n", pack.lobby.name);
+
 				Player *next;
 				for (next = player; next; next = next->next) {
 					if (next->id == p->id)
 						continue;
 					pack.type = PACKET_TYPE_LOBBY;
 					pack.lobby.begin = 6;
-					strcpy(pack.lobby.name, p->pname);
-					network_send(p->addr, &pack, sizeof(pack));
+					strcpy(pack.lobby.name, next->pname);
+					fprintf(stderr, "Telling player about %s addr %i\n", pack.lobby.name, addr);
+					network_send(addr, &pack, sizeof(pack));
 				}
 
 				break;

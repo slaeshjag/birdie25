@@ -58,7 +58,7 @@ static void _send(Body *body, size_t bodies) {
 	int i;
 	for(q = player; q; q = q->next) {
 		for(i = 0; i < bodies; i++) {
-			printf("Body %i: {%f, %f} angle %f\n", i, body[i].position.x, body[i].position.y, body[i].angle);
+		//	printf("Body %i: {%f, %f} angle %f\n", i, body[i].position.x, body[i].position.y, body[i].angle);
 			po->id = i;
 			po->x = body[i].position.x;
 			po->y = body[i].position.y;
@@ -67,7 +67,7 @@ static void _send(Body *body, size_t bodies) {
 		}
 		
 		for(p = player; p; p = p->next) {
-			printf("Player %i: {%f, %f} angle %f\n", player->id, body[i].position.x, body[i].position.y, body[i].angle);
+		//	printf("Player %i: {%f, %f} angle %f\n", player->id, body[i].position.x, body[i].position.y, body[i].angle);
 			po->id = p->id;
 			po->x = p->body->position.x;
 			po->y = p->body->position.y;
