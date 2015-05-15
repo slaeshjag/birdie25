@@ -35,25 +35,34 @@ bool ball_collision_handled(Body *body, int n, int ball, Point deltap, Point del
 			continue;
 		
 		if (body[ball].sprite >= 64 && body[ball].sprite < 73) {
-			double dv, dvx, dvy;
-			dvx = body[ball].velocity.x - body[i].velocity.x;
-			dvy = body[ball].velocity.y - body[i].velocity.y;
-			dv = sqrt(dvx*dvx + dvy*dvy);
-			dv *= (body[ball].mass + body[i].mass);
-			dv /= 1000000;
-			body[ball].energy -= dv;
+			if ((ball > BULLET_START) && (ball < BULLET_START + BULLETS)) {
+				body[i].energy -= 0.1;
+			} else {
+				double dv, dvx, dvy;
+				dvx = body[ball].velocity.x - body[i].velocity.x;
+				dvy = body[ball].velocity.y - body[i].velocity.y;
+				dv = sqrt(dvx*dvx + dvy*dvy);
+				dv *= (body[ball].mass + body[i].mass);
+				dv /= 1000000;
+				body[ball].energy -= dv;
+			}
 			if (body[ball].energy < 0)
 				body[ball].energy = 0;
 		}
 		
 		if (body[i].sprite >= 64 && body[i].sprite < 73) {
 			double dv, dvx, dvy;
-			dvx = body[ball].velocity.x - body[i].velocity.x;
-			dvy = body[ball].velocity.y - body[i].velocity.y;
-			dv = sqrt(dvx*dvx + dvy*dvy);
-			dv *= (body[ball].mass + body[i].mass);
-			dv /= 1000000;
-			body[i].energy -= dv;
+			if ((ball > BULLET_START) && (ball < BULLET_START + BULLETS)) {
+				body[i].energy -= 0.1;
+			} else {
+				dvx = body[ball].velocity.x - body[i].velocity.x;
+				dvy = body[ball].velocity.y - body[i].velocity.y;
+				dv = sqrt(dvx*dvx + dvy*dvy);
+				dv *= (body[ball].mass + body[i].mass);
+				dv /= 1000000;
+				body[i].energy -= dv;
+			}
+			
 			if (body[i].energy < 0)
 				body[i].energy = 0;
 		}

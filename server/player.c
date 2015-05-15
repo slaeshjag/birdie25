@@ -74,36 +74,37 @@ void player_thread(Packet pack, unsigned long addr) {
 					player_attach_asteroid(p);
 				}
 				
-				for(i = 0; i < 3; i++)
+				/*for(i = 0; i < 3; i++)
 					if(p->cooldown[i] > 0)
 						p->cooldown[i]--;
 				
 				while(!p->cooldown[p->cooldown_current] && p->cooldown_current > 0)
 					p->cooldown_current--;
-				
+				*/
 				if(!pack.client.button.shoot)
 					p->pressed = false;
 				
-				if(pack.client.button.shoot && !p->cooldown[p->cooldown_current] && !p->pressed) {
+
+				if(d_time_get() - p->last_press >= 340 && pack.client.button.shoot && !p->pressed) {
 					Point dir;
 					int i;
+					if (p->body->energy >= 0.02)
+						p->body->energy -= 0.01;
+					else goto noshoot;
+					p->last_press = d_time_get();
 					dir.x = BULLET_SPEED * cos(p->body->angle);
-					dir.y = -BULLET_SPEED * sin(p->body->angle);
+					dir.y = BULLET_SPEED * sin(p->body->angle);
 					i = alloc_bullet();
 					
-					body[BODIES + PLAYER_MAX + i].position.x = p->body->position.x;
-					body[BODIES + PLAYER_MAX + i].position.y = p->body->position.y;
-					body[BODIES + PLAYER_MAX + i].velocity.x = dir.x;
-					body[BODIES + PLAYER_MAX + i].velocity.y = dir.y;
-					body[BODIES + PLAYER_MAX + i].movable = true;
-					body[BODIES + PLAYER_MAX + i].sprite = 64 + 16;
-					p->cooldown[p->cooldown_current] = 100;
-					p->cooldown_current++;
-					if(p->cooldown_current >= 3)
-						p->cooldown_current = 3;
+					body[BULLET_START + i].position.x = p->body->position.x;
+					body[BULLET_START + i].position.y = p->body->position.y;
+					body[BULLET_START + i].velocity.x = dir.x;
+					body[BULLET_START + i].velocity.y = dir.y;
+					body[BULLET_START + i].movable = true;
+					body[BULLET_START + i].sprite = 64 + 16;
 					p->pressed = true;
 				}
-				
+noshoot:
 				p->body->tractor_beam = pack.client.button.beam;
 				if(p->body->da >= PLAYER_ACCEL)
 					p->body->da = PLAYER_ACCEL;

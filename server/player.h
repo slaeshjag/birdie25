@@ -12,8 +12,7 @@ struct Player {
 	int id;
 	unsigned long addr;
 	char *pname;
-	uint32_t cooldown[3];
-	int cooldown_current;
+	unsigned int last_press;
 	bool pressed;
 	Body *body;
 	Player *next;
