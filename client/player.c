@@ -26,6 +26,7 @@ double velocity;
 extern struct ClientObject *obj;
 extern double coordinate_scale;
 bool display_tractor_beam = false;
+extern DARNIT_TEXT_SURFACE *time_text;
 
 struct {
 	DARNIT_CIRCLE *ring;
@@ -281,6 +282,8 @@ int player_draw_hud() {
 	sprintf(text, "Distance to\nhome sun: %i", (int) (DIST(obj[camera.home], obj[pl]) * 200.0));
 	d_text_surface_string_append(trip, text);
 	d_text_surface_draw(trip);
+
+	d_text_surface_draw(time_text);
 	
 	return 1;
 }

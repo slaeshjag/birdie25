@@ -15,6 +15,7 @@ enum PacketType {
 	PACKET_TYPE_PRE_SIMULATION,
 	PACKET_TYPE_PLAYER,
 	PACKET_TYPE_AUX_PLAYER,
+	PACKET_TYPE_EXIT,
 };
 
 typedef struct PacketLobby PacketLobby;
@@ -80,7 +81,7 @@ struct PacketPreSimulate {
 typedef struct PacketPlayer PacketPlayer;
 struct PacketPlayer {
 	uint32_t type;
-	
+	uint32_t seconds_remaining;
 	double velocity;
 	double accel;
 	double energy;
@@ -91,8 +92,14 @@ typedef struct PacketAuxPlayer PacketAuxPlayer;
 struct PacketAuxPlayer {
 	uint32_t type;
 	uint32_t id;
-	double tractor_beam;
-	uint8_t score[8];
+	uint8_t score;
+	float tractor_beam;
+	char name[16];
+};
+
+typedef struct PacketExit PacketExit;
+struct PacketExit {
+	uint32_t type;
 };
 
 typedef union Packet Packet;
@@ -106,6 +113,7 @@ union Packet {
 	PacketPlayer player;
 	PacketPreSimulate simul;
 	PacketAuxPlayer auxplayer;
+	PacketExit;
 };
 
 #endif

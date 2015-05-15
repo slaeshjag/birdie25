@@ -5,6 +5,7 @@
  * @copyright MIT/X11 License, see COPYING
  */
 
+#include <darnit/darnit.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,6 +17,8 @@
 #include "nbody.h"
 #include "main.h"
 
+
+extern uint8_t score[8];
 
 bool ball_collision_handled(Body *body, int n, int ball, Point deltap, Point deltav) {
 	int i;
@@ -53,6 +56,22 @@ bool ball_collision_handled(Body *body, int n, int ball, Point deltap, Point del
 			body[i].energy -= dv;
 			if (body[i].energy < 0)
 				body[i].energy = 0;
+		}
+
+		if (d_time_get() - body[i].tract.last_attachment < 1500) {
+			if (body[i].tract.last_obj - BODIES == ball) {
+				fprintf(stderr, "Parked something! %i\n", ball);
+				body[i].tract.parked = true;
+				score[ball]++;
+				return true;
+			} return false;
+		} if (d_time_get() - body[ball].tract.last_attachment < 1500) {
+			if  (body[ball].tract.last_obj - BODIES == i) {
+				fprintf(stderr, "Parked something! %i\n", i);
+				body[ball].tract.parked = true;
+				score[i]++;
+				return true;
+			} return false;
 		}
 		
 		double vx1, vx2, vy1, vy2, cvx, cvy;
@@ -118,10 +137,17 @@ void nbody_calc_forces(Body *body, int n) {
 void nbody_move_bodies(Body *body, int n, double dt) {
 	Point deltav, deltap;
 	int i;
+
+	for (i = 0; i < 8; i++)
+		score[i] = 0;
 	
 	for(i = 0; i < n; i++) {
 		if(!body[i].movable)
 			goto out;
+		if (body[i].tract.parked) {
+			score[body[i].tract.last_obj - BODIES]++;
+			goto out;
+		}
 		if (body[i].sprite >= 64 && body[i].sprite < 73) {
 			body[i].energy += 0.00005;
 			if (body[i].energy > 1.0)
@@ -133,11 +159,13 @@ void nbody_move_bodies(Body *body, int n, double dt) {
 
 			l = body[i].tract.obj;
 			if (3.0 * body[l].energy < body[i].tract.distance || !body[l].tractor_beam) {
+				body[i].tract.last_obj = body[i].tract.obj;
 				body[i].tract.obj = 0;
+				body[i].tract.last_attachment = d_time_get();
 				goto no_attach;
 			}
-			body[i].position.x = body[l].position.x - cos((body[l].angle - body[i].tract.angle) + M_PI_2) * body[i].tract.distance;
-			body[i].position.y = body[l].position.y - sin((body[l].angle - body[i].tract.angle) + M_PI_2) * body[i].tract.distance;
+			body[i].position.x = body[l].position.x - cos((body[l].angle - body[i].tract.angle)) * body[i].tract.distance;
+			body[i].position.y = body[l].position.y - sin((body[l].angle - body[i].tract.angle)) * body[i].tract.distance;
 //			body[i].position = body[body[i].tract.obj].position;
 			continue;
 		}
@@ -159,6 +187,8 @@ void nbody_move_bodies(Body *body, int n, double dt) {
 		else if(body[i].velocity.y < -SPEED_LIMIT)
 			body[i].velocity.y = -SPEED_LIMIT;
 		
+		if (body[i].tract.parked)
+			continue;
 		if (ball_collision_handled(body, n, i, deltap, deltav))
 			continue;
 
@@ -203,6 +233,7 @@ void nbody_move_bodies(Body *body, int n, double dt) {
 		body[i].force.x = 0.0;
 		body[i].force.y = 0.0;
 	}
+
 }
 
 void nbody_pre_simulate(Point *out, int no, Body *b, int nb, int *me, int nm, double time) {

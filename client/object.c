@@ -34,6 +34,10 @@ extern bool display_tractor_beam;
 
 void player_thread(Packet pack, unsigned long addr);
 void object_draw_tractor_beam(double x, double y, double angle, double length);
+DARNIT_TEXT_SURFACE *time_text;
+static DARNIT_TEXT_SURFACE *score_text[8];
+uint32_t time_remaining;
+
 
 void object_init(int objects, int _pre_simulations) {
 	int i;
@@ -48,9 +52,15 @@ void object_init(int objects, int _pre_simulations) {
 	pre_simulation = malloc(sizeof(struct PreSimulation)*_pre_simulations);
 	pre_simulations = _pre_simulations;
 	pre_simulation_point = d_render_point_new(_pre_simulations, 3);
+
+	time_text = d_text_surface_new(gfx.font.large, 20, 800, 600, 0);
 	for(i = 0; i < pre_simulations; i++) {
 		d_render_point_move(pre_simulation_point, i, 0, 0);
 	}
+
+	for (i = 0; i < 8; i++)
+		score_text[i] = d_text_surface_new(gfx.font.large, 20, 200, 0, 200 + i * 40);
+
 	return;
 }
 
@@ -108,6 +118,7 @@ void object_update(int id, double x, double y, double angle) {
 	obj[id].x = xi;
 	obj[id].y = yi;
 	obj[id].angle = ai;
+
 //	fprintf(stderr, "Object %i at %i, %i @ %i\n", id, xi, yi, ai);
 }
 
@@ -154,6 +165,11 @@ void object_draw() {
 			closest = i;
 		}
 	}
+	
+	d_text_surface_reset(time_text);
+	char buff[40];
+	sprintf(buff, "Time left: %.2i:%.2i", (time_remaining / 60), time_remaining % 60);
+	d_text_surface_string_append(time_text, buff);
 	//coordinate_scale = 30.0*min_distance;//pow(M_E, -0.01*min_distance);
 	//printf("scale %f, %f, closest is %i\n", coordinate_scale, min_distance, closest);
 }
@@ -210,9 +226,11 @@ void *object_thread(void *arne) {
 				power = pack.player.energy;
 				thrust = pack.player.accel;
 				velocity = pack.player.velocity;
+				time_remaining = pack.player.seconds_remaining;
 				break;
 			case PACKET_TYPE_AUX_PLAYER:
 				obj[pack.auxplayer.id].tractor_beam = pack.auxplayer.tractor_beam;
+				fprintf(stderr, "Score for %s: %i\n", pack.auxplayer.name, pack.auxplayer.score);
 				break;
 		}
 	}

@@ -156,6 +156,8 @@ void player_attach_asteroid(Player *p) {
 		if (!body[i].tract.obj) {
 			if (body[i].sprite < 74)
 				continue;
+			if (body[i].tract.parked && body[i].tract.last_obj == p->id)
+				continue;
 			double trac_x, trac_y, length;
 			trac_x = body[player].position.x, trac_y = body[player].position.y;
 			length = p->body->energy * 3.0f;
@@ -165,6 +167,7 @@ void player_attach_asteroid(Player *p) {
 			double dx, dy;
 			dx = -(trac_x - body[i].position.x);
 			dy = -(trac_y - body[i].position.y);
+			body[i].tract.parked = false;
 			body[i].tract.obj = p->id;
 			body[i].tract.distance = sqrt(dx*dx+dy*dy);
 			body[i].tract.angle = math_delta_to_angle(dx, dy);

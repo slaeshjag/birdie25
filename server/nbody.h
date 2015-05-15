@@ -33,9 +33,12 @@ struct Body {
 	bool movable;
 	bool tractor_beam;
 	struct {
+		uint32_t last_attachment;
+		int last_obj;
 		int obj;
 		double angle;
 		double distance;
+		bool parked;
 	} tract;
 	uint32_t sprite;
 };

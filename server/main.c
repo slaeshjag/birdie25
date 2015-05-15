@@ -18,6 +18,10 @@
 extern Player *player;
 extern int players;
 static bool game_has_started = false;
+uint8_t score[8];
+uint32_t timer_start;
+
+#define	GAME_TIMER	180
 
 Body body[BODIES + PLAYER_MAX + BULLETS] = {
 	{
@@ -159,7 +163,9 @@ static void _send(Body *body, size_t bodies) {
 		for(p = player; p; p = p->next) {
 			pack.auxplayer.id = p->id;
 			pack.auxplayer.tractor_beam = p->body->tractor_beam?p->body->energy:0.;
-			network_send(q->addr, &pack, sizeof(Packet));;
+			pack.auxplayer.score = score[p->id - BODIES];
+			strcpy(pack.auxplayer.name, p->pname);
+			network_send(q->addr, &pack, sizeof(Packet));
 		}
 		
 		for(i = 0; i < PRE_SIMULATIONS; i++) {
@@ -175,6 +181,7 @@ static void _send(Body *body, size_t bodies) {
 		pack.player.energy = q->body->energy;
 		pack.player.accel = sqrt(SUP2(q->body->accel.x) + SUP2(q->body->accel.x)) / (PLAYER_ACCEL*M_SQRT2);
 		pack.player.velocity = sqrt(SUP2(q->body->velocity.x) + SUP2(q->body->velocity.x)) / (SPEED_LIMIT*M_SQRT2);
+		pack.player.seconds_remaining = GAME_TIMER - (d_time_get() - timer_start) / 1000;
 		network_send(q->addr, &pack, sizeof(Packet));
 	}
 }
@@ -186,6 +193,9 @@ static void _setup(Body *body, size_t bodies) {
 	PacketSetupObject *pso = &pack[1].setup_object;
 	int i;
 	
+	for (i = 0; i < 8; i++)
+		score[i] = 0;
+
 	//Fuck multicast
 	for(q = player; q; q = q->next) {
 		ps->id = q->id;
@@ -210,6 +220,8 @@ static void _setup(Body *body, size_t bodies) {
 			network_send(q->addr, pso, sizeof(Packet));
 		}
 	}
+
+	timer_start = d_time_get();
 }
 
 void *server_main(void *argleblargle) {
@@ -227,7 +239,7 @@ void *server_main(void *argleblargle) {
 	
 	//pthread_create(&pth, NULL, player_thread, NULL);
 	for(i = 0;; i++) {
-		if (game_has_started) {
+		if (game_has_started && (d_time_get() - timer_start) / 1000 < GAME_TIMER) {
 			nbody_calc_forces(body, BODIES + players);
 			nbody_move_bodies(body, BODIES + players, 1);
 			_send(body, BODIES);
@@ -240,6 +252,11 @@ void *server_main(void *argleblargle) {
 				strcpy(p.lobby.name, "Unknown");
 			}
 				network_broadcast(&p, sizeof(Packet));
+		} else if (game_has_started) {
+			/* Send exit package */
+			p.type = PACKET_TYPE_EXIT;
+			player_broadcast_package(p);
+			pthread_exit(NULL);
 		}
 		usleep(16666); //60 fps
 	}
