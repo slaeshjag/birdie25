@@ -73,6 +73,8 @@ void object_init_object(int id, int sprite_id) {
 void object_update(int id, double x, double y, double angle) {
 	int xi, yi, ai, arne, goesta, gw, gh;
 
+	obj[id].dx = x;
+	obj[id].dy = y;
 	y *= -1;
 	xi = x * coordinate_scale;
 	yi = y * coordinate_scale;
@@ -103,8 +105,6 @@ void object_update(int id, double x, double y, double angle) {
 
 	obj[id].x = xi;
 	obj[id].y = yi;
-	obj[id].dx = x;
-	obj[id].dy = y;
 	obj[id].angle = ai;
 //	fprintf(stderr, "Object %i at %i, %i @ %i\n", id, xi, yi, ai);
 }
@@ -191,7 +191,7 @@ void *object_thread(void *arne) {
 				break;
 			case PACKET_TYPE_PRE_SIMULATION:
 				pre_simulation[pack.simul.id].x = pack.simul.x;
-				pre_simulation[pack.simul.id].y = pack.simul.y;
+				pre_simulation[pack.simul.id].y = -pack.simul.y;
 				break;
 		}
 	}

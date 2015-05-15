@@ -80,13 +80,12 @@ void nbody_pre_simulate(Point *out, int no, Body *b, int nb, int *me, int nm, do
 	
 	dt = time / ((double) no);
 	for(t = 0, d = 0; t < time; t += dt, d++) {
-		printf("d is %i\n", d);
 		nbody_calc_forces(copy, nb);
 		nbody_move_bodies(copy, nb, dt);
 		for(i = 0; i < nm; i++) {
 			j = me[i];
-			out[d*nm + i].x = copy[j].position.x;
-			out[d*nm + i].y = copy[j].position.y;
+			out[i*nm + d].x = copy[j].position.x;
+			out[i*nm + d].y = copy[j].position.y;
 		}
 	}
 	
