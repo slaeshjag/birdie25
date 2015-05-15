@@ -77,6 +77,7 @@ void game_state(GameState state) {
 			for (i = 0; i < objs; i++)
 				object_init_object(i, 64);
 			object_init_object(0, 65);
+			object_init_object(0, 74);
 			pthread_create(&game.thread, NULL, object_thread, NULL);
 			#ifndef __DEBUG__
 			//d_input_grab();

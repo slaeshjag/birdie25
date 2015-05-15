@@ -4,7 +4,7 @@
 #include "player.h"
 #include <protocol.h>
 
-#define BODIES 4
+#define BODIES 10
 #define PRE_SIMULATIONS 20
 
 #define WIDTH 100
