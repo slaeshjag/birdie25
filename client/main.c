@@ -166,28 +166,6 @@ int main(int argc, char **argv) {
 		d_loop();
 	}
 
-	do {
-		pl.lobby.begin = 0;
-		sip = network_recv(&pl, sizeof(Packet));
-		printf("%i %i\n", pl.type, pl.lobby.begin);
-		if(pl.lobby.type == PACKET_TYPE_LOBBY && pl.lobby.begin == 3) {
-			pl2.lobby.type = PACKET_TYPE_LOBBY;
-			pl2.lobby.begin = 1;
-			network_broadcast(&pl2, sizeof(Packet));
-		}
-	} while(pl.lobby.type != PACKET_TYPE_LOBBY || pl.lobby.begin != 2);
-	
-	printf("arne\n");
-	ps.type = PACKET_TYPE_LOBBY;
-	do {
-		network_recv(&ps, sizeof(ps));
-	} while(ps.setup.type != PACKET_TYPE_SETUP);
-
-
-	for (;;) {
-		d_render_begin();
-		d_render_blend_enable();
-		d_render_end();
-		d_loop();
-	}
+	d_quit();
+	return 0;
 }
