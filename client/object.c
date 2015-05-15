@@ -10,6 +10,7 @@ extern unsigned long sip;
 static struct ClientObject *obj;
 static int objs;
 static DARNIT_TILESHEET *planets;
+static DARNIT_TILESHEET *icons;
 
 static double object_scale;
 static double coordinate_scale;
@@ -24,6 +25,7 @@ void object_init(int objects) {
 	memset(obj, 0, sizeof(*obj) * objects);
 	objs = objects;
 	planets = d_render_tilesheet_load("res/planets.png", 256, 256, DARNIT_PFORMAT_RGBA8);
+	icons = d_render_tilesheet_load("res/icons.png", 32, 32, DARNIT_PFORMAT_RGBA8);
 	d_render_tilesheet_scale_algorithm(planets, DARNIT_SCALE_LINEAR);
 	coordinate_scale = CLIENT_OBJECT_COORD_SCALE;
 	object_scale = 0.3;
@@ -149,4 +151,9 @@ void *object_thread(void *arne) {
 				break;
 		}
 	}
+}
+
+
+void *object_get_icons() {
+	return icons;
 }
