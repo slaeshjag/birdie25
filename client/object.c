@@ -132,9 +132,12 @@ void object_draw() {
 	int i;
 
 	for (i = 0; i < objs; i++) {
-		if (obj[i].sprite)
+		if (obj[i].sprite) {
+			if (i == player_get())
+				object_draw_tractor_beam(obj[i].dx, -obj[i].dy, obj[i].angle, 1.0);
 			d_sprite_draw(obj[i].pic.sprite);
-		else
+			player_draw_nametag("Arne", 0, obj[i].x + 32, obj[i].y - 16);
+		} else
 			d_render_tile_draw(obj[i].pic.tile, 1);
 	}
 
@@ -142,7 +145,6 @@ void object_draw() {
 	int closest = 0;
 	int id = player_get();
 	for (i = 0; i < objs; i++) {
-		object_draw_tractor_beam(obj[i].dx, obj[i].dy, obj[i].angle, 1.0);
 		if (obj[i].sprite) {
 			printf("%i is sprite\n", i);
 			continue;
@@ -211,24 +213,31 @@ void object_draw_tractor_beam(double x, double y, double angle, double length) {
 	int t, ni, i;
 	DARNIT_LINE *dl;
 
-	n = length / 0.05;
-	t = d_time_get() % 250;
-	td = (double) t / 250;
+	angle /= 1800.;
+	angle *= M_PI;
+	angle *= -1;
+	angle += M_PI;
+
+	n = length / 0.1;
+	t = d_time_get() % 100;
+	td = (double) t / 100*-1;
 	ni = n;
 	
 	dl = d_render_line_new(ni, 1);
 
 	for (i = 0; i < ni; i++) {
 		double x1, y1, x2, y2, ami, ama;
-		ami = angle - M_PI_4;
-		ama = angle + M_PI_4;
-		x1 = cos(ami) * (0.05 * i), y1 = sin(ami) * (0.05 * i);
-		x2 = cos(ama) * (0.05 * i), y2 = sin(ama) * (0.05 * i);
+		ami = angle - M_PI/8;
+		ama = angle + M_PI/8;
+		x1 = cos(ami) * (0.1 * i + td/10), y1 = sin(ami) * (0.1 * i + td/10);
+		x2 = cos(ama) * (0.1 * i + td/10), y2 = sin(ama) * (0.1 * i + td/10);
 
 		x1 += x, x2 += x;
 		y1 += y, y2 += y;
+		fprintf(stderr, "%f %f %f %f, %f %f\n", x1, y1, x2, y2, ami, ama);
 		d_render_line_move(dl, i, x1 * coordinate_scale, y1 * coordinate_scale, x2 * coordinate_scale, y2 * coordinate_scale);
 	}
-	
+
+	d_render_line_draw(dl, ni);
 	d_render_line_free(dl);
 }

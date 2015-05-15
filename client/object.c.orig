@@ -1,3 +1,4 @@
+#include <darnit/darnit.h>
 #include "object.h"
 #include <string.h>
 #include <stdbool.h>
@@ -5,6 +6,7 @@
 #include <math.h>
 #include <network.h>
 #include <protocol.h>
+#include <common_math.h>
 #include "main.h"
 #include "player.h"
 
@@ -16,6 +18,14 @@ int objs;
 static DARNIT_TILESHEET *planets;
 static DARNIT_TILESHEET *icons;
 
+static int pre_simulations;
+
+static struct PreSimulation {
+	double x;
+	double y;
+} *pre_simulation;
+static DARNIT_POINT *pre_simulation_point;
+
 static double object_scale;
 static double coordinate_scale;
 
@@ -23,8 +33,10 @@ void object_get_coord(int id, int *x, int *y, int *w, int *h);
 extern bool we_are_hosting_a_game;
 
 void player_thread(Packet pack, unsigned long addr);
+void object_draw_tractor_beam(double x, double y, double angle, double length);
 
-void object_init(int objects) {
+void object_init(int objects, int _pre_simulations) {
+	int i;
 	obj = malloc(sizeof(*obj) * objects);
 	memset(obj, 0, sizeof(*obj) * objects);
 	objs = objects;
@@ -33,6 +45,12 @@ void object_init(int objects) {
 	d_render_tilesheet_scale_algorithm(planets, DARNIT_SCALE_LINEAR);
 	coordinate_scale = CLIENT_OBJECT_COORD_SCALE;
 	object_scale = 0.3;
+	pre_simulation = malloc(sizeof(struct PreSimulation)*_pre_simulations);
+	pre_simulations = _pre_simulations;
+	pre_simulation_point = d_render_point_new(_pre_simulations, 2);
+	for(i = 0; i < pre_simulations; i++) {
+		d_render_point_move(pre_simulation_point, i, 0, 0);
+	}
 	return;
 }
 
@@ -57,14 +75,9 @@ void object_init_object(int id, int sprite_id) {
 void object_update(int id, double x, double y, double angle) {
 	int xi, yi, ai, arne, goesta, gw, gh;
 
-<<<<<<< HEAD
+	y *= -1;
 	xi = x * coordinate_scale;
 	yi = y * coordinate_scale;
-=======
-	y *= -1;
-	xi = x * CLIENT_OBJECT_COORD_SCALE;
-	yi = y * CLIENT_OBJECT_COORD_SCALE;
->>>>>>> 9064781a836e9e24cff04080945ae8c15bd1a844
 	ai = (angle / M_PI * 1800);
 
 	object_get_coord(id, &arne, &goesta, &gw, &gh);
@@ -129,8 +142,13 @@ void object_draw() {
 	int closest = 0;
 	int id = player_get();
 	for (i = 0; i < objs; i++) {
+<<<<<<< HEAD
+		object_draw_tractor_beam(obj[i].dx, obj[i].dy, obj[i].angle, 1.0);
+		if (obj[i].sprite)
+=======
 		if (obj[i].sprite) {
 			printf("%i is sprite\n", i);
+>>>>>>> 40df34fcd639eae331ed55f660a812873df3fbad
 			continue;
 		}
 		if ((dist = DIST(obj[i], obj[id])) < min_distance) {
@@ -140,6 +158,14 @@ void object_draw() {
 	}
 	//coordinate_scale = 30.0*min_distance;//pow(M_E, -0.01*min_distance);
 	printf("scale %f, %f, closest is %i\n", coordinate_scale, min_distance, closest);
+}
+
+void pre_simulation_draw() {
+	int i;
+	for(i = 0; i < pre_simulations; i++) {
+		d_render_point_move(pre_simulation_point, i, pre_simulation[i].x*coordinate_scale, pre_simulation[i].y*coordinate_scale);
+	}
+	d_render_point_draw(pre_simulation_point, pre_simulations);
 }
 
 
@@ -170,6 +196,10 @@ void *object_thread(void *arne) {
 				object_init_object(pack.setup_object.id, pack.setup_object.sprite);
 				//camera_init(pack.setup.id);
 				break;
+			case PACKET_TYPE_PRE_SIMULATION:
+				pre_simulation[pack.simul.id].x = pack.simul.x;
+				pre_simulation[pack.simul.id].y = pack.simul.y;
+				break;
 		}
 	}
 }
@@ -181,10 +211,29 @@ void *object_get_icons() {
 
 
 void object_draw_tractor_beam(double x, double y, double angle, double length) {
-	double n;
+	double n, td;
+	int t, ni, i;
 	DARNIT_LINE *dl;
 
-	length /= 0.05;
 
-	dl = d_render_line_new(1, 1);
+	n = length / 0.05;
+	t = d_time_get() % 250;
+	td = (double) t / 250;
+	ni = n;
+	
+	dl = d_render_line_new(ni, 1);
+
+	for (i = 0; i < ni; i++) {
+		double x1, y1, x2, y2, ami, ama;
+		ami = angle - M_PI_4;
+		ama = angle + M_PI_4;
+		x1 = cos(ami) * (0.05 * i), y1 = sin(ami) * (0.05 * i);
+		x2 = cos(ama) * (0.05 * i), y2 = sin(ama) * (0.05 * i);
+
+		x1 += x, x2 += x;
+		y1 += y, y2 += y;
+		d_render_line_move(dl, i, x1 * coordinate_scale, y1 * coordinate_scale, x2 * coordinate_scale, y2 * coordinate_scale);
+	}
+	
+	d_render_line_free(dl);
 }
