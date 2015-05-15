@@ -14,7 +14,7 @@ Player *player;
 int players;
 extern Body body[];
 
-Player *player_add(unsigned long addr, double x, double y, const char *pname) {
+Player *player_add(unsigned long addr, double x, double y, double vel_x, double vel_y, const char *pname) {
 	Player *p;
 	p = malloc(sizeof(Player));
 	p->addr = addr;
@@ -58,6 +58,7 @@ void player_thread(Packet pack, unsigned long addr) {
 				if(pack.client.button.forward) {
 					p->body->accel.x = PLAYER_ACCEL*cos(pack.client.angle);
 					p->body->accel.y = PLAYER_ACCEL*sin(pack.client.angle);
+					fprintf(stderr, "%f %f\n", p->body->velocity.x, p->body->velocity.y);
 				}
 				if(pack.client.button.backward) {
 					p->body->accel.x = -PLAYER_ACCEL*cos(pack.client.angle);
@@ -70,7 +71,7 @@ void player_thread(Packet pack, unsigned long addr) {
 
 				fprintf(stderr, "A player joined\n");
 				// TODO: Put this somewhere near the home planet
-				p = player_add(addr, 1.0, 2.0 + (rand() & 0xF) / 16., pack.lobby.name);
+				p = player_add(addr, 1.0, 2.0 + (rand() & 0xF) / 16., 0, 0, pack.lobby.name);
 				pack.lobby.begin = 6;
 				player_broadcast_package(pack);
 				fprintf(stderr, "Broadcasting %s\n", pack.lobby.name);
