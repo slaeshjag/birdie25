@@ -1,4 +1,5 @@
 bin/
+*.orig
 *.o
 *.a
 *.so
