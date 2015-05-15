@@ -61,7 +61,7 @@ static void _send(Body *body, size_t bodies) {
 	for(q = player; q; q = q->next)
 		me[player->id - BODIES] = player->id;
 	
-	nbody_pre_simulate(pre, PRE_SIMULATIONS, body, BODIES + players, me, players, 60.0);
+	nbody_pre_simulate(pre, PRE_SIMULATIONS, body, BODIES + players, me, players, 3*60.0);
 	
 	for(q = player, j = 0; q; q = q->next, j++) {
 		for(i = 0; i < bodies; i++) {
@@ -85,9 +85,9 @@ static void _send(Body *body, size_t bodies) {
 		for(i = 0; i < PRE_SIMULATIONS; i++) {
 			pack.type = PACKET_TYPE_PRE_SIMULATION;
 			pack.simul.id = i;
-			pack.simul.x = pre[i * PRE_SIMULATIONS + j].x;
-			pack.simul.y = pre[i * PRE_SIMULATIONS + j].y;
-			//network_send(q->addr, &pack, sizeof(Packet));
+			pack.simul.x = pre[i + j*players].x;
+			pack.simul.y = pre[i + j*players].y;
+			network_send(q->addr, &pack, sizeof(Packet));
 		}
 	}
 }
