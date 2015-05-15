@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
 	Packet pl, pl2;
 	Packet ps;
 	char font_path[4096];
-
+	
 	d_init_custom("Jymdsjepp", DISPLAY_WIDTH, DISPLAY_HEIGHT, 0, "birdie25", NULL);
 	
 	sprintf(font_path, "%s", d_fs_exec_path());

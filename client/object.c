@@ -170,6 +170,11 @@ void *object_thread(void *arne) {
 	Packet pack;
 	unsigned long addr;
 	int datalen;
+	
+	extern double power;
+	extern double thrust;
+	extern double velocity;
+	
 	for (;;) {
 		addr = network_recv(&pack, sizeof(Packet));
 		
@@ -198,6 +203,10 @@ void *object_thread(void *arne) {
 				pre_simulation[pack.simul.id].x = pack.simul.x;
 				pre_simulation[pack.simul.id].y = -pack.simul.y;
 				break;
+			case PACKET_TYPE_PLAYER:
+				power = pack.player.energy;
+				thrust = pack.player.accel;
+				velocity = pack.player.velocity;
 		}
 	}
 }

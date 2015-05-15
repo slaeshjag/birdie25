@@ -30,6 +30,8 @@ Player *player_add(unsigned long addr, double x, double y, double vel_x, double 
 	p->body->movable = true;
 	p->pname = strdup(pname);
 	
+	p->energy = 1.0;
+	
 	p->next = player;
 	players++;
 	player = p;
@@ -62,19 +64,16 @@ void player_thread(Packet pack, unsigned long addr) {
 				/* HACK: Below accelerations have sign flipped. I don't know why it works, but it does */
 				if(pack.client.button.forward) {
 					p->body->da += PLAYER_ACCEL/100.0;
-				} /*else if(pack.client.button.backward) {
-					p->body->da -= PLAYER_ACCEL/50.0;
-				} */else
-					p->body->da = 0;
+				} else
+					p->body->da -= PLAYER_ACCEL/30.0;
 				
 				if(p->body->da >= PLAYER_ACCEL)
 					p->body->da = PLAYER_ACCEL;
 				else if(p->body->da <= 0)
 					p->body->da = 0;
-				else {
-					p->body->accel.x = -p->body->da*cos(pack.client.angle);
-					p->body->accel.y = -p->body->da*sin(pack.client.angle);
-				}
+				
+				p->body->accel.x = -p->body->da*cos(pack.client.angle);
+				p->body->accel.y = -p->body->da*sin(pack.client.angle);
 				break;
 			case PACKET_TYPE_LOBBY:
 				if (pack.lobby.begin != 5)
