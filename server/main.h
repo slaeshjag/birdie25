@@ -16,7 +16,7 @@ struct Client {
 	unsigned long addr;
 };
 
-
+void prepare_orbit(Body *smaller, Body *larger);
 void server_packet_dispatch(Packet p, unsigned long addr);
 void server_start();
 void server_start_game();
