@@ -4,7 +4,7 @@
 #include "player.h"
 #include <protocol.h>
 
-#define BODIES 32
+#define BODIES 48
 #define STATIONARY 8
 #define PRE_SIMULATIONS 20
 #define BULLETS 80

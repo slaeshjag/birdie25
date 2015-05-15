@@ -254,7 +254,8 @@ void server_start_game() {
 }
 
 static struct Bullet {
-	
+	Body *body;
+	struct Bullet *next;
 };
 static struct Bullet *bullet;
 
@@ -265,14 +266,13 @@ static void reset_bullet(int i) {
 	body[BODIES + PLAYER_MAX + i].velocity.x = 0.0;
 	body[BODIES + PLAYER_MAX + i].velocity.y = 0.0;
 	body[BODIES + PLAYER_MAX + i].force.x = 0.0;
-	body[BODIES + PLAYER_MAX + i].force.y = 0.0;
-	body[BODIES + PLAYER_MAX + i].mass = 0.00000000000001;
+	body[BODIES + PLAYER_MAX + i].force.y = 0.0;	body[BODIES + PLAYER_MAX + i].mass = 0.00000000000001;
 	body[BODIES + PLAYER_MAX + i].radius = 0.001;
 	body[BODIES + PLAYER_MAX + i].movable = false;
 	body[BODIES + PLAYER_MAX + i].sprite = 16;
 	
 	b = malloc(sizeof(struct Bullet));
-	//b->	
+	b->body = &body[BODIES + PLAYER_MAX + i];
 }
 
 void server_start() {
@@ -296,6 +296,23 @@ void server_start() {
 	set_planet(21, 7, 4.0, 1, 10000.0, 0.25);
 	set_planet(22, 7, 2.0, 1, 10000.0, 0.25);
 	set_planet(23, 7, 3.0, 1, 10000.0, 0.25);
+
+	set_planet(24, 0, 101.0, 74, 10000.0, 0.1);
+	set_planet(25, 0, 102.0, 74, 10000.0, 0.1);
+	set_planet(26, 0, 103.0, 74, 10000.0, 0.1);
+	set_planet(27, 0, 104.0, 74, 10000.0, 0.1);
+	set_planet(28, 0, 105.0, 74, 10000.0, 0.1);
+	set_planet(29, 0, 106.0, 74, 10000.0, 0.1);
+	set_planet(30, 0, 107.0, 74, 10000.0, 0.1);
+	set_planet(31, 0, 108.0, 74, 10000.0, 0.1);
+	set_planet(32, 0, 109.0, 74, 10000.0, 0.1);
+	set_planet(33, 0, 110.0, 74, 10000.0, 0.1);
+	set_planet(34, 0, 111.0, 74, 10000.0, 0.1);
+	set_planet(35, 0, 112.0, 74, 10000.0, 0.1);
+	set_planet(36, 0, 113.0, 74, 10000.0, 0.1);
+	set_planet(37, 0, 114.0, 74, 10000.0, 0.1);
+	set_planet(38, 0, 115.0, 74, 10000.0, 0.1);
+	set_planet(39, 0, 116.0, 74, 10000.0, 0.1);
 
 	
 	for(i = 0; i < BULLETS; i++) {
