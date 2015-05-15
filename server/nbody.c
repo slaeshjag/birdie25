@@ -158,7 +158,7 @@ void nbody_move_bodies(Body *body, int n, double dt) {
 			goto out;
 		}
 		if (body[i].sprite >= 64 && body[i].sprite < 73) {
-			body[i].energy += 0.00005;
+			body[i].energy += 0.0001;
 			if (body[i].energy > 1.0)
 				body[i].energy = 1.0;
 		}
