@@ -14,18 +14,14 @@
 Player *player;
 int players;
 extern Body body[];
-void player_attach_asteroid(Player *p);
 
-Player *player_add(unsigned long addr, double x, double y, double vel_x, double vel_y, const char *pname) {
+Player *player_add(unsigned long addr, int home, double spawn_height, const char *pname) {
 	Player *p;
 	p = malloc(sizeof(Player));
 	p->addr = addr;
 	p->id = BODIES + players;
 	p->body = body + BODIES + players;
-	p->body->position.x = x;
-	p->body->position.y = y;
-	p->body->velocity.x = vel_x;
-	p->body->velocity.y = vel_y;
+
 	p->body->sprite = 64 + players;
 	p->body->mass = 1.0;
 	p->body->movable = true;
@@ -33,6 +29,10 @@ Player *player_add(unsigned long addr, double x, double y, double vel_x, double 
 	p->pname = strdup(pname);
 	
 	p->body->energy = 1.0;
+	p->body->position.x = body[home].position.x + spawn_height/M_SQRT2;
+	p->body->position.y = body[home].position.y + spawn_height/M_SQRT2;
+	
+	prepare_orbit(p->body, body + home);
 	
 	p->next = player;
 	players++;
@@ -87,12 +87,8 @@ void player_thread(Packet pack, unsigned long addr) {
 
 				fprintf(stderr, "A player joined\n");
 				// TODO: Put this somewhere near the home planet
-				double vel;
-				Body b;
-				b.position.x = 0.0;
-				b.position.y = -1.0;
-				vel = sqrt(G*(body[0].mass + 1.0)/DIST(body[0], b));
-				p = player_add(addr, 0.0, 1.0, vel, 0.0, pack.lobby.name);
+				p = player_add(addr, players, 3.0, pack.lobby.name);
+				
 				pack.lobby.begin = 6;
 				player_broadcast_package(pack);
 				fprintf(stderr, "Broadcasting %s\n", pack.lobby.name);

@@ -9,7 +9,6 @@
 
 #include <network.h>
 #include <protocol.h>
-#include <common_math.h>
 
 #include "main.h"
 #include "nbody.h"
@@ -25,39 +24,59 @@ Body body[BODIES + PLAYER_MAX] = {
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
 		.mass = 10000000.0,
-		.radius = 0.65,
+		.radius = 0.15,
 		.movable = false,
 		.sprite = 0,
 	}, {
 		.position = {14.0, 3.0},
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
+<<<<<<< HEAD
 		.mass = 10000000.0,
-		.radius = 0.65,
+		.radius = 0.1,
 		.movable = false,
 		.sprite = 0,
+=======
+		.mass = 10000.0,
+		.radius = 0.15,
+		.movable = true,
+		.sprite = 1,
+>>>>>>> b8446a7ea92ac40a9de8ba7dd6deda690efa1fff
 	}, {
 		.position = {-17.0, 36.0},
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
+<<<<<<< HEAD
 		.mass = 10000000.0,
-		.radius = 0.65,
+		.radius = 0.1,
 		.movable = false,
 		.sprite = 0,
+=======
+		.mass = 10000.0,
+		.radius = 0.15,
+		.movable = true,
+		.sprite = 1,
+>>>>>>> b8446a7ea92ac40a9de8ba7dd6deda690efa1fff
 	}, {
 		.position = {-33.0, 4.0},
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
+<<<<<<< HEAD
 		.mass = 10000000.0,
-		.radius = 0.65,
+		.radius = 0.1,
 		.movable = false,
+=======
+		.mass = 1000.0,
+		.radius = 0.15,
+		.movable = true,
+>>>>>>> b8446a7ea92ac40a9de8ba7dd6deda690efa1fff
 		.sprite = 0,
 	}, {
 		.position = {20.0, -6.0},
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
 		.mass = 10000000.0,
-		.radius = 0.65,
+		.radius = 0.1,
 		.movable = false,
 		.sprite = 0,
 	}, {
@@ -65,7 +84,7 @@ Body body[BODIES + PLAYER_MAX] = {
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
 		.mass = 10000000.0,
-		.radius = 0.65,
+		.radius = 0.1,
 		.movable = false,
 		.sprite = 0,
 	}, {
@@ -73,7 +92,7 @@ Body body[BODIES + PLAYER_MAX] = {
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
 		.mass = 10000000.0,
-		.radius = 0.65,
+		.radius = 0.1,
 		.movable = false,
 		.sprite = 0,
 	}, {
@@ -81,26 +100,18 @@ Body body[BODIES + PLAYER_MAX] = {
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
 		.mass = 10000000.0,
-		.radius = 0.65,
+		.radius = 0.1,
 		.movable = false,
 		.sprite = 0,
 	},
 };
 
-void prepare_orbit(Body *smaller, Body *larger) {
-	double distance, magnitude;
-	Point direction, new;
-	
-	if((direction.x = (smaller->position.x - larger->position.x)) == 0.0)
-		direction.y = 0.00000000000001;
-	if((direction.y = (smaller->position.y - larger->position.y)) == 0.0)
-		direction.y = 0.00000000000001;
-	
-	double velocity = sqrt(G*(larger->mass + smaller->mass)/sqrt(SUP2(direction.x) + SUP2(direction.y)));
-	double angle = math_delta_to_angle(direction.x, direction.y);// + M_PI/2.0;
-	
-	smaller->velocity.x = velocity*cos(angle);	
-	smaller->velocity.y = velocity*sin(angle);	
+static void prepare_orbit(Body *smaller, Body *larger) {
+	if(smaller->position.x - larger->position.x != 0)
+		smaller->velocity.x =sqrt(G*(larger->mass + smaller->mass)/fabs(smaller->position.x - larger->position.x));
+	if(smaller->position.y - larger->position.y != 0)
+		smaller->velocity.y =sqrt(G*(larger->mass + smaller->mass)/fabs(smaller->position.y - larger->position.y));
+	//printf("(%f, %f) (%f, %f)\n", b->position.x, b->position.y, b->velocity.x, b->velocity.y);
 }
 
 static void set_planet(int i, int orbit_around, double orbit_height,  int sprite, double mass, double radius) {
@@ -108,8 +119,8 @@ static void set_planet(int i, int orbit_around, double orbit_height,  int sprite
 	if(i >= BODIES)
 		return;
 	
-	x = body[orbit_around].position.x; + orbit_height/M_SQRT2;
-	y = body[orbit_around].position.y + orbit_height/M_SQRT2;
+	x = body[orbit_around].position.x;
+	y = body[orbit_around].position.y + orbit_height;
 	
 	body[i].position.x = x;
 	body[i].position.y = y;
@@ -164,7 +175,7 @@ static void _send(Body *body, size_t bodies) {
 		}
 		
 		pack.type = PACKET_TYPE_PLAYER;
-		pack.player.energy = q->body->energy;
+		pack.player.energy = q->energy;
 		pack.player.accel = sqrt(SUP2(q->body->accel.x) + SUP2(q->body->accel.x)) / (PLAYER_ACCEL*M_SQRT2);
 		pack.player.velocity = sqrt(SUP2(q->body->velocity.x) + SUP2(q->body->velocity.x)) / (SPEED_LIMIT*M_SQRT2);
 		network_send(q->addr, &pack, sizeof(Packet));
@@ -250,22 +261,22 @@ void server_start() {
 	int i;
 	
 	/*Of doom*/
-	set_planet(8, 0, -3.0, 1, 10000.0, 0.25);
-	set_planet(9, 0, -4.0, 1, 10000.0, 0.25);
-	set_planet(10, 2, 3.0, 1, 10000.0, 0.25);
-	set_planet(11, 2, 2.0, 1, 10000.0, 0.25);
-	set_planet(12, 3, 3.0, 1, 10000.0, 0.25);
-	set_planet(13, 4, 3.0, 1, 10000.0, 0.25);
-	set_planet(14, 4, 2.0, 1, 10000.0, 0.25);
-	set_planet(15, 4, 3.0, 1, 10000.0, 0.25);
-	set_planet(16, 5, 3.0, 1, 10000.0, 0.25);
-	set_planet(17, 6, 5.0, 1, 10000.0, 0.25);
-	set_planet(18, 6, 2.0, 1, 10000.0, 0.25);
-	set_planet(19, 6, 3.0, 1, 10000.0, 0.25);
-	set_planet(20, 6, 4.0, 1, 10000.0, 0.25);
-	set_planet(21, 7, 4.0, 1, 10000.0, 0.25);
-	set_planet(22, 7, 2.0, 1, 10000.0, 0.25);
-	set_planet(23, 7, 3.0, 1, 10000.0, 0.25);
+	set_planet(8, 0, 1.0, 1, 10000.0, 0.1);
+	set_planet(9, 0, 2.0, 1, 10000.0, 0.1);
+	set_planet(10, 2, 1.0, 1, 10000.0, 0.1);
+	set_planet(11, 2, 2.0, 1, 10000.0, 0.1);
+	set_planet(12, 3, 1.0, 1, 10000.0, 0.1);
+	set_planet(13, 4, 1.0, 1, 10000.0, 0.1);
+	set_planet(14, 4, 2.0, 1, 10000.0, 0.1);
+	set_planet(15, 4, 3.0, 1, 10000.0, 0.1);
+	set_planet(16, 5, 1.0, 1, 10000.0, 0.1);
+	set_planet(17, 6, 1.0, 1, 10000.0, 0.1);
+	set_planet(18, 6, 2.0, 1, 10000.0, 0.1);
+	set_planet(19, 6, 3.0, 1, 10000.0, 0.1);
+	set_planet(20, 6, 4.0, 1, 10000.0, 0.1);
+	set_planet(21, 7, 1.0, 1, 10000.0, 0.1);
+	set_planet(22, 7, 2.0, 1, 10000.0, 0.1);
+	set_planet(23, 7, 3.0, 1, 10000.0, 0.1);
 
 	
 	pthread_t serber;
@@ -287,9 +298,12 @@ void server_packet_dispatch(Packet p, unsigned long addr) {
 		p.lobby.begin = 6;
 		network_send(addr, &p, sizeof(Packet));
 		
-		Player *pl;
-		pl = player_add(addr, 0, 3.0, p.lobby.name);
-		
+		double vel;
+		Body b;
+		b.position.x = 0.0;
+		b.position.y = 1.0;
+		vel = sqrt(G*(body[0].mass + 1.0)/DIST(body[0], b));
+		player_add(addr, 0.0, 1.0, -vel, 0.0, p.lobby.name);
 		init = true;
 	} else {
 		player_thread(p, addr);

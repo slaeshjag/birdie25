@@ -43,7 +43,7 @@ void object_init(int objects, int _pre_simulations) {
 	icons = d_render_tilesheet_load("res/icons.png", 32, 32, DARNIT_PFORMAT_RGBA8);
 	d_render_tilesheet_scale_algorithm(planets, DARNIT_SCALE_LINEAR);
 	coordinate_scale = CLIENT_OBJECT_COORD_SCALE;
-	object_scale = 0.3;
+	object_scale = 0.6;
 	pre_simulation = malloc(sizeof(struct PreSimulation)*_pre_simulations);
 	pre_simulations = _pre_simulations;
 	pre_simulation_point = d_render_point_new(_pre_simulations, 2);

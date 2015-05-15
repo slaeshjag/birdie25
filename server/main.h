@@ -4,7 +4,8 @@
 #include "player.h"
 #include <protocol.h>
 
-#define BODIES 10
+#define BODIES 32
+#define STATIONARY 8
 #define PRE_SIMULATIONS 20
 
 #define WIDTH 50.0
@@ -15,7 +16,7 @@ struct Client {
 	unsigned long addr;
 };
 
-
+void prepare_orbit(Body *smaller, Body *larger);
 void server_packet_dispatch(Packet p, unsigned long addr);
 void server_start();
 void server_start_game();
