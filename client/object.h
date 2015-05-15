@@ -32,6 +32,6 @@ void object_draw();
 void *object_thread(void *arne);
 void *object_get_icons();
 void object_draw_world_border();
-
+void pre_simulation_draw();
 
 #endif

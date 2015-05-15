@@ -48,7 +48,7 @@ void gameroom_network_handler() {
 	} else if(pack.type == PACKET_TYPE_SETUP) {
 		object_init(pack.setup.objects, pack.setup.pre_simulations);
 		object_init_border(pack.setup.map_width);
-		camera_init(pack.setup.id);
+		camera_init(pack.setup.id, pack.setup.home);
 		game_state(GAME_STATE_GAME);
 	}
 }

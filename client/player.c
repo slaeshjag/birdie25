@@ -11,6 +11,7 @@ struct {
 	int		x;
 	int		y;
 	int		focus_object;
+	int		home;
 } camera;
 
 
@@ -35,8 +36,9 @@ struct {
 } static compass;
 static DARNIT_TEXT_SURFACE *trip;
 
-void camera_init(int focus_object) {
+void camera_init(int focus_object, int home) {
 	camera.focus_object = focus_object;
+	camera.home = home;
 }
 
 
@@ -52,7 +54,7 @@ void load_player_stuff_once() {
 	velocitymeter = d_render_tile_new(2, powerts);
 	thrustmeter = d_render_tile_new(2, powerts);
 	compass.ring = d_render_circle_new(30, 2);
-	compass.x = DISPLAY_WIDTH - 60;
+	compass.x = DISPLAY_WIDTH - 76;
 	compass.y = 60;
 	d_render_circle_move(compass.ring, compass.x, compass.y, 50);
 	compass.north = d_render_line_new(2, 1);
@@ -61,7 +63,7 @@ void load_player_stuff_once() {
 	d_render_line_move(compass.north, 1, 0, 0, 0, 0);
 	d_render_line_move(compass.south, 0, 0, 0, 0, 0);
 	d_render_line_move(compass.south, 1, 0, 0, 0, 0);
-	trip = d_text_surface_new(gfx.font.small, 256, 256, DISPLAY_WIDTH - 128, 128);
+	trip = d_text_surface_new(gfx.font.small, 256, 256, DISPLAY_WIDTH - 142, 128);
 }
 
 
@@ -262,8 +264,8 @@ int player_draw_hud() {
 	int pl;
 	double x, y, angle;
 	pl = player_get();
-	x = -obj[pl].dx - obj[0].dx;
-	y = -obj[pl].dy - obj[0].dy;
+	x = -obj[pl].dx - obj[camera.home].dx;
+	y = -obj[pl].dy - obj[camera.home].dy;
 	angle = math_delta_to_angle(x, y);
 		
 	x = 30.0*cos(angle);
@@ -276,7 +278,7 @@ int player_draw_hud() {
 	d_render_line_draw(compass.south, 1);
 
 	d_text_surface_reset(trip);
-	sprintf(text, "Distance: %i", (int) (DIST(obj[0], obj[pl]) * 200.0));
+	sprintf(text, "Distance to\nhome sun: %i", (int) (DIST(obj[camera.home], obj[pl]) * 200.0));
 	d_text_surface_string_append(trip, text);
 	d_text_surface_draw(trip);
 	

@@ -7,6 +7,7 @@
 #define BODIES 32
 #define STATIONARY 8
 #define PRE_SIMULATIONS 20
+#define BULLETS 80
 
 #define WIDTH 50.0
 #define SPEED_LIMIT 0.1

@@ -19,7 +19,7 @@ extern Player *player;
 extern int players;
 static bool game_has_started = false;
 
-Body body[BODIES + PLAYER_MAX] = {
+Body body[BODIES + PLAYER_MAX + BULLETS] = {
 	{
 		.position = {0.0, 0.0},
 		.velocity = {0.0, 0.0},
@@ -182,9 +182,10 @@ static void _setup(Body *body, size_t bodies) {
 	for(q = player; q; q = q->next) {
 		ps->id = q->id;
 		ps->type = PACKET_TYPE_SETUP;
-		ps->objects = BODIES + players;
+		ps->objects = BODIES + players + BULLETS;
 		ps->map_width = WIDTH;
 		ps->pre_simulations = PRE_SIMULATIONS;
+		ps->home = q->id - BODIES;
 		network_send(q->addr, ps, sizeof(Packet));
 		fprintf(stderr, "Announcing player %i with ip %lu\n", ps->id, q->addr);
 		
@@ -244,6 +245,27 @@ void server_start_game() {
 	game_has_started = true;
 }
 
+static struct Bullet {
+	
+};
+static struct Bullet *bullet;
+
+static void reset_bullet(int i) {
+	struct Bullet *b;
+	body[BODIES + PLAYER_MAX + i].position.x = -5000.0;
+	body[BODIES + PLAYER_MAX + i].position.y = -5000.0;
+	body[BODIES + PLAYER_MAX + i].velocity.x = 0.0;
+	body[BODIES + PLAYER_MAX + i].velocity.y = 0.0;
+	body[BODIES + PLAYER_MAX + i].force.x = 0.0;
+	body[BODIES + PLAYER_MAX + i].force.y = 0.0;
+	body[BODIES + PLAYER_MAX + i].mass = 0.00000000000001;
+	body[BODIES + PLAYER_MAX + i].radius = 0.001;
+	body[BODIES + PLAYER_MAX + i].movable = false;
+	body[BODIES + PLAYER_MAX + i].sprite = 16;
+	
+	b = malloc(sizeof(struct Bullet));
+	//b->	
+}
 
 void server_start() {
 	Packet p;
@@ -267,6 +289,10 @@ void server_start() {
 	set_planet(22, 7, 2.0, 1, 10000.0, 0.25);
 	set_planet(23, 7, 3.0, 1, 10000.0, 0.25);
 
+	
+	for(i = 0; i < BULLETS; i++) {
+		reset_bullet(i);
+	}
 	
 	pthread_t serber;
 	pthread_create(&serber, NULL, server_main, NULL);

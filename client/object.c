@@ -47,7 +47,7 @@ void object_init(int objects, int _pre_simulations) {
 	object_scale = 0.6;
 	pre_simulation = malloc(sizeof(struct PreSimulation)*_pre_simulations);
 	pre_simulations = _pre_simulations;
-	pre_simulation_point = d_render_point_new(_pre_simulations, 2);
+	pre_simulation_point = d_render_point_new(_pre_simulations, 3);
 	for(i = 0; i < pre_simulations; i++) {
 		d_render_point_move(pre_simulation_point, i, 0, 0);
 	}
@@ -164,7 +164,9 @@ void pre_simulation_draw() {
 	for(i = 0; i < pre_simulations; i++) {
 		d_render_point_move(pre_simulation_point, i, pre_simulation[i].x*coordinate_scale, pre_simulation[i].y*coordinate_scale);
 	}
+	d_render_tint(127, 127, 255, 255);
 	d_render_point_draw(pre_simulation_point, pre_simulations);
+	d_render_tint(255, 255, 255, 255);
 }
 
 

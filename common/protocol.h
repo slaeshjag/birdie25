@@ -33,6 +33,7 @@ struct PacketSetup {
 //	double width;
 	double map_width;
 	uint32_t pre_simulations;
+	uint32_t home;
 };
 
 typedef struct PacketSetupObject PacketSetupObject;

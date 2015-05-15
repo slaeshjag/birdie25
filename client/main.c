@@ -123,8 +123,13 @@ int main(int argc, char **argv) {
 	Packet pl, pl2;
 	Packet ps;
 	char font_path[4096];
+	DARNIT_INPUT_MAP inputmap;
 	
 	d_init_custom("Jymdsjepp", DISPLAY_WIDTH, DISPLAY_HEIGHT, 0, "birdie25", NULL);
+	
+	inputmap = d_keymapping_get();
+	inputmap.l = TPW_KEY_SPACE;
+	d_keymapping_set(inputmap);
 	
 	sprintf(font_path, "%s", d_fs_exec_path());
 	sprintf(font_path, "%s/font.ttf", dirname(font_path));

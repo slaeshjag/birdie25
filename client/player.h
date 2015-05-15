@@ -11,5 +11,8 @@ enum ClientInputKeys {
 };
 
 int player_get();
-
+void camera_init(int focus_object, int home);
+void handle_camera();
+void handle_player();
+int player_draw_hud();
 #endif
