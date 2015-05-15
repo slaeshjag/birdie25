@@ -61,12 +61,19 @@ void player_thread(Packet pack, unsigned long addr) {
 				p->body->angle = pack.client.angle;
 				/* HACK: Below accelerations have sign flipped. I don't know why it works, but it does */
 				if(pack.client.button.forward) {
-					p->body->accel.x = -PLAYER_ACCEL*cos(pack.client.angle);
-					p->body->accel.y = -PLAYER_ACCEL*sin(pack.client.angle);
-				}
-				if(pack.client.button.backward) {
-					p->body->accel.x = PLAYER_ACCEL*cos(pack.client.angle);
-					p->body->accel.y = PLAYER_ACCEL*sin(pack.client.angle);
+					p->body->da += PLAYER_ACCEL/100.0;
+				} /*else if(pack.client.button.backward) {
+					p->body->da -= PLAYER_ACCEL/50.0;
+				} */else
+					p->body->da = 0;
+				
+				if(p->body->da >= PLAYER_ACCEL)
+					p->body->da = PLAYER_ACCEL;
+				else if(p->body->da <= 0)
+					p->body->da = 0;
+				else {
+					p->body->accel.x = -p->body->da*cos(pack.client.angle);
+					p->body->accel.y = -p->body->da*sin(pack.client.angle);
 				}
 				break;
 			case PACKET_TYPE_LOBBY:

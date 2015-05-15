@@ -25,6 +25,7 @@ struct Body {
 	Point velocity;
 	Point force;
 	Point accel;
+	double da;
 	double mass;
 	double angle;
 	bool movable;
