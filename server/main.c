@@ -28,31 +28,90 @@ Body body[BODIES + PLAYER_MAX] = {
 		.movable = false,
 		.sprite = 0,
 	}, {
-		.position = {1.0, 0.0},
+		.position = {14.0, 3.0},
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
-		.mass = 10000.0,
+		.mass = 10000000.0,
 		.radius = 0.1,
-		.movable = true,
-		.sprite = 1,
-	}, {
-		.position = {3.0, 0.0},
-		.velocity = {0.0, 0.0},
-		.force = {0.0, 0.0},
-		.mass = 10000.0,
-		.radius = 0.1,
-		.movable = true,
-		.sprite = 1,
-	}, {
-		.position = {3.01, 0.0},
-		.velocity = {0.0, 0.0},
-		.force = {0.0, 0.0},
-		.mass = 1000.0,
-		.radius = 0.1,
-		.movable = true,
+		.movable = false,
 		.sprite = 0,
-	}
+	}, {
+		.position = {-17.0, 36.0},
+		.velocity = {0.0, 0.0},
+		.force = {0.0, 0.0},
+		.mass = 10000000.0,
+		.radius = 0.1,
+		.movable = false,
+		.sprite = 0,
+	}, {
+		.position = {-33.0, 4.0},
+		.velocity = {0.0, 0.0},
+		.force = {0.0, 0.0},
+		.mass = 10000000.0,
+		.radius = 0.1,
+		.movable = false,
+		.sprite = 0,
+	}, {
+		.position = {20.0, -6.0},
+		.velocity = {0.0, 0.0},
+		.force = {0.0, 0.0},
+		.mass = 10000000.0,
+		.radius = 0.1,
+		.movable = false,
+		.sprite = 0,
+	}, {
+		.position = {40.0, 22.0},
+		.velocity = {0.0, 0.0},
+		.force = {0.0, 0.0},
+		.mass = 10000000.0,
+		.radius = 0.1,
+		.movable = false,
+		.sprite = 0,
+	}, {
+		.position = {-42.0, -20},
+		.velocity = {0.0, 0.0},
+		.force = {0.0, 0.0},
+		.mass = 10000000.0,
+		.radius = 0.1,
+		.movable = false,
+		.sprite = 0,
+	}, {
+		.position = {30.0, -31.0},
+		.velocity = {0.0, 0.0},
+		.force = {0.0, 0.0},
+		.mass = 10000000.0,
+		.radius = 0.1,
+		.movable = false,
+		.sprite = 0,
+	},
 };
+
+static void prepare_orbit(Body *smaller, Body *larger) {
+	if(smaller->position.x - larger->position.x != 0)
+		smaller->velocity.x =sqrt(G*(larger->mass + smaller->mass)/fabs(smaller->position.x - larger->position.x));
+	if(smaller->position.y - larger->position.y != 0)
+		smaller->velocity.y =sqrt(G*(larger->mass + smaller->mass)/fabs(smaller->position.y - larger->position.y));
+	//printf("(%f, %f) (%f, %f)\n", b->position.x, b->position.y, b->velocity.x, b->velocity.y);
+}
+
+static void set_planet(int i, int orbit_around, double orbit_height,  int sprite, double mass, double radius) {
+	double x, y;
+	if(i >= BODIES)
+		return;
+	
+	x = body[orbit_around].position.x;
+	y = body[orbit_around].position.y + orbit_height;
+	
+	body[i].position.x = x;
+	body[i].position.y = y;
+	body[i].mass = mass;
+	body[i].radius = radius;
+	body[i].angle = 0.0;
+	body[i].movable = true;
+	body[i].sprite = sprite;
+	
+	prepare_orbit(body + i, body + orbit_around);	
+}
 
 static void _send(Body *body, size_t bodies) {
 	Packet pack;
@@ -135,14 +194,6 @@ static void _setup(Body *body, size_t bodies) {
 	}
 }
 
-void prepare_orbit(Body *b) {
-	if(b->position.x - body[0].position.x != 0)
-		b->velocity.x =sqrt(G*(body[0].mass + b->mass)/fabs(b->position.x - body[0].position.x));
-	if(b->position.y - body[0].position.y != 0)	
-		b->velocity.y =sqrt(G*(body[0].mass + b->mass)/fabs(b->position.y - body[0].position.y));
-	printf("(%f, %f) (%f, %f)\n", b->position.x, b->position.y, b->velocity.x, b->velocity.y);
-}
-
 void *server_main(void *argleblargle) {
 	Packet p = {};
 	pthread_t pth;
@@ -188,21 +239,25 @@ void server_start_game() {
 void server_start() {
 	Packet p;
 	int i;
-
-	body[1].velocity.y = sqrt(G*(body[0].mass + body[1].mass)/DIST(body[0], body[1]));
-	body[2].velocity.y = sqrt(G*(body[0].mass + body[2].mass)/DIST(body[0], body[2]));
-	body[3].velocity.y = sqrt(G*(body[2].mass + body[3].mass)/DIST(body[2], body[3]));
 	
-	for(i = 4; i < BODIES; i++) {
-		//printf("angle %f\n", 2.0*M_PI*(BODIES - 4 - i)/((double) (BODIES - 4)));
-		body[i].position.x = 5.0*cos(2.0*M_PI*(BODIES - 4 - i)/((double) (BODIES - 4)));
-		body[i].position.y = 5.0*sin(2.0*M_PI*(BODIES - 4 - i)/((double) (BODIES - 4)));
-		body[i].mass = 100.0;
-		body[i].movable = true;
-		body[i].sprite = 74;
-		body[i].radius = 0.1;
-		prepare_orbit(body + i);
-	}
+	/*Of doom*/
+	set_planet(8, 0, 1.0, 1, 10000.0, 0.1);
+	set_planet(9, 0, 2.0, 1, 10000.0, 0.1);
+	set_planet(10, 2, 1.0, 1, 10000.0, 0.1);
+	set_planet(11, 2, 2.0, 1, 10000.0, 0.1);
+	set_planet(12, 3, 1.0, 1, 10000.0, 0.1);
+	set_planet(13, 4, 1.0, 1, 10000.0, 0.1);
+	set_planet(14, 4, 2.0, 1, 10000.0, 0.1);
+	set_planet(15, 4, 3.0, 1, 10000.0, 0.1);
+	set_planet(16, 5, 1.0, 1, 10000.0, 0.1);
+	set_planet(17, 6, 1.0, 1, 10000.0, 0.1);
+	set_planet(18, 6, 2.0, 1, 10000.0, 0.1);
+	set_planet(19, 6, 3.0, 1, 10000.0, 0.1);
+	set_planet(20, 6, 4.0, 1, 10000.0, 0.1);
+	set_planet(21, 7, 1.0, 1, 10000.0, 0.1);
+	set_planet(22, 7, 2.0, 1, 10000.0, 0.1);
+	set_planet(23, 7, 3.0, 1, 10000.0, 0.1);
+
 	
 	pthread_t serber;
 	pthread_create(&serber, NULL, server_main, NULL);
