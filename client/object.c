@@ -141,7 +141,6 @@ void object_get_coord(int id, int *x, int *y, int *w, int *h) {
 
 void object_draw() {
 	int i;
-	extern double power;
 
 	for (i = 0; i < objs; i++) {
 		if (obj[i].sprite) {
@@ -152,8 +151,9 @@ void object_draw() {
 			d_render_tile_draw(obj[i].pic.tile, 1);
 	}
 
+#if 0
 	double min_distance = HUGE_VAL, dist;
-	int closest = 0;
+	//int closest = 0;
 	int id = player_get();
 	for (i = 0; i < objs; i++) {
 		if (obj[i].sprite) {
@@ -162,7 +162,7 @@ void object_draw() {
 		}
 		if ((dist = DIST(obj[i], obj[id])) < min_distance) {
 			min_distance = dist;
-			closest = i;
+			//closest = i;
 		}
 	}
 	
@@ -172,6 +172,7 @@ void object_draw() {
 	d_text_surface_string_append(time_text, buff);
 	//coordinate_scale = 30.0*min_distance;//pow(M_E, -0.01*min_distance);
 	//printf("scale %f, %f, closest is %i\n", coordinate_scale, min_distance, closest);
+#endif
 }
 
 void pre_simulation_draw() {
@@ -188,7 +189,6 @@ void pre_simulation_draw() {
 void *object_thread(void *arne) {
 	Packet pack;
 	unsigned long addr;
-	int datalen;
 	
 	extern double power;
 	extern double thrust;

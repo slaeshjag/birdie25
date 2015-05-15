@@ -9,6 +9,7 @@
 
 #include <network.h>
 #include <protocol.h>
+#include <common_math.h>
 
 #include "main.h"
 #include "nbody.h"
@@ -17,66 +18,50 @@
 extern Player *player;
 extern int players;
 static bool game_has_started = false;
+uint8_t score[8];
+uint32_t timer_start;
 
-Body body[BODIES + PLAYER_MAX] = {
+#define	GAME_TIMER	180
+
+Body body[BODIES + PLAYER_MAX + BULLETS] = {
 	{
 		.position = {0.0, 0.0},
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
 		.mass = 10000000.0,
-		.radius = 0.15,
+		.radius = 0.65,
 		.movable = false,
 		.sprite = 0,
 	}, {
 		.position = {14.0, 3.0},
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
-<<<<<<< HEAD
 		.mass = 10000000.0,
-		.radius = 0.1,
+		.radius = 0.65,
 		.movable = false,
 		.sprite = 0,
-=======
-		.mass = 10000.0,
-		.radius = 0.15,
-		.movable = true,
-		.sprite = 1,
->>>>>>> b8446a7ea92ac40a9de8ba7dd6deda690efa1fff
 	}, {
 		.position = {-17.0, 36.0},
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
-<<<<<<< HEAD
 		.mass = 10000000.0,
-		.radius = 0.1,
+		.radius = 0.65,
 		.movable = false,
 		.sprite = 0,
-=======
-		.mass = 10000.0,
-		.radius = 0.15,
-		.movable = true,
-		.sprite = 1,
->>>>>>> b8446a7ea92ac40a9de8ba7dd6deda690efa1fff
 	}, {
 		.position = {-33.0, 4.0},
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
-<<<<<<< HEAD
 		.mass = 10000000.0,
-		.radius = 0.1,
+		.radius = 0.65,
 		.movable = false,
-=======
-		.mass = 1000.0,
-		.radius = 0.15,
-		.movable = true,
->>>>>>> b8446a7ea92ac40a9de8ba7dd6deda690efa1fff
 		.sprite = 0,
 	}, {
 		.position = {20.0, -6.0},
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
 		.mass = 10000000.0,
-		.radius = 0.1,
+		.radius = 0.65,
 		.movable = false,
 		.sprite = 0,
 	}, {
@@ -84,7 +69,7 @@ Body body[BODIES + PLAYER_MAX] = {
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
 		.mass = 10000000.0,
-		.radius = 0.1,
+		.radius = 0.65,
 		.movable = false,
 		.sprite = 0,
 	}, {
@@ -92,7 +77,7 @@ Body body[BODIES + PLAYER_MAX] = {
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
 		.mass = 10000000.0,
-		.radius = 0.1,
+		.radius = 0.65,
 		.movable = false,
 		.sprite = 0,
 	}, {
@@ -100,18 +85,25 @@ Body body[BODIES + PLAYER_MAX] = {
 		.velocity = {0.0, 0.0},
 		.force = {0.0, 0.0},
 		.mass = 10000000.0,
-		.radius = 0.1,
+		.radius = 0.65,
 		.movable = false,
 		.sprite = 0,
 	},
 };
 
-static void prepare_orbit(Body *smaller, Body *larger) {
-	if(smaller->position.x - larger->position.x != 0)
-		smaller->velocity.x =sqrt(G*(larger->mass + smaller->mass)/fabs(smaller->position.x - larger->position.x));
-	if(smaller->position.y - larger->position.y != 0)
-		smaller->velocity.y =sqrt(G*(larger->mass + smaller->mass)/fabs(smaller->position.y - larger->position.y));
-	//printf("(%f, %f) (%f, %f)\n", b->position.x, b->position.y, b->velocity.x, b->velocity.y);
+void prepare_orbit(Body *smaller, Body *larger) {
+	Point direction;
+	
+	if((direction.x = (smaller->position.x - larger->position.x)) == 0.0)
+		direction.y = 0.00000000000001;
+	if((direction.y = (smaller->position.y - larger->position.y)) == 0.0)
+		direction.y = 0.00000000000001;
+	
+	double velocity = sqrt(G*(larger->mass + smaller->mass)/sqrt(SUP2(direction.x) + SUP2(direction.y)));
+	double angle = math_delta_to_angle(direction.x, direction.y);// + M_PI/2.0;
+	
+	smaller->velocity.x = velocity*cos(angle);	
+	smaller->velocity.y = velocity*sin(angle);	
 }
 
 static void set_planet(int i, int orbit_around, double orbit_height,  int sprite, double mass, double radius) {
@@ -119,8 +111,8 @@ static void set_planet(int i, int orbit_around, double orbit_height,  int sprite
 	if(i >= BODIES)
 		return;
 	
-	x = body[orbit_around].position.x;
-	y = body[orbit_around].position.y + orbit_height;
+	x = body[orbit_around].position.x + orbit_height/M_SQRT2;
+	y = body[orbit_around].position.y + orbit_height/M_SQRT2;
 	
 	body[i].position.x = x;
 	body[i].position.y = y;
@@ -165,6 +157,15 @@ static void _send(Body *body, size_t bodies) {
 			pack.object.angle = p->body->angle;
 			network_send(q->addr, &pack, sizeof(Packet));
 		}
+
+		pack.type = PACKET_TYPE_AUX_PLAYER;
+		for(p = player; p; p = p->next) {
+			pack.auxplayer.id = p->id;
+			pack.auxplayer.tractor_beam = p->body->tractor_beam?p->body->energy:0.;
+			pack.auxplayer.score = score[p->id - BODIES];
+			strcpy(pack.auxplayer.name, p->pname);
+			network_send(q->addr, &pack, sizeof(Packet));
+		}
 		
 		for(i = 0; i < PRE_SIMULATIONS; i++) {
 			pack.type = PACKET_TYPE_PRE_SIMULATION;
@@ -174,10 +175,13 @@ static void _send(Body *body, size_t bodies) {
 			network_send(q->addr, &pack, sizeof(Packet));
 		}
 		
+		send_bullets();
+		
 		pack.type = PACKET_TYPE_PLAYER;
-		pack.player.energy = q->energy;
+		pack.player.energy = q->body->energy;
 		pack.player.accel = sqrt(SUP2(q->body->accel.x) + SUP2(q->body->accel.x)) / (PLAYER_ACCEL*M_SQRT2);
 		pack.player.velocity = sqrt(SUP2(q->body->velocity.x) + SUP2(q->body->velocity.x)) / (SPEED_LIMIT*M_SQRT2);
+		pack.player.seconds_remaining = GAME_TIMER - (d_time_get() - timer_start) / 1000;
 		network_send(q->addr, &pack, sizeof(Packet));
 	}
 }
@@ -189,13 +193,17 @@ static void _setup(Body *body, size_t bodies) {
 	PacketSetupObject *pso = &pack[1].setup_object;
 	int i;
 	
+	for (i = 0; i < 8; i++)
+		score[i] = 0;
+
 	//Fuck multicast
 	for(q = player; q; q = q->next) {
 		ps->id = q->id;
 		ps->type = PACKET_TYPE_SETUP;
-		ps->objects = BODIES + players;
+		ps->objects = BODIES + PLAYER_MAX + BULLETS;
 		ps->map_width = WIDTH;
 		ps->pre_simulations = PRE_SIMULATIONS;
+		ps->home = q->id - BODIES;
 		network_send(q->addr, ps, sizeof(Packet));
 		fprintf(stderr, "Announcing player %i with ip %lu\n", ps->id, q->addr);
 		
@@ -211,12 +219,19 @@ static void _setup(Body *body, size_t bodies) {
 			pso->sprite = p->body->sprite;
 			network_send(q->addr, pso, sizeof(Packet));
 		}
+		
+		for(i = 0; i < BULLETS; i++) {
+			pso->id = BODIES + PLAYER_MAX + i;
+			pso->sprite = 64 + 16;
+			network_send(q->addr, pso, sizeof(Packet));
+		}
 	}
+
+	timer_start = d_time_get();
 }
 
 void *server_main(void *argleblargle) {
 	Packet p = {};
-	pthread_t pth;
 	int i;
 
 	
@@ -229,9 +244,15 @@ void *server_main(void *argleblargle) {
 	
 	//pthread_create(&pth, NULL, player_thread, NULL);
 	for(i = 0;; i++) {
-		if (game_has_started) {
+<<<<<<< HEAD
+		if (game_has_started && (d_time_get() - timer_start) / 1000 < GAME_TIMER) {
 			nbody_calc_forces(body, BODIES + players);
 			nbody_move_bodies(body, BODIES + players, 1);
+=======
+		if (game_has_started) {
+			nbody_calc_forces(body, BODIES + PLAYER_MAX + BULLETS);
+			nbody_move_bodies(body, BODIES + PLAYER_MAX + BULLETS, 1);
+>>>>>>> 15dc03330fcb72d2fe56b7bc84d426ea025c2737
 			_send(body, BODIES);
 		} else if (!(i & 0x1F)) {
 				p.type = PACKET_TYPE_LOBBY;
@@ -242,6 +263,11 @@ void *server_main(void *argleblargle) {
 				strcpy(p.lobby.name, "Unknown");
 			}
 				network_broadcast(&p, sizeof(Packet));
+		} else if (game_has_started) {
+			/* Send exit package */
+			p.type = PACKET_TYPE_EXIT;
+			player_broadcast_package(p);
+			pthread_exit(NULL);
 		}
 		usleep(16666); //60 fps
 	}
@@ -255,29 +281,124 @@ void server_start_game() {
 	game_has_started = true;
 }
 
+struct Bullet {
+	int body;
+	uint32_t timer;
+	struct Bullet *next;
+};
+static struct Bullet *bullet_free;
+static struct Bullet *bullet_allocated;
+
+int alloc_bullet() {
+	int ret;
+	struct Bullet *b = bullet_free;
+	printf("allocated bullet\n");
+	bullet_free = bullet_free->next;
+	ret = b->body;
+	b->timer = 0;
+	b->next = bullet_allocated;
+	bullet_allocated = b;
+	
+	return ret;
+}
+
+void send_bullets() {
+	struct Bullet **b, *tmp;
+	Packet pack;
+	Player *q;
+	int i;
+	
+	pack.type = PACKET_TYPE_OBJECT;
+	for(b = &bullet_allocated; *b;) {
+		if((*b)->timer++ > 100) {
+			tmp = *b;
+			*b = tmp->next;
+			i = tmp->body;
+			reset_bullet(i);
+			free(tmp);
+			
+			pack.object.id = BODIES + PLAYER_MAX + i;
+			pack.object.x = body[i].position.x;
+			pack.object.y = body[i].position.y;
+			pack.object.angle = body[i].angle;
+			for(q = player; q; q = q->next)
+				network_send(q->addr, &pack, sizeof(Packet));
+			continue;
+		}
+		i = BODIES + PLAYER_MAX + (*b)->body;
+		pack.object.id = i;
+		pack.object.x = body[i].position.x;
+		pack.object.y = body[i].position.y;
+		pack.object.angle = body[i].angle;
+		for(q = player; q; q = q->next)
+			network_send(q->addr, &pack, sizeof(Packet));
+		b = &((*b)->next);
+	}
+}
+
+void reset_bullet(int i) {
+	struct Bullet *b;
+	printf("freeing bullet\n");
+	body[BODIES + PLAYER_MAX + i].position.x = -5000.0;
+	body[BODIES + PLAYER_MAX + i].position.y = -5000.0;
+	body[BODIES + PLAYER_MAX + i].velocity.x = 0.0;
+	body[BODIES + PLAYER_MAX + i].velocity.y = 0.0;
+	body[BODIES + PLAYER_MAX + i].force.x = 0.0;
+	body[BODIES + PLAYER_MAX + i].force.y = 0.0;
+	body[BODIES + PLAYER_MAX + i].mass = 0.01;
+	body[BODIES + PLAYER_MAX + i].radius = 0.001;
+	body[BODIES + PLAYER_MAX + i].movable = false;
+	body[BODIES + PLAYER_MAX + i].sprite = 64 + 16;
+	
+	b = malloc(sizeof(struct Bullet));
+	b->body = i;
+	b->timer = 0;
+	b->next = bullet_free;
+	bullet_free = b;
+}
 
 void server_start() {
-	Packet p;
 	int i;
 	
 	/*Of doom*/
-	set_planet(8, 0, 1.0, 1, 10000.0, 0.1);
-	set_planet(9, 0, 2.0, 1, 10000.0, 0.1);
-	set_planet(10, 2, 1.0, 1, 10000.0, 0.1);
-	set_planet(11, 2, 2.0, 1, 10000.0, 0.1);
-	set_planet(12, 3, 1.0, 1, 10000.0, 0.1);
-	set_planet(13, 4, 1.0, 1, 10000.0, 0.1);
-	set_planet(14, 4, 2.0, 1, 10000.0, 0.1);
-	set_planet(15, 4, 3.0, 1, 10000.0, 0.1);
-	set_planet(16, 5, 1.0, 1, 10000.0, 0.1);
-	set_planet(17, 6, 1.0, 1, 10000.0, 0.1);
-	set_planet(18, 6, 2.0, 1, 10000.0, 0.1);
-	set_planet(19, 6, 3.0, 1, 10000.0, 0.1);
-	set_planet(20, 6, 4.0, 1, 10000.0, 0.1);
-	set_planet(21, 7, 1.0, 1, 10000.0, 0.1);
-	set_planet(22, 7, 2.0, 1, 10000.0, 0.1);
-	set_planet(23, 7, 3.0, 1, 10000.0, 0.1);
+	set_planet(8, 0, -3.0, 1, 10000.0, 0.25);
+	set_planet(9, 0, -4.0, 1, 10000.0, 0.25);
+	set_planet(10, 2, 3.0, 1, 10000.0, 0.25);
+	set_planet(11, 2, 2.0, 1, 10000.0, 0.25);
+	set_planet(12, 3, 3.0, 1, 10000.0, 0.25);
+	set_planet(13, 4, 3.0, 1, 10000.0, 0.25);
+	set_planet(14, 4, 2.0, 1, 10000.0, 0.25);
+	set_planet(15, 4, 3.0, 1, 10000.0, 0.25);
+	set_planet(16, 5, 3.0, 1, 10000.0, 0.25);
+	set_planet(17, 6, 5.0, 1, 10000.0, 0.25);
+	set_planet(18, 6, 2.0, 1, 10000.0, 0.25);
+	set_planet(19, 6, 3.0, 1, 10000.0, 0.25);
+	set_planet(20, 6, 4.0, 1, 10000.0, 0.25);
+	set_planet(21, 7, 4.0, 1, 10000.0, 0.25);
+	set_planet(22, 7, 2.0, 1, 10000.0, 0.25);
+	set_planet(23, 7, 3.0, 1, 10000.0, 0.25);
 
+	set_planet(24, 0, 101.0, 74, 10000.0, 0.1);
+	set_planet(25, 0, 102.0, 74, 10000.0, 0.1);
+	set_planet(26, 0, 103.0, 74, 10000.0, 0.1);
+	set_planet(27, 0, 104.0, 74, 10000.0, 0.1);
+	set_planet(28, 0, 105.0, 74, 10000.0, 0.1);
+	set_planet(29, 0, 106.0, 74, 10000.0, 0.1);
+	set_planet(30, 0, 107.0, 74, 10000.0, 0.1);
+	set_planet(31, 0, 108.0, 74, 10000.0, 0.1);
+	set_planet(32, 0, 109.0, 74, 10000.0, 0.1);
+	set_planet(33, 0, 110.0, 74, 10000.0, 0.1);
+	set_planet(34, 0, 111.0, 74, 10000.0, 0.1);
+	set_planet(35, 0, 112.0, 74, 10000.0, 0.1);
+	set_planet(36, 0, 113.0, 74, 10000.0, 0.1);
+	set_planet(37, 0, 114.0, 74, 10000.0, 0.1);
+	set_planet(38, 0, 115.0, 74, 10000.0, 0.1);
+	set_planet(39, 0, 116.0, 74, 10000.0, 0.1);
+
+	
+	for(i = 0; i < BULLETS; i++) {
+		reset_bullet(i);
+	}
 	
 	pthread_t serber;
 	pthread_create(&serber, NULL, server_main, NULL);
@@ -298,12 +419,8 @@ void server_packet_dispatch(Packet p, unsigned long addr) {
 		p.lobby.begin = 6;
 		network_send(addr, &p, sizeof(Packet));
 		
-		double vel;
-		Body b;
-		b.position.x = 0.0;
-		b.position.y = 1.0;
-		vel = sqrt(G*(body[0].mass + 1.0)/DIST(body[0], b));
-		player_add(addr, 0.0, 1.0, -vel, 0.0, p.lobby.name);
+		player_add(addr, 0, 3.0, p.lobby.name);
+		
 		init = true;
 	} else {
 		player_thread(p, addr);

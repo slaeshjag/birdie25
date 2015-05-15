@@ -17,7 +17,7 @@ extern Body body[];
 
 Player *player_add(unsigned long addr, int home, double spawn_height, const char *pname) {
 	Player *p;
-	p = malloc(sizeof(Player));
+	p = calloc(1, sizeof(Player));
 	p->addr = addr;
 	p->id = BODIES + players;
 	p->body = body + BODIES + players;
@@ -53,6 +53,7 @@ void player_broadcast_package(Packet pack) {
 
 void player_thread(Packet pack, unsigned long addr) {
 	Player *p;
+	int i;
 	
 //	for(;;) {
 		switch(pack.type) {
@@ -71,6 +72,36 @@ void player_thread(Packet pack, unsigned long addr) {
 				
 				if (pack.client.button.beam) {
 					player_attach_asteroid(p);
+				}
+				
+				for(i = 0; i < 3; i++)
+					if(p->cooldown[i] > 0)
+						p->cooldown[i]--;
+				
+				while(!p->cooldown[p->cooldown_current] && p->cooldown_current > 0)
+					p->cooldown_current--;
+				
+				if(!pack.client.button.shoot)
+					p->pressed = false;
+				
+				if(pack.client.button.shoot && !p->cooldown[p->cooldown_current] && !p->pressed) {
+					Point dir;
+					int i;
+					dir.x = BULLET_SPEED * cos(p->body->angle);
+					dir.y = -BULLET_SPEED * sin(p->body->angle);
+					i = alloc_bullet();
+					
+					body[BODIES + PLAYER_MAX + i].position.x = p->body->position.x;
+					body[BODIES + PLAYER_MAX + i].position.y = p->body->position.y;
+					body[BODIES + PLAYER_MAX + i].velocity.x = dir.x;
+					body[BODIES + PLAYER_MAX + i].velocity.y = dir.y;
+					body[BODIES + PLAYER_MAX + i].movable = true;
+					body[BODIES + PLAYER_MAX + i].sprite = 64 + 16;
+					p->cooldown[p->cooldown_current] = 100;
+					p->cooldown_current++;
+					if(p->cooldown_current >= 3)
+						p->cooldown_current = 3;
+					p->pressed = true;
 				}
 				
 				p->body->tractor_beam = pack.client.button.beam;

@@ -4,6 +4,7 @@
 #include "lobby.h"
 #include <protocol.h>
 #include <network.h>
+#include <string.h>
 
 Lobby lobby;
 
