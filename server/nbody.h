@@ -27,6 +27,7 @@ struct Body {
 	Point accel;
 	double da;
 	double mass;
+	double radius;
 	double angle;
 	bool movable;
 	uint32_t sprite;

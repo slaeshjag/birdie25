@@ -16,11 +16,49 @@
 #include "nbody.h"
 #include "main.h"
 
+
+bool ball_collision_handled(Body *body, int n, int ball, Point deltap, Point deltav) {
+	int i;
+
+	for (i = 0; i < n; i++) {
+		double distance, dx, dy;
+
+		if (i == ball)
+			continue;
+		distance = body[ball].radius + body[i].radius;
+		dx = body[ball].position.x + deltap.x - body[i].position.x;
+		dy = body[ball].position.y + deltap.y - body[i].position.y;
+		if (dx * dx + dy * dy > distance * distance)
+			continue;
+		
+		double vx1, vx2, vy1, vy2, cvx, cvy;
+
+		cvx = deltap.x + body[ball].velocity.x;
+		cvy = deltap.y + body[ball].velocity.y;
+
+		vx1 = (cvx * (body[ball].mass - body[i].mass) + 2 * body[i].mass * body[i].velocity.x) / (body[ball].mass + body[i].mass);
+		vx2 = (body[i].velocity.x * (body[i].mass - body[ball].mass) + 2 * body[ball].mass * cvx) / (body[ball].mass + body[i].mass);
+		vy1 = (cvx * (body[ball].mass - body[i].mass) + 2 * body[i].mass * body[i].velocity.x) / (body[ball].mass + body[i].mass);
+		vy2 = (body[i].velocity.x * (body[i].mass - body[ball].mass) + 2 * body[ball].mass * cvx) / (body[ball].mass + body[i].mass);
+		body[ball].velocity.x = vx1;
+		body[ball].velocity.y = vy1;
+		body[i].velocity.x = vx2;
+		body[i].velocity.y = vy1;
+		
+		return true;
+	}
+
+	return false;
+}
+
+
+
 /**
  * Calculate the force vectors for an array of bodies
  * @param body The array of bodies to be processed
  * @param n Size of the body array
  */
+
 void nbody_calc_forces(Body *body, int n) {
 	int i, j;
 	double distance, magnitude;
@@ -64,6 +102,10 @@ void nbody_move_bodies(Body *body, int n, double dt) {
 		
 		body[i].velocity.x += deltav.x;
 		body[i].velocity.y += deltav.y;
+		
+		if (ball_collision_handled(body, n, i, deltap, deltav))
+			continue;
+
 		if (body[i].position.x + deltap.x > WIDTH) {
 			body[i].position.x = WIDTH;
 			body[i].velocity.x *= -1;
