@@ -76,6 +76,7 @@ void handle_player() {
 	p.client.button.shoot = d_keys_get().r;
 
 	network_send(sip, &p, sizeof(Packet));
+
 /*
 	if (mx > 0)
 		angle = (M_PI * 2.) - angle;*/
@@ -161,6 +162,8 @@ void player_draw_icon_autoedge(int icon, int x, int y) {
 			} else {
 				intersection *= ((double) d_platform_get().screen_w) / 2.;
 			}
+
+			
 	}
 }
 

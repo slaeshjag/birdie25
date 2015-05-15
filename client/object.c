@@ -56,10 +56,12 @@ void object_update(int id, double x, double y, double angle) {
 	xi = x * CLIENT_OBJECT_COORD_SCALE;
 	yi = y * CLIENT_OBJECT_COORD_SCALE;
 	ai = (angle / M_PI * 1800);
+
+	object_get_coord(id, &arne, &goesta, &gw, &gh);
+	
 	xi -= gw / 2;
 	yi -= gh / 2;
 	
-	object_get_coord(id, &arne, &goesta, &gw, &gh);
 	if (obj[id].sprite) {
 		d_sprite_rotate(obj[id].pic.sprite, ai);
 		d_sprite_move(obj[id].pic.sprite, xi, yi);
