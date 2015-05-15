@@ -20,6 +20,12 @@ void game_init() {
 	d_tilemap_recalc(map);
 }
 
+extern struct {
+	int		x;
+	int		y;
+	int		focus_object;
+} camera;
+
 void game_render() {
 	double x, y;
 	int pl;
@@ -32,5 +38,6 @@ void game_render() {
 	handle_player();
 	object_draw();
 	pre_simulation_draw();
+	object_draw_world_border();
 	player_draw_hud();
 }

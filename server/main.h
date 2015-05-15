@@ -8,7 +8,6 @@
 #define PRE_SIMULATIONS 20
 
 #define WIDTH 100
-#define HEIGHT 100
 
 typedef struct Client Client;
 struct Client {

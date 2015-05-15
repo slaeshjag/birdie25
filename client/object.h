@@ -28,6 +28,7 @@ void object_get_coord(int id, int *x, int *y, int *w, int *h);
 void object_draw();
 void *object_thread(void *arne);
 void *object_get_icons();
+void object_draw_world_border();
 
 
 #endif

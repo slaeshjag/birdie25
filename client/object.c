@@ -28,6 +28,7 @@ static DARNIT_POINT *pre_simulation_point;
 
 static double object_scale;
 double coordinate_scale;
+static double map_width;
 
 void object_get_coord(int id, int *x, int *y, int *w, int *h);
 extern bool we_are_hosting_a_game;
@@ -241,4 +242,28 @@ void object_draw_tractor_beam(double x, double y, double angle, double length) {
 
 	d_render_line_draw(dl, ni);
 	d_render_line_free(dl);
+}
+
+
+void object_draw_world_border() {
+	double world_w;
+	DARNIT_LINE *dl;
+
+	d_render_tint(255, 0, 0, 255);
+	world_w = coordinate_scale * map_width;
+	dl = d_render_line_new(4, 5);
+	d_render_line_move(dl, 0, -world_w, -world_w, world_w, -world_w);
+	d_render_line_move(dl, 1, world_w, -world_w, world_w, world_w);
+	d_render_line_move(dl, 2, world_w, world_w, -world_w, world_w);
+	d_render_line_move(dl, 3, -world_w, world_w, -world_w, -world_w);
+	d_render_line_draw(dl, 4);
+	d_render_line_free(dl);
+	d_render_tint(255, 255, 255, 255);
+
+	return;
+}
+
+
+void object_init_border(double world_w) {
+	map_width = world_w;
 }

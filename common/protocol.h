@@ -29,8 +29,8 @@ struct PacketSetup {
 	
 	uint32_t id;
 	uint32_t objects;
-	double width;
-	double height;
+//	double width;
+	double map_width;
 	uint32_t pre_simulations;
 };
 

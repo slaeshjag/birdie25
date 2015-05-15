@@ -11,8 +11,10 @@
 #include <time.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <protocol.h>
 #include <math.h>
 #include "nbody.h"
+#include "main.h"
 
 /**
  * Calculate the force vectors for an array of bodies
@@ -62,8 +64,25 @@ void nbody_move_bodies(Body *body, int n, double dt) {
 		
 		body[i].velocity.x += deltav.x;
 		body[i].velocity.y += deltav.y;
-		body[i].position.x += deltap.x;
-		body[i].position.y += deltap.y;
+		if (body[i].position.x + deltap.x > WIDTH) {
+			body[i].position.x = WIDTH;
+			body[i].velocity.x *= -1;
+		} else if (body[i].position.x + deltap.x < -WIDTH) {
+			body[i].position.x = -WIDTH;
+			body[i].velocity.x *= -1;
+		} else {
+			body[i].position.x += deltap.x;
+		}
+		if (body[i].position.y + deltap.y > WIDTH) {
+			body[i].position.y = WIDTH;
+			body[i].velocity.y *= -1;
+		} else if (body[i].position.y + deltap.y < -WIDTH) {
+			body[i].position.y = -WIDTH;
+			body[i].velocity.y *= -1;
+		} else {
+			body[i].position.y += deltap.y;
+		}
+
 		out:
 		body[i].force.x = 0.0;
 		body[i].force.y = 0.0;

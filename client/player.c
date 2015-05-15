@@ -7,7 +7,7 @@
 #include "main.h"
 #include <common_math.h>
 
-static struct {
+struct {
 	int		x;
 	int		y;
 	int		focus_object;
@@ -58,6 +58,7 @@ void handle_camera() {
 	camera.x = x + (w / 2) - (plat.screen_w / 2);
 	camera.y = y + (h / 2) - (plat.screen_h / 2);
 
+//	fprintf(stderr, "Camera is now at %i %i\n", camera.x, camera.y);
 	d_render_offset(camera.x, camera.y);
 }
 
@@ -117,11 +118,10 @@ void player_draw_nametag(const char *name, int color, int x, int y) {
 	DARNIT_LINE *dl;
 	DARNIT_RECT *dr;
 
+	d_render_offset(camera.x, camera.y);
 	d_render_tint(0, 0, 0, 255);
 	/* TODO: Look up string geometrics */
-	dt = d_text_surface_new(gfx.font.small, 20, 800, x+4, y+4);
 	font_h = d_font_string_geometrics(gfx.font.small, name, 1000, &font_w);
-	d_text_surface_string_append(dt, (char *) name);
 
 	dr = d_render_rect_new(1);
 	dl = d_render_line_new(4, 1);
@@ -140,9 +140,13 @@ void player_draw_nametag(const char *name, int color, int x, int y) {
 	d_render_line_draw(dl, 4);
 	d_render_line_free(dl);
 
+	d_render_offset(camera.x, camera.y);
 	/* TODO: Look up font */
+	dt = d_text_surface_new(gfx.font.small, 20, 800, x+4, y+4);
+	d_text_surface_string_append(dt, (char *) name);
 	d_text_surface_draw(dt);
 	d_text_surface_free(dt);
+	d_render_offset(camera.x, camera.y);
 	d_render_tint(255, 255, 255, 255);
 	
 	return;
