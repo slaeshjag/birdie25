@@ -15,7 +15,8 @@ struct ClientObject {
 	double			dx;
 	double			dy;
 	int			angle;
-
+	
+	double			tractor_beam;
 	bool			sprite;
 	union {
 		DARNIT_TILE	*tile;

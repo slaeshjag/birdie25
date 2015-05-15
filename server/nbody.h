@@ -31,6 +31,7 @@ struct Body {
 	double angle;
 	double energy;
 	bool movable;
+	bool tractor_beam;
 	struct {
 		int obj;
 		double angle;

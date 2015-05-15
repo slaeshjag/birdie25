@@ -134,8 +134,7 @@ void object_draw() {
 
 	for (i = 0; i < objs; i++) {
 		if (obj[i].sprite) {
-			if (i == player_get() && display_tractor_beam)
-				object_draw_tractor_beam(obj[i].dx, -obj[i].dy, obj[i].angle, 3.0 * power);
+			object_draw_tractor_beam(obj[i].dx, -obj[i].dy, obj[i].angle, 3.0 * obj[i].tractor_beam);
 			d_sprite_draw(obj[i].pic.sprite);
 			//player_draw_nametag("Arne", 0, obj[i].x + 32, obj[i].y - 16);
 		} else
@@ -209,6 +208,10 @@ void *object_thread(void *arne) {
 				power = pack.player.energy;
 				thrust = pack.player.accel;
 				velocity = pack.player.velocity;
+				break;
+			case PACKET_TYPE_AUX_PLAYER:
+				obj[pack.auxplayer.id].tractor_beam = pack.auxplayer.tractor_beam;
+				break;
 		}
 	}
 }
