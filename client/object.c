@@ -13,7 +13,7 @@
 #define SUP2(x) ((x)*(x))
 #define DIST(b1, b2) sqrt(SUP2((b1).dx - (b2).dx) + SUP2((b1).dy - (b2).dy))
 
-static struct ClientObject *obj;
+struct ClientObject *obj;
 int objs;
 static DARNIT_TILESHEET *planets;
 static DARNIT_TILESHEET *icons;
@@ -27,7 +27,7 @@ static struct PreSimulation {
 static DARNIT_POINT *pre_simulation_point;
 
 static double object_scale;
-static double coordinate_scale;
+double coordinate_scale;
 
 void object_get_coord(int id, int *x, int *y, int *w, int *h);
 extern bool we_are_hosting_a_game;
