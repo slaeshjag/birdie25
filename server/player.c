@@ -6,6 +6,7 @@
 #include <string.h>
 #include <network.h>
 #include <protocol.h>
+#include <common_math.h>
 #include "player.h"
 #include "main.h"
 
@@ -93,4 +94,40 @@ void player_thread(Packet pack, unsigned long addr) {
 //	}
 	
 //	return NULL;
+}
+
+
+bool player_check_coordinate_tractor_beam(double trac_x, double trac_y, double angle, double length, double point_x, double point_y) {
+	double dx, dy, da, a1, a2;
+
+	dx = point_x - trac_x;
+	dy = point_y - trac_y;
+	if (dx*dx + dy*dy >= length*length)
+		return false;
+
+	da = math_delta_to_angle(dx, dy);
+	a1 = angle - M_PI_4;
+	a2 = angle + M_PI_4;
+
+	if (a1 < 0) {
+		a1 += 360;
+		if (da < a1)
+			return false;
+		if (da > a2)
+			return false;
+		return true;
+	} else if (a2 >= 360) {
+		a2 -= 360;
+		if (da < a2)
+			return false;
+		if (da > a1)
+			return false;
+		return true;
+	} else {
+		if (da < a1)
+			return false;
+		if (da > a2)
+			return false;
+		return true;
+	}
 }
