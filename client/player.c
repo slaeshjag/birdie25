@@ -24,6 +24,7 @@ double velocity;
 
 extern struct ClientObject *obj;
 extern double coordinate_scale;
+bool display_tractor_beam = false;
 
 struct {
 	DARNIT_CIRCLE *ring;
@@ -111,6 +112,7 @@ void handle_player() {
 	p.client.button.forward = d_keys_get().y;
 	p.client.button.backward = d_keys_get().x;
 	p.client.button.shoot = d_keys_get().r;
+	display_tractor_beam = p.client.button.beam;
 
 	network_send(sip, &p, sizeof(Packet));
 
