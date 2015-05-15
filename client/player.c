@@ -14,8 +14,12 @@ struct {
 } camera;
 
 static DARNIT_TILE *powermeter;
+static DARNIT_TILE *velocitymeter;
+static DARNIT_TILE *thrustmeter;
 static DARNIT_TILESHEET *powerts;
 static double power;
+static double thrust;
+static double velocity;
 
 extern struct ClientObject *obj;
 extern double coordinate_scale;
@@ -37,6 +41,8 @@ void camera_init(int focus_object) {
 void load_player_stuff_once() {
 	powerts = d_render_tilesheet_load("res/powermeter.png", 256, 32, DARNIT_PFORMAT_RGBA8);
 	powermeter = d_render_tile_new(2, powerts);
+	velocitymeter = d_render_tile_new(2, powerts);
+	thrustmeter = d_render_tile_new(2, powerts);
 	compass.ring = d_render_circle_new(30, 2);
 	compass.x = DISPLAY_WIDTH - 60;
 	compass.y = 60;
@@ -210,7 +216,12 @@ void player_draw_icon_autoedge(int icon, int x, int y) {
 
 int player_draw_hud() {
 	char text[32];
+
+	/* Remove to activate meters */
 	power = 0.5;
+	thrust = 0.75;
+	velocity = 0.50;
+
 	d_render_offset(0,0);
 	d_render_tile_set(powermeter, 0, 0);
 	d_render_tile_set(powermeter, 1, 1);
@@ -221,6 +232,26 @@ int player_draw_hud() {
 	d_render_tile_tilesheet_coord_set(powermeter, 0, 0, 0, power * 256, 32);
 	d_render_tile_tilesheet_coord_set(powermeter, 1, power * 256, 32, 256 - power * 256, 32);
 	d_render_tile_draw(powermeter, 2);
+	
+	d_render_tile_set(velocitymeter, 0, 2);
+	d_render_tile_set(velocitymeter, 1, 3);
+	d_render_tile_move(velocitymeter, 0, 0, 40);
+	d_render_tile_move(velocitymeter, 1, velocity * 256, 40);
+	d_render_tile_size_set(velocitymeter, 0, velocity * 256, 32);
+	d_render_tile_size_set(velocitymeter, 1, 256 - velocity * 256, 32);
+	d_render_tile_tilesheet_coord_set(velocitymeter, 0, 0, 64, velocity * 256, 32);
+	d_render_tile_tilesheet_coord_set(velocitymeter, 1, velocity * 256, 96, 256 - velocity * 256, 32);
+	d_render_tile_draw(velocitymeter, 2);
+	
+	d_render_tile_set(thrustmeter, 0, 4);
+	d_render_tile_set(thrustmeter, 1, 5);
+	d_render_tile_move(thrustmeter, 0, 0, 80);
+	d_render_tile_move(thrustmeter, 1, thrust * 256, 80);
+	d_render_tile_size_set(thrustmeter, 0, thrust * 256, 32);
+	d_render_tile_size_set(thrustmeter, 1, 256 - thrust * 256, 32);
+	d_render_tile_tilesheet_coord_set(thrustmeter, 0, 0, 128, thrust * 256, 32);
+	d_render_tile_tilesheet_coord_set(thrustmeter, 1, thrust * 256, 160, 256 - thrust * 256, 32);
+	d_render_tile_draw(thrustmeter, 2);
 	
 	d_render_circle_draw(compass.ring);
 	
