@@ -135,7 +135,7 @@ void object_draw() {
 	for (i = 0; i < objs; i++) {
 		if (obj[i].sprite) {
 			if (i == player_get())
-				object_draw_tractor_beam(obj[i].dx, -obj[i].dy, obj[i].angle, 1.0);
+				object_draw_tractor_beam(obj[i].dx, -obj[i].dy, obj[i].angle, 4.0);
 			d_sprite_draw(obj[i].pic.sprite);
 			//player_draw_nametag("Arne", 0, obj[i].x + 32, obj[i].y - 16);
 		} else
@@ -220,19 +220,19 @@ void object_draw_tractor_beam(double x, double y, double angle, double length) {
 	angle *= -1;
 	angle += M_PI;
 
-	n = length / 0.1;
-	t = d_time_get() % 100;
-	td = (double) t / 100*-1;
+	n = length / 0.2;
+	t = d_time_get() % 200;
+	td = (double) t / 200*-1;
 	ni = n;
 	
 	dl = d_render_line_new(ni, 1);
 
 	for (i = 0; i < ni; i++) {
 		double x1, y1, x2, y2, ami, ama;
-		ami = angle - M_PI/8;
-		ama = angle + M_PI/8;
-		x1 = cos(ami) * (0.1 * i + td/10), y1 = sin(ami) * (0.1 * i + td/10);
-		x2 = cos(ama) * (0.1 * i + td/10), y2 = sin(ama) * (0.1 * i + td/10);
+		ami = angle - M_PI/10;
+		ama = angle + M_PI/10;
+		x1 = cos(ami) * (0.2 * i + td/5), y1 = sin(ami) * (0.2 * i + td/5);
+		x2 = cos(ama) * (0.2 * i + td/5), y2 = sin(ama) * (0.2 * i + td/5);
 
 		x1 += x, x2 += x;
 		y1 += y, y2 += y;
