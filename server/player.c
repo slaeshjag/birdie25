@@ -88,8 +88,8 @@ void player_thread(Packet pack, unsigned long addr) {
 				if(d_time_get() - p->last_press >= 340 && pack.client.button.shoot && !p->pressed) {
 					Point dir;
 					int i;
-					if (p->body->energy >= 0.02)
-						p->body->energy -= 0.01;
+					if (p->body->energy >= 0.05)
+						p->body->energy -= 0.05;
 					else goto noshoot;
 					p->last_press = d_time_get();
 					dir.x = BULLET_SPEED * cos(p->body->angle);

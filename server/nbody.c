@@ -36,7 +36,7 @@ bool ball_collision_handled(Body *body, int n, int ball, Point deltap, Point del
 		
 		if (body[ball].sprite >= 64 && body[ball].sprite < 73) {
 			if ((ball > BULLET_START) && (ball < BULLET_START + BULLETS)) {
-				body[i].energy -= 0.1;
+				body[i].energy -= 0.2;
 			} else {
 				double dv, dvx, dvy;
 				dvx = body[ball].velocity.x - body[i].velocity.x;
@@ -158,7 +158,7 @@ void nbody_move_bodies(Body *body, int n, double dt) {
 			goto out;
 		}
 		if (body[i].sprite >= 64 && body[i].sprite < 73) {
-			body[i].energy += 0.0001;
+			body[i].energy += 0.0003;
 			if (body[i].energy > 1.0)
 				body[i].energy = 1.0;
 		}
