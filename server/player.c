@@ -197,12 +197,12 @@ void player_attach_asteroid(Player *p) {
 				continue;
 
 			double dx, dy;
-			dx = -(trac_x - body[i].position.x);
-			dy = -(trac_y - body[i].position.y);
+			dx = (body[i].position.x - trac_x);
+			dy = (body[i].position.y - trac_y);
 			body[i].tract.parked = false;
 			body[i].tract.obj = p->id;
 			body[i].tract.distance = sqrt(dx*dx+dy*dy);
-			body[i].tract.angle = math_delta_to_angle(dx, dy);
+			body[i].tract.angle = math_delta_to_angle(dx, -dy);
 		} else
 			continue;
 	}

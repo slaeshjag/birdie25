@@ -10,3 +10,4 @@ bin/
 *.res
 *.elf
 *.dll
+.deps

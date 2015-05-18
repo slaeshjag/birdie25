@@ -19,36 +19,49 @@ ASFLAGS		+=
 LDFLAGS		+=	
 
 # Sub directories to build
-SUBDIRS		=	
+SUBDIRS		=	$(foreach dir,$(wildcard */Makefile),$(dir $(dir)))
 
-LIBS		=	$(addsuffix /out.a,$(SUBDIRS))
+LIBS		=	$(addsuffix $(OUTFILE),$(SUBDIRS))
+
+DEPDIR = .deps
+df = $(DEPDIR)/$(*F)
 
 .PHONY: all clean
 .PHONY: $(SUBDIRS)
 
-all: $(OBJFILES) $(DEPENDS) $(SUBDIRS)
-	@echo " [ AR ] $(CURRENTPATH)$(OUTFILE)"
-	@$(RM) $(OUTFILE)
-	@$(AR) -cqT $(OUTFILE) $(OBJFILES) $(LIBS)
+all: $(OUTFILE)
 	@echo
 	@echo "Done."
 	@echo
-	
+
 clean: $(SUBDIRS)
 	@echo
-	@echo " [ RM ] $(OBJFILES) $(BINFILE)"
-	@$(RM) $(OBJFILES) $(BINFILE)
+	@echo " [ RM ] $(OBJFILES) $(OUTFILE)"
+	@$(RM) $(OBJFILES) $(OUTFILE)
+	@$(RM) -R $(DEPDIR)
 	@echo "Done."
 	@echo 
 
-$(SUBDIRS):
-	@echo " [ CD ] $(CURRENTPATH)$@/"
-	@+make -C "$@" "CURRENTPATH=$(CURRENTPATH)$@/" $(MAKECMDGOALS)
+$(OUTFILE): $(OBJFILES) $(SUBDIRS)
+	@echo " [ AR ] $(CURRENTPATH)$(OUTFILE)"
+	@$(AR) -cmT $(OUTFILE) $(OBJFILES) $(LIBS)
 
-%.c.o: %.c
+$(SUBDIRS):
+	@echo " [ CD ] $(CURRENTPATH)$@"
+	@+make -C "$@" "CURRENTPATH=$(CURRENTPATH)$@" $(MAKECMDGOALS)
+
+$(DEPDIR):
+	@mkdir -p $@
+
+%.c.o: %.c | $(DEPDIR)
 	@echo " [ CC ] $(CURRENTPATH)$<"
-	@$(CC) -c $(CFLAGS) -o $@ $<
+	@$(CC) -c $(CFLAGS) -MD -o $@ $<
+	@cp $*.c.d $(df).c.P; sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' -e '/^$$/ d' -e 's/$$/ :/' < $*.c.d >> $(df).c.P; $(RM) $*.c.d
 	
-%.S.o: %.S
+%.S.o: %.S | $(DEPDIR)
 	@echo " [ AS ] $(CURRENTPATH)$<"
-	@$(CC) -c $(ASFLAGS) -o $@ $<
+	@$(CC) -c $(ASFLAGS) -MD -o $@ $<
+	@cp $*.S.d $(df).S.P; sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' -e '/^$$/ d' -e 's/$$/ :/' < $*.S.d >> $(df).S.P; $(RM) $*.S.d
+
+-include $(SRCFILES:%.c=$(DEPDIR)/%.c.P)
+-include $(ASMFILES:%.S=$(DEPDIR)/%.S.P)
