@@ -232,7 +232,7 @@ void *object_thread(void *arne) {
 				obj[pack.auxplayer.id].tractor_beam = pack.auxplayer.tractor_beam;
 				//fprintf(stderr, "Score for %s: %i\n", pack.auxplayer.name, pack.auxplayer.score);
 				iddd = pack.auxplayer.id - BODIES;
-				if(!playerlist[pack.auxplayer.id].name) {
+				if(!playerlist[iddd].name) {
 //					fprintf(stderr, "Score for %s: %i\n", pack.auxplayer.name, pack.auxplayer.score);
 					playerlist[iddd].name = strdup(pack.auxplayer.name);
 					playerlist[iddd].id = pack.auxplayer.id;
